@@ -540,7 +540,7 @@ if Blind and Blind.defeat then
                 botg_offer_familiar()
             end
 
-            if possess_joker and pseudorandom('botg_possession_drop') < 0.30 and G.jokers and G.jokers.cards then
+            if possess_joker and pseudorandom('botg_possession_drop') < 0.05 and G.jokers and G.jokers.cards then
                 local unpossessed = {}
                 for _, j in ipairs(G.jokers.cards) do
                     if not (j.ability and j.ability.possessed) then unpossessed[#unpossessed + 1] = j end

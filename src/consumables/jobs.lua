@@ -84,53 +84,6 @@ local function clear_card_jobs(card)
     end
 end
 
-SMODS.Sticker {
-    key = "gardener_job",
-    atlas = "job_stickers",
-    pos = { x = 0, y = 0 },
-    badge_colour = HEX('27ae60'),
-    prefix_config = { key = false },
-    sets = { Default = true, Enhanced = true },
-    rate = 0,
-    needs_enable_flag = false,
-    loc_txt = {
-        name = 'Gardener',
-        label = 'Gardener',
-        text = {
-            "When discarding this card, permanently adds",
-            "{C:chips}+2{} base Chips to all cards",
-            "of the same suit in full deck"
-        }
-    },
-    calculate = function(self, card, context)
-        if context.discard and context.other_card == card then
-            local suit = card.base and card.base.suit
-            if suit and G.playing_cards then
-                for _, c in ipairs(G.playing_cards) do
-                    if c:is_suit(suit) or (c.base and c.base.suit == suit) then
-                        c.ability = c.ability or {}
-                        c.ability.perma_bonus = (c.ability.perma_bonus or 0) + 2
-                    end
-                end
-                if G.hand and G.hand.cards then
-                    for _, c in ipairs(G.hand.cards) do
-                        if c ~= card and (c:is_suit(suit) or (c.base and c.base.suit == suit)) then
-                            c:juice_up(0.3, 0.3)
-                        end
-                    end
-                end
-                play_sound('chips1')
-                local suit_name = (localize and localize(suit, 'suits_plural')) or suit
-                local chip_msg = '+2 Chips (' .. suit_name .. ')!'
-                return {
-                    message = chip_msg,
-                    colour = G.C.CHIPS,
-                    card = card
-                }
-            end
-        end
-    end
-}
 
 SMODS.Sticker {
     key = "detective_job",
@@ -233,106 +186,6 @@ SMODS.Sticker {
     end
 }
 
-SMODS.Sticker {
-    key = "archaeologist_job",
-    atlas = "job_stickers",
-    pos = { x = 3, y = 0 },
-    badge_colour = HEX('d35400'),
-    prefix_config = { key = false },
-    sets = { Default = true, Enhanced = true },
-    rate = 0,
-    needs_enable_flag = false,
-    loc_txt = {
-        name = 'Archaeologist',
-        label = 'Archaeologist',
-        text = {
-            "When scoring on final hand of round,",
-            "recovers 1 discarded card with",
-            "an edition ({C:dark_edition}Foil{}, {C:dark_edition}Holo{}, {C:dark_edition}Poly{})"
-        }
-    },
-    calculate = function(self, card, context)
-        if (context.main_scoring or context.individual) and context.cardarea == G.play then
-            if G.GAME and G.GAME.current_round and G.GAME.current_round.hands_left == 0 and not card.ability.archaeologist_triggered_this_hand then
-                card.ability.archaeologist_triggered_this_hand = true
-                if G.discard and G.discard.cards and #G.discard.cards > 0 then
-                    local rescued = pseudorandom_element(G.discard.cards, pseudoseed('archaeologist_rescue'))
-                    if rescued and G.hand then
-                        draw_card(G.discard, G.hand, 100, 'up', nil, rescued)
-                        local edition_choices = {
-                            { foil = true },
-                            { holo = true },
-                            { polychrome = true }
-                        }
-                        local chosen_ed = pseudorandom_element(edition_choices, pseudoseed('archaeologist_ed'))
-                        rescued:set_edition(chosen_ed, true)
-                        return {
-                            message = 'Excavated!',
-                            colour = G.C.GOLD,
-                            card = card
-                        }
-                    end
-                end
-            end
-        end
-        if context.after or context.end_of_round then
-            card.ability.archaeologist_triggered_this_hand = nil
-        end
-    end
-}
-
-SMODS.Sticker {
-    key = "miner_job",
-    atlas = "job_stickers",
-    pos = { x = 4, y = 0 },
-    badge_colour = HEX('d35400'),
-    prefix_config = { key = false },
-    sets = { Default = true, Enhanced = true },
-    rate = 0,
-    needs_enable_flag = false,
-    loc_txt = {
-        name = 'Miner',
-        label = 'Miner',
-        text = {
-            "When scored, digs deep:",
-            "Grants {C:money}+$1{} to {C:money}+$3{} instantly.",
-            "{C:green}1 in 8{} chance to find a Gem ({C:chips}+50 Chips{})",
-            "or unearth a random consumable directly into inventory"
-        }
-    },
-    calculate = function(self, card, context)
-        if (context.main_scoring or context.individual) and context.cardarea == G.play then
-            local cash = pseudorandom('miner_cash', 1, 3)
-            ease_dollars(cash)
-
-            local roll = pseudorandom('miner_gem', 1, 8)
-            if roll == 1 then
-                if G.consumeables and #G.consumeables.cards < G.consumeables.config.card_limit then
-                    SMODS.add_card { set = 'Tarot', key_append = 'miner_dig' }
-                    play_sound('tarot2')
-                    return {
-                        message = 'Unearthed Consumable! (+$' .. cash .. ')',
-                        colour = G.C.GOLD,
-                        card = card
-                    }
-                else
-                    return {
-                        chips = 50,
-                        message = 'Gem Unearthed! +50 Chips (+$' .. cash .. ')',
-                        colour = HEX('d35400'),
-                        card = card
-                    }
-                end
-            end
-
-            return {
-                message = '+$' .. cash .. ' Mined',
-                colour = G.C.GOLD,
-                card = card
-            }
-        end
-    end
-}
 
 SMODS.Sticker {
     key = "jeweler_job",
@@ -379,58 +232,6 @@ SMODS.Sticker {
     end
 }
 
-SMODS.Sticker {
-    key = "apothecary_job",
-    atlas = "job_stickers",
-    pos = { x = 1, y = 1 },
-    badge_colour = HEX('27ae60'),
-    prefix_config = { key = false },
-    sets = { Default = true, Enhanced = true },
-    rate = 0,
-    needs_enable_flag = false,
-    loc_txt = {
-        name = 'Apothecary',
-        label = 'Apothecary',
-        text = {
-            "When discarded, {C:green}cleanses debuffs{}",
-            "from all cards currently in hand and reduces",
-            "Blind requirement by {C:attention}4%{} {C:inactive}(Max 20%/rnd){}"
-        }
-    },
-    calculate = function(self, card, context)
-        if context.discard and context.other_card == card then
-            G.GAME.apothecary_reduc_round = G.GAME.apothecary_reduc_round or 0
-            local cleansed = 0
-            if G.hand and G.hand.cards then
-                for _, c in ipairs(G.hand.cards) do
-                    if c.debuff then
-                        c.debuff = false
-                        c:juice_up(0.3, 0.3)
-                        cleansed = cleansed + 1
-                    end
-                end
-            end
-
-            local blind_msg = nil
-            if G.GAME.apothecary_reduc_round < 0.20 and G.GAME.blind and G.GAME.blind.chips then
-                local reduction = math.floor(G.GAME.blind.chips * 0.04)
-                if reduction > 0 then
-                    G.GAME.blind.chips = math.max(1, G.GAME.blind.chips - reduction)
-                    G.GAME.blind.chip_text = number_format(G.GAME.blind.chips)
-                    G.GAME.apothecary_reduc_round = G.GAME.apothecary_reduc_round + 0.04
-                    blind_msg = "-4% Blind!"
-                end
-            end
-
-            play_sound('tarot1')
-            return {
-                message = blind_msg or (cleansed > 0 and 'Cleansed!' or 'Medicinal Brew!'),
-                colour = HEX('27ae60'),
-                card = card
-            }
-        end
-    end
-}
 
 SMODS.Sticker {
     key = "bounty_hunter_job",
@@ -490,68 +291,6 @@ SMODS.Sticker {
     end
 }
 
-SMODS.Sticker {
-    key = "croupier_job",
-    atlas = "job_stickers",
-    pos = { x = 3, y = 1 },
-    badge_colour = HEX('8e44ad'),
-    prefix_config = { key = false },
-    sets = { Default = true, Enhanced = true },
-    rate = 0,
-    needs_enable_flag = false,
-    loc_txt = {
-        name = 'Dice / Croupier',
-        label = 'Dice',
-        text = {
-            "When scored, rolls a 6-sided die:",
-            "{C:attention}1 or 3{}: {C:mult}+8 Mult{} per pip",
-            "{C:attention}2 or 4{}: {C:chips}+30 Chips{} per pip",
-            "{C:attention}5 or 6{}: {X:mult,C:white}X2.0{} Mult and retriggers card"
-        }
-    },
-    calculate = function(self, card, context)
-        if (context.main_scoring or context.individual) and context.cardarea == G.play then
-            local roll = pseudorandom('dice_job', 1, 6)
-            play_sound('dice', 1.0 + roll * 0.05)
-
-            if roll == 1 or roll == 3 then
-                local mult_val = roll * 8
-                return {
-                    mult = mult_val,
-                    message = 'Die: ' .. roll .. ' (+' .. mult_val .. ' Mult)',
-                    colour = G.C.MULT,
-                    card = card
-                }
-            elseif roll == 2 or roll == 4 then
-                local chip_val = roll * 30
-                return {
-                    chips = chip_val,
-                    message = 'Die: ' .. roll .. ' (+' .. chip_val .. ' Chips)',
-                    colour = G.C.CHIPS,
-                    card = card
-                }
-            else
-                return {
-                    x_mult = 2.0,
-                    message = 'Jackpot Die: ' .. roll .. '! X2 Mult',
-                    colour = HEX('8e44ad'),
-                    card = card
-                }
-            end
-        end
-
-        if context.repetition and context.cardarea == G.play and context.other_card == card then
-            if card.ability and card.ability.croupier_rolled_high then
-                card.ability.croupier_rolled_high = nil
-                return {
-                    message = 'Retrigger!',
-                    repetitions = 1,
-                    card = card
-                }
-            end
-        end
-    end
-}
 
 SMODS.Atlas {
     key = "c_jobs",
@@ -568,12 +307,16 @@ SMODS.Consumable {
     loc_txt = {
         name = 'The Miner',
         text = {
-            "Assigns Miner job sticker to {C:attention}1 selected card{}.",
-            "Each time it scores: awards {C:money}+$1{} to {C:money}+$3{},",
-            "with a {C:green}1 in 8{} chance to unearth a Gem ({C:chips}+50 Chips{})",
-            "or a random consumable directly into inventory"
+            "Enhances {C:attention}1 selected card{}",
+            "into a {C:dark_edition}Shiny Card{}"
         }
     },
+    loc_vars = function(self, info_queue, card)
+        if info_queue then
+            info_queue[#info_queue + 1] = get_diamond_enhancement_center()
+        end
+        return { vars = {} }
+    end,
     in_pool = function(self, args)
         return is_reality_warp_spectrals_jobs_enabled()
     end,
@@ -585,17 +328,14 @@ SMODS.Consumable {
         reality_warp_flip_apply({
             card = card,
             targets = target,
+            sound = 'tarot1',
             apply = function(c)
                 clear_card_jobs(c)
-                if SMODS.Stickers and SMODS.Stickers['miner_job'] then
-                    SMODS.Stickers['miner_job']:apply(c, true)
-                else
-                    c.ability = c.ability or {}
-                    c.ability.miner_job = true
-                end
+                local center = get_diamond_enhancement_center()
+                c:set_ability(center)
             end,
-            message = 'Miner Hired!',
-            colour = HEX('d35400')
+            message = 'Shiny Card!',
+            colour = HEX('1b4d2e')
         })
     end
 }
@@ -608,11 +348,16 @@ SMODS.Consumable {
     loc_txt = {
         name = 'The Gardener',
         text = {
-            "Assigns Gardener job to {C:attention}1 selected card{}.",
-            "When discarded, permanently adds {C:chips}+2{} extra",
-            "Chips to all cards of its suit in your full deck"
+            "Enhances {C:attention}1 selected card{}",
+            "into a {C:attention}Sprout Card{}"
         }
     },
+    loc_vars = function(self, info_queue, card)
+        if info_queue then
+            info_queue[#info_queue + 1] = get_sprout_enhancement_center()
+        end
+        return { vars = {} }
+    end,
     in_pool = function(self, args)
         return is_reality_warp_spectrals_jobs_enabled()
     end,
@@ -624,16 +369,13 @@ SMODS.Consumable {
         reality_warp_flip_apply({
             card = card,
             targets = target,
+            sound = 'tarot1',
             apply = function(c)
                 clear_card_jobs(c)
-                if SMODS.Stickers and SMODS.Stickers['gardener_job'] then
-                    SMODS.Stickers['gardener_job']:apply(c, true)
-                else
-                    c.ability = c.ability or {}
-                    c.ability.gardener_job = true
-                end
+                local center = get_sprout_enhancement_center()
+                c:set_ability(center)
             end,
-            message = 'Gardener Hired!',
+            message = 'Sprout Card!',
             colour = HEX('27ae60')
         })
     end
@@ -723,17 +465,7 @@ SMODS.Consumable {
                     rec:set_edition(donor.edition, true)
                 end
 
-                for _, jk in ipairs({'gardener_job', 'detective_job', 'chef_job', 'archaeologist_job'}) do
-                    if donor.ability and donor.ability[jk] then
-                        clear_card_jobs(rec)
-                        if SMODS.Stickers and SMODS.Stickers[jk] then
-                            SMODS.Stickers[jk]:apply(rec, true)
-                        else
-                            rec.ability = rec.ability or {}
-                            rec.ability[jk] = true
-                        end
-                    end
-                end
+
             end,
             message = 'Transplanted!',
             colour = G.C.RED,
@@ -876,24 +608,13 @@ SMODS.Consumable {
     loc_txt = {
         name = 'The Detective',
         text = {
-            "Assigns Detective job to {C:attention}1 selected card{}.",
-            "When in opening hand at start of round,",
-            "reveals the next 3 drawn cards and gives each",
-            "a {C:gold}Gold Seal{} or {C:blue}Blue Seal{}"
+            "Enhances {C:attention}1 selected card{}",
+            "into a {C:attention}Clue Card{}"
         }
     },
     loc_vars = function(self, info_queue, card)
         if info_queue then
-            if G.P_SEALS and G.P_SEALS.Gold then
-                info_queue[#info_queue + 1] = G.P_SEALS.Gold
-            else
-                info_queue[#info_queue + 1] = { key = 'gold_seal', set = 'Other' }
-            end
-            if G.P_SEALS and G.P_SEALS.Blue then
-                info_queue[#info_queue + 1] = G.P_SEALS.Blue
-            else
-                info_queue[#info_queue + 1] = { key = 'blue_seal', set = 'Other' }
-            end
+            info_queue[#info_queue + 1] = get_clue_enhancement_center()
         end
         return { vars = {} }
     end,
@@ -908,16 +629,13 @@ SMODS.Consumable {
         reality_warp_flip_apply({
             card = card,
             targets = target,
+            sound = 'tarot1',
             apply = function(c)
                 clear_card_jobs(c)
-                if SMODS.Stickers and SMODS.Stickers['detective_job'] then
-                    SMODS.Stickers['detective_job']:apply(c, true)
-                else
-                    c.ability = c.ability or {}
-                    c.ability.detective_job = true
-                end
+                local center = get_clue_enhancement_center()
+                c:set_ability(center)
             end,
-            message = 'Detective Hired!',
+            message = 'Clue Card!',
             colour = HEX('2980b9')
         })
     end
@@ -931,14 +649,13 @@ SMODS.Consumable {
     loc_txt = {
         name = 'The Chef',
         text = {
-            "Assigns Chef job to {C:attention}1 selected face card{} (J, Q, K).",
-            "When scored, turns all other scoring cards in the",
-            "hand into {C:mult}Mult Cards{}"
+            "Enhances {C:attention}1 selected card{}",
+            "into an {C:attention}Oil Card{}"
         }
     },
     loc_vars = function(self, info_queue, card)
         if info_queue then
-            info_queue[#info_queue + 1] = G.P_CENTERS.m_mult
+            info_queue[#info_queue + 1] = get_oil_enhancement_center()
         end
         return { vars = {} }
     end,
@@ -946,23 +663,20 @@ SMODS.Consumable {
         return is_reality_warp_spectrals_jobs_enabled()
     end,
     can_use = function(self, card)
-        return G.hand and G.hand.highlighted and #G.hand.highlighted == 1 and G.hand.highlighted[1]:is_face()
+        return G.hand and G.hand.highlighted and #G.hand.highlighted == 1
     end,
     use = function(self, card, area, copier)
         local target = G.hand.highlighted[1]
         reality_warp_flip_apply({
             card = card,
             targets = target,
+            sound = 'tarot1',
             apply = function(c)
                 clear_card_jobs(c)
-                if SMODS.Stickers and SMODS.Stickers['chef_job'] then
-                    SMODS.Stickers['chef_job']:apply(c, true)
-                else
-                    c.ability = c.ability or {}
-                    c.ability.chef_job = true
-                end
+                local center = get_oil_enhancement_center()
+                c:set_ability(center)
             end,
-            message = 'Chef Hired!',
+            message = 'Oil Card!',
             colour = HEX('e67e22')
         })
     end
@@ -976,17 +690,13 @@ SMODS.Consumable {
     loc_txt = {
         name = 'The Archaeologist',
         text = {
-            "Assigns Archaeologist job to {C:attention}1 selected card{}.",
-            "When scored in your {C:attention}final hand{} of a round,",
-            "recovers 1 discarded card and gives it a random",
-            "{C:dark_edition}Foil{}, {C:dark_edition}Holographic{}, or {C:dark_edition}Polychrome{} edition"
+            "Enhances {C:attention}1 selected card{}",
+            "into a {C:attention}Fossil Card{}"
         }
     },
     loc_vars = function(self, info_queue, card)
         if info_queue then
-            info_queue[#info_queue + 1] = G.P_CENTERS.e_foil
-            info_queue[#info_queue + 1] = G.P_CENTERS.e_holo
-            info_queue[#info_queue + 1] = G.P_CENTERS.e_polychrome
+            info_queue[#info_queue + 1] = get_fossil_enhancement_center()
         end
         return { vars = {} }
     end,
@@ -1001,16 +711,13 @@ SMODS.Consumable {
         reality_warp_flip_apply({
             card = card,
             targets = target,
+            sound = 'tarot1',
             apply = function(c)
                 clear_card_jobs(c)
-                if SMODS.Stickers and SMODS.Stickers['archaeologist_job'] then
-                    SMODS.Stickers['archaeologist_job']:apply(c, true)
-                else
-                    c.ability = c.ability or {}
-                    c.ability.archaeologist_job = true
-                end
+                local center = get_fossil_enhancement_center()
+                c:set_ability(center)
             end,
-            message = 'Archaeologist Hired!',
+            message = 'Fossil Card!',
             colour = HEX('d35400')
         })
     end
@@ -1024,12 +731,16 @@ SMODS.Consumable {
     loc_txt = {
         name = 'The Jeweler',
         text = {
-            "Assigns Jeweler job sticker to {C:attention}1 selected card{}.",
-            "When scored in a hand with an {C:attention}Enhanced card{},",
-            "polishes it, permanently granting a random",
-            "{C:dark_edition}Foil{}, {C:dark_edition}Holographic{}, or {C:dark_edition}Polychrome{} edition"
+            "Enhances {C:attention}1 selected card{}",
+            "into a {C:attention}Jeweled Card{}"
         }
     },
+    loc_vars = function(self, info_queue, card)
+        if info_queue then
+            info_queue[#info_queue + 1] = get_jeweled_enhancement_center()
+        end
+        return { vars = {} }
+    end,
     in_pool = function(self, args)
         return is_reality_warp_spectrals_jobs_enabled()
     end,
@@ -1041,16 +752,13 @@ SMODS.Consumable {
         reality_warp_flip_apply({
             card = card,
             targets = target,
+            sound = 'gold_seal',
             apply = function(c)
                 clear_card_jobs(c)
-                if SMODS.Stickers and SMODS.Stickers['jeweler_job'] then
-                    SMODS.Stickers['jeweler_job']:apply(c, true)
-                else
-                    c.ability = c.ability or {}
-                    c.ability.jeweler_job = true
-                end
+                local center = get_jeweled_enhancement_center()
+                c:set_ability(center)
             end,
-            message = 'Jeweler Hired!',
+            message = 'Jeweled Card!',
             colour = HEX('1abc9c')
         })
     end
@@ -1064,12 +772,16 @@ SMODS.Consumable {
     loc_txt = {
         name = 'The Apothecary',
         text = {
-            "Assigns Apothecary job to {C:attention}1 selected card{}.",
-            "When discarded, {C:green}cleanses debuffs{} from all",
-            "cards in hand and reduces Blind requirement",
-            "by {C:attention}4%{} {C:inactive}(Capped at 20% per round){}"
+            "Enhances {C:attention}1 selected card{}",
+            "into a {C:attention}Tonic Card{}"
         }
     },
+    loc_vars = function(self, info_queue, card)
+        if info_queue then
+            info_queue[#info_queue + 1] = get_tonic_enhancement_center()
+        end
+        return { vars = {} }
+    end,
     in_pool = function(self, args)
         return is_reality_warp_spectrals_jobs_enabled()
     end,
@@ -1081,16 +793,13 @@ SMODS.Consumable {
         reality_warp_flip_apply({
             card = card,
             targets = target,
+            sound = 'tarot1',
             apply = function(c)
                 clear_card_jobs(c)
-                if SMODS.Stickers and SMODS.Stickers['apothecary_job'] then
-                    SMODS.Stickers['apothecary_job']:apply(c, true)
-                else
-                    c.ability = c.ability or {}
-                    c.ability.apothecary_job = true
-                end
+                local center = get_tonic_enhancement_center()
+                c:set_ability(center)
             end,
-            message = 'Apothecary Hired!',
+            message = 'Tonic Card!',
             colour = HEX('27ae60')
         })
     end
@@ -1104,14 +813,15 @@ SMODS.Consumable {
     loc_txt = {
         name = 'The Bounty Hunter',
         text = {
-            "Assigns Bounty Hunter job to {C:attention}1 selected card{}.",
-            "Designates a random {C:red}Wanted Target{} rank each round.",
-            "Scoring with the target awards {C:money}+$7{} and {X:mult,C:white}X1.5{} Mult",
-            "{C:inactive}(Current Wanted Target: {C:attention}#1#{}{C:inactive}){}"
+            "Enhances {C:attention}1 selected card{}",
+            "into a {C:attention}Bounty Card{}"
         }
     },
     loc_vars = function(self, info_queue, card)
-        return { vars = { (G.GAME and G.GAME.wanted_target_rank) or 'None' } }
+        if info_queue then
+            info_queue[#info_queue + 1] = get_bounty_enhancement_center()
+        end
+        return { vars = {} }
     end,
     in_pool = function(self, args)
         return is_reality_warp_spectrals_jobs_enabled()
@@ -1124,16 +834,13 @@ SMODS.Consumable {
         reality_warp_flip_apply({
             card = card,
             targets = target,
+            sound = 'tarot1',
             apply = function(c)
                 clear_card_jobs(c)
-                if SMODS.Stickers and SMODS.Stickers['bounty_hunter_job'] then
-                    SMODS.Stickers['bounty_hunter_job']:apply(c, true)
-                else
-                    c.ability = c.ability or {}
-                    c.ability.bounty_hunter_job = true
-                end
+                local center = get_bounty_enhancement_center()
+                c:set_ability(center)
             end,
-            message = 'Bounty Hunter Hired!',
+            message = 'Bounty Card!',
             colour = HEX('c0392b')
         })
     end
@@ -1147,12 +854,16 @@ SMODS.Consumable {
     loc_txt = {
         name = 'The Croupier',
         text = {
-            "Assigns Dice sticker to {C:attention}1 selected card{}.",
-            "Rolls a 6-sided die upon scoring:",
-            "{C:attention}1 or 3{}: {C:mult}+8 Mult{} per pip | {C:attention}2 or 4{}: {C:chips}+30 Chips{} per pip",
-            "{C:attention}5 or 6{}: {X:mult,C:white}X2.0{} Mult and retriggers this card"
+            "Enhances {C:attention}1 selected card{}",
+            "into a {C:attention}Roulette Card{}"
         }
     },
+    loc_vars = function(self, info_queue, card)
+        if info_queue then
+            info_queue[#info_queue + 1] = get_roulette_enhancement_center()
+        end
+        return { vars = {} }
+    end,
     in_pool = function(self, args)
         return is_reality_warp_spectrals_jobs_enabled()
     end,
@@ -1164,16 +875,13 @@ SMODS.Consumable {
         reality_warp_flip_apply({
             card = card,
             targets = target,
+            sound = 'dice',
             apply = function(c)
                 clear_card_jobs(c)
-                if SMODS.Stickers and SMODS.Stickers['croupier_job'] then
-                    SMODS.Stickers['croupier_job']:apply(c, true)
-                else
-                    c.ability = c.ability or {}
-                    c.ability.croupier_job = true
-                end
+                local center = get_roulette_enhancement_center()
+                c:set_ability(center)
             end,
-            message = 'Dice Sticker Applied!',
+            message = 'Roulette Card!',
             colour = HEX('8e44ad')
         })
     end

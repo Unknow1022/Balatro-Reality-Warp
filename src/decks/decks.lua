@@ -827,27 +827,34 @@ SMODS.Back {
         name = 'Academic Deck',
         text = {
             "All {C:attention}Face cards{} in your starting deck",
-            "begin with a random {C:attention}Job Sticker{}"
+            "begin with a random {C:attention}Job Enhancement{}"
         }
     },
     apply = function(self, back)
         G.GAME.academic_deck = true
         G.E_MANAGER:add_event(Event({
             func = function()
-                local job_list = {
-                    'gardener_job', 'detective_job', 'chef_job',
-                    'archaeologist_job', 'miner_job', 'jeweler_job',
-                    'apothecary_job', 'bounty_hunter_job', 'croupier_job'
+                local job_enhancements = {
+                    get_diamond_enhancement_center(),
+                    get_sprout_enhancement_center(),
+                    get_investment_enhancement_center(),
+                    get_lead_enhancement_center(),
+                    get_jeweled_enhancement_center(),
+                    get_fossil_enhancement_center(),
+                    get_tonic_enhancement_center(),
+                    get_roulette_enhancement_center(),
+                    get_geode_enhancement_center(),
+                    get_oil_enhancement_center(),
+                    get_clue_enhancement_center(),
+                    get_bounty_enhancement_center()
                 }
                 if G.playing_cards then
                     for _, card in ipairs(G.playing_cards) do
                         if card:is_face() then
-                            local chosen_job = pseudorandom_element(job_list, pseudoseed('academic_job'))
-                            if SMODS.Stickers and SMODS.Stickers[chosen_job] then
-                                SMODS.Stickers[chosen_job]:apply(card, true)
+                            local chosen_center = pseudorandom_element(job_enhancements, pseudoseed('academic_job_enh'))
+                            if chosen_center then
+                                card:set_ability(chosen_center)
                             end
-                            card.ability = card.ability or {}
-                            card.ability[chosen_job] = true
                         end
                     end
                 end
@@ -1170,14 +1177,14 @@ function inject_reality_warp_deck_localization()
             name = "Academic Deck",
             text = {
                 "All {C:attention}Face cards{} in your starting deck",
-                "begin with a random {C:attention}Job Sticker{}"
+                "begin with a random {C:attention}Job Enhancement{}"
             }
         },
         academica = {
             name = "Academic Deck",
             text = {
                 "All {C:attention}Face cards{} in your starting deck",
-                "begin with a random {C:attention}Job Sticker{}"
+                "begin with a random {C:attention}Job Enhancement{}"
             }
         },
         minigames = {

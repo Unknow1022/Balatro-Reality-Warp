@@ -22,6 +22,14 @@ function get_diamond_enhancement_center() return get_custom_enhancement('diamond
 function get_investment_enhancement_center() return get_custom_enhancement('investment', G.P_CENTERS.m_gold) end
 function get_lead_enhancement_center() return get_custom_enhancement('lead', G.P_CENTERS.m_steel) end
 function get_jeweled_enhancement_center() return get_custom_enhancement('jeweled', G.P_CENTERS.m_lucky) end
+function get_sprout_enhancement_center() return get_custom_enhancement('sprout', G.P_CENTERS.m_bonus) end
+function get_geode_enhancement_center() return get_custom_enhancement('geode', G.P_CENTERS.m_stone) end
+function get_fossil_enhancement_center() return get_custom_enhancement('fossil', G.P_CENTERS.m_stone) end
+function get_tonic_enhancement_center() return get_custom_enhancement('tonic', G.P_CENTERS.m_lucky) end
+function get_roulette_enhancement_center() return get_custom_enhancement('roulette', G.P_CENTERS.m_mult) end
+function get_oil_enhancement_center() return get_custom_enhancement('oil', G.P_CENTERS.m_mult) end
+function get_clue_enhancement_center() return get_custom_enhancement('clue', G.P_CENTERS.m_bonus) end
+function get_bounty_enhancement_center() return get_custom_enhancement('bounty', G.P_CENTERS.m_mult) end
 
 SMODS.Seal {
     key = 'dark_green',
@@ -297,6 +305,467 @@ SMODS.Enhancement {
         end
     end
 }
+
+SMODS.Enhancement {
+    key = 'sprout',
+    atlas = 'enhancements',
+    pos = { x = 3, y = 1 },
+    discovered = true,
+    unlocked = true,
+    config = { extra = { bonus_chips = 3, score_chips = 15, score_mult = 3 } },
+    loc_txt = {
+        name = 'Sprout Card',
+        text = {
+            "{C:chips}+#2#{} Chips and {C:mult}+#3#{} Mult.",
+            "When discarded, permanently adds",
+            "{C:chips}+#1#{} extra Chips to all cards",
+            "of its suit in full deck"
+        }
+    },
+    loc_vars = function(self, info_queue, card)
+        local extra = (card and card.ability and card.ability.extra) or (self.config and self.config.extra) or { bonus_chips = 3, score_chips = 15, score_mult = 3 }
+        return { vars = { extra.bonus_chips, extra.score_chips, extra.score_mult } }
+    end,
+    calculate = function(self, card, context)
+        local extra = (card and card.ability and card.ability.extra) or (self.config and self.config.extra) or { bonus_chips = 3, score_chips = 15, score_mult = 3 }
+        if (context.main_scoring or context.individual) and context.cardarea == G.play then
+            return {
+                chips = extra.score_chips,
+                mult = extra.score_mult,
+                card = card
+            }
+        end
+        if context.discard and context.other_card == card then
+            local suit = card.base and card.base.suit
+            if suit and G.playing_cards then
+                for _, c in ipairs(G.playing_cards) do
+                    if c:is_suit(suit) or (c.base and c.base.suit == suit) then
+                        c.ability = c.ability or {}
+                        c.ability.perma_bonus = (c.ability.perma_bonus or 0) + extra.bonus_chips
+                    end
+                end
+                if G.hand and G.hand.cards then
+                    for _, c in ipairs(G.hand.cards) do
+                        if c ~= card and (c:is_suit(suit) or (c.base and c.base.suit == suit)) then
+                            c:juice_up(0.3, 0.3)
+                        end
+                    end
+                end
+                play_sound('chips1')
+                local suit_name = (localize and localize(suit, 'suits_plural')) or suit
+                return {
+                    message = '+' .. extra.bonus_chips .. ' Chips (' .. suit_name .. ')!',
+                    colour = G.C.CHIPS,
+                    card = card
+                }
+            end
+        end
+    end
+}
+
+SMODS.Enhancement {
+    key = 'fossil',
+    atlas = 'enhancements',
+    pos = { x = 0, y = 2 },
+    discovered = true,
+    unlocked = true,
+    config = { extra = { dollars = 5, chips = 20 } },
+    loc_txt = {
+        name = 'Fossil Card',
+        text = {
+            "Gives {C:chips}+#1#{} Chips when scored.",
+            "If scored on {C:attention}final hand{} of round,",
+            "excavates 1 discarded card into hand with",
+            "a random {C:dark_edition}Foil{}, {C:dark_edition}Holo{}, or {C:dark_edition}Poly{} edition and {C:money}+$#2#{}"
+        }
+    },
+    loc_vars = function(self, info_queue, card)
+        if info_queue then
+            info_queue[#info_queue + 1] = G.P_CENTERS.e_foil
+            info_queue[#info_queue + 1] = G.P_CENTERS.e_holo
+            info_queue[#info_queue + 1] = G.P_CENTERS.e_polychrome
+        end
+        local extra = (card and card.ability and card.ability.extra) or (self.config and self.config.extra) or { dollars = 5, chips = 20 }
+        return { vars = { extra.chips, extra.dollars } }
+    end,
+    calculate = function(self, card, context)
+        local extra = (card and card.ability and card.ability.extra) or (self.config and self.config.extra) or { dollars = 5, chips = 20 }
+        if (context.main_scoring or context.individual) and context.cardarea == G.play then
+            local on_final = (G.GAME and G.GAME.current_round and G.GAME.current_round.hands_left == 0)
+            if on_final and not card.ability.fossil_triggered_this_round then
+                card.ability.fossil_triggered_this_round = true
+                if G.discard and G.discard.cards and #G.discard.cards > 0 then
+                    local rescued = pseudorandom_element(G.discard.cards, pseudoseed('fossil_rescue'))
+                    if rescued and G.hand then
+                        draw_card(G.discard, G.hand, 100, 'up', nil, rescued)
+                        local edition_choices = {
+                            { foil = true },
+                            { holo = true },
+                            { polychrome = true }
+                        }
+                        local chosen_ed = pseudorandom_element(edition_choices, pseudoseed('fossil_ed'))
+                        rescued:set_edition(chosen_ed, true)
+                        play_sound('tarot1')
+                    end
+                end
+                return {
+                    chips = extra.chips,
+                    dollars = extra.dollars,
+                    message = 'Fossil Excavated!',
+                    colour = HEX('d35400'),
+                    card = card
+                }
+            end
+            return {
+                chips = extra.chips,
+                card = card
+            }
+        end
+        if context.after or context.end_of_round then
+            card.ability.fossil_triggered_this_round = nil
+        end
+    end
+}
+
+SMODS.Enhancement {
+    key = 'tonic',
+    atlas = 'enhancements',
+    pos = { x = 1, y = 2 },
+    discovered = true,
+    unlocked = true,
+    config = { extra = { blind_pct = 4, max_pct = 20 } },
+    loc_txt = {
+        name = 'Tonic Card',
+        text = {
+            "Immune to debuffs.",
+            "When played or discarded, cleanses",
+            "debuffs from all cards in hand and reduces",
+            "Blind by {C:attention}#1#%{} {C:inactive}(Max #2#% per round){}"
+        }
+    },
+    loc_vars = function(self, info_queue, card)
+        local extra = (card and card.ability and card.ability.extra) or (self.config and self.config.extra) or { blind_pct = 4, max_pct = 20 }
+        return { vars = { extra.blind_pct, extra.max_pct } }
+    end,
+    calculate = function(self, card, context)
+        local extra = (card and card.ability and card.ability.extra) or (self.config and self.config.extra) or { blind_pct = 4, max_pct = 20 }
+        local is_play = (context.main_scoring or context.individual) and context.cardarea == G.play
+        local is_disc = context.discard and context.other_card == card
+        if card.debuff then card.debuff = false end
+        if is_play or is_disc then
+            G.GAME.apothecary_reduc_round = G.GAME.apothecary_reduc_round or 0
+            local cleansed = 0
+            if G.hand and G.hand.cards then
+                for _, c in ipairs(G.hand.cards) do
+                    if c.debuff then
+                        c.debuff = false
+                        c:juice_up(0.3, 0.3)
+                        cleansed = cleansed + 1
+                    end
+                end
+            end
+            local blind_msg = nil
+            if G.GAME.apothecary_reduc_round < (extra.max_pct / 100) and G.GAME.blind and G.GAME.blind.chips then
+                local reduction = math.floor(G.GAME.blind.chips * (extra.blind_pct / 100))
+                if reduction > 0 then
+                    G.GAME.blind.chips = math.max(1, G.GAME.blind.chips - reduction)
+                    G.GAME.blind.chip_text = number_format(G.GAME.blind.chips)
+                    G.GAME.apothecary_reduc_round = G.GAME.apothecary_reduc_round + (extra.blind_pct / 100)
+                    blind_msg = '-' .. extra.blind_pct .. '% Blind!'
+                end
+            end
+            play_sound('tarot1')
+            return {
+                message = blind_msg or (cleansed > 0 and 'Cleansed!' or 'Medicinal Brew!'),
+                colour = HEX('27ae60'),
+                card = card
+            }
+        end
+    end
+}
+
+SMODS.Enhancement {
+    key = 'roulette',
+    atlas = 'enhancements',
+    pos = { x = 2, y = 2 },
+    discovered = true,
+    unlocked = true,
+    config = { extra = { mult_pip = 15, chip_pip = 60, x_mult = 2.0 } },
+    loc_txt = {
+        name = 'Roulette Card',
+        text = {
+            "Rolls a 6-sided die when scored:",
+            "{C:attention}1 or 2{}: {C:mult}+#1# Mult{}",
+            "{C:attention}3 or 4{}: {C:chips}+#2# Chips{}",
+            "{C:attention}5 or 6{}: {X:mult,C:white}X#3#{} Mult and retriggers"
+        }
+    },
+    loc_vars = function(self, info_queue, card)
+        local extra = (card and card.ability and card.ability.extra) or (self.config and self.config.extra) or { mult_pip = 15, chip_pip = 60, x_mult = 2.0 }
+        return { vars = { extra.mult_pip, extra.chip_pip, extra.x_mult } }
+    end,
+    calculate = function(self, card, context)
+        local extra = (card and card.ability and card.ability.extra) or (self.config and self.config.extra) or { mult_pip = 15, chip_pip = 60, x_mult = 2.0 }
+        if (context.main_scoring or context.individual) and context.cardarea == G.play then
+            local roll = pseudorandom('roulette_card', 1, 6)
+            play_sound('dice', 1.0 + roll * 0.05)
+            if roll == 1 or roll == 2 then
+                return {
+                    mult = extra.mult_pip,
+                    message = 'Die: ' .. roll .. ' (+' .. extra.mult_pip .. ' Mult)',
+                    colour = G.C.MULT,
+                    card = card
+                }
+            elseif roll == 3 or roll == 4 then
+                return {
+                    chips = extra.chip_pip,
+                    message = 'Die: ' .. roll .. ' (+' .. extra.chip_pip .. ' Chips)',
+                    colour = G.C.CHIPS,
+                    card = card
+                }
+            else
+                card.ability.roulette_rolled_high = true
+                return {
+                    x_mult = extra.x_mult,
+                    message = 'Jackpot Die: ' .. roll .. '! X' .. extra.x_mult .. ' Mult',
+                    colour = HEX('8e44ad'),
+                    card = card
+                }
+            end
+        end
+        if context.repetition and context.cardarea == G.play and context.other_card == card then
+            if card.ability and card.ability.roulette_rolled_high then
+                card.ability.roulette_rolled_high = nil
+                return {
+                    message = 'Retrigger!',
+                    repetitions = 1,
+                    card = card
+                }
+            end
+        end
+    end
+}
+
+SMODS.Enhancement {
+    key = 'geode',
+    atlas = 'enhancements',
+    pos = { x = 3, y = 2 },
+    discovered = true,
+    unlocked = true,
+    config = { bonus = 35, extra = { dollars = 2 } },
+    loc_txt = {
+        name = 'Geode Card',
+        text = {
+            "{C:chips}+#1#{} Chips.",
+            "Cracks open when scored to grant",
+            "{C:money}+$#2#{} and a {C:green}#3# in 4{} chance",
+            "to create a random {C:attention}Job/Tarot/Planet{} card"
+        }
+    },
+    loc_vars = function(self, info_queue, card)
+        local bonus = (card and card.ability and card.ability.bonus) or (self.config and self.config.bonus) or 35
+        local extra = (card and card.ability and card.ability.extra) or (self.config and self.config.extra) or { dollars = 2 }
+        local numerator, denominator = SMODS.get_probability_vars(card, 1, 4, 'geode_gem')
+        return { vars = { bonus, extra.dollars, numerator, denominator } }
+    end,
+    calculate = function(self, card, context)
+        local extra = (card and card.ability and card.ability.extra) or (self.config and self.config.extra) or { dollars = 2 }
+        if (context.main_scoring or context.individual) and context.cardarea == G.play then
+            local bonus = (card and card.ability and card.ability.bonus) or (self.config and self.config.bonus) or 35
+            if SMODS.pseudorandom_probability(card, 'geode_gem', 1, 4) then
+                if G.consumeables and #G.consumeables.cards < G.consumeables.config.card_limit then
+                    G.E_MANAGER:add_event(Event({
+                        trigger = 'after',
+                        delay = 0.2,
+                        func = function()
+                            local card_type = pseudorandom_element({'Tarot', 'Planet', 'Job'}, pseudoseed('geode_drop'))
+                            local c = create_card(card_type, G.consumeables, nil, nil, nil, nil, nil, 'geode')
+                            c:add_to_deck()
+                            G.consumeables:emplace(c)
+                            play_sound('tarot1')
+                            return true
+                        end
+                    }))
+                end
+            end
+            return {
+                chips = bonus,
+                dollars = extra.dollars,
+                card = card
+            }
+        end
+    end
+}
+
+SMODS.Enhancement {
+    key = 'oil',
+    atlas = 'enhancements',
+    pos = { x = 0, y = 3 },
+    discovered = true,
+    unlocked = true,
+    config = { mult = 4 },
+    loc_txt = {
+        name = 'Oil Card',
+        text = {
+            "{C:mult}+#1#{} Mult.",
+            "If scored alongside a {C:attention}Face card{},",
+            "greases hand: converts all unenhanced",
+            "scoring cards into {C:mult}Mult Cards{}"
+        }
+    },
+    loc_vars = function(self, info_queue, card)
+        if info_queue then
+            info_queue[#info_queue + 1] = G.P_CENTERS.m_mult
+        end
+        local mult = (card and card.ability and card.ability.mult) or (self.config and self.config.mult) or 4
+        return { vars = { mult } }
+    end,
+    calculate = function(self, card, context)
+        if (context.main_scoring or context.individual) and context.cardarea == G.play then
+            local mult = (card and card.ability and card.ability.mult) or (self.config and self.config.mult) or 4
+            local has_face = false
+            if context.scoring_hand then
+                for _, sc in ipairs(context.scoring_hand) do
+                    if sc ~= card and sc:is_face() then
+                        has_face = true
+                        break
+                    end
+                end
+            end
+            if has_face and context.scoring_hand then
+                local converted = 0
+                for _, other_c in ipairs(context.scoring_hand) do
+                    if other_c ~= card and other_c.config and (other_c.config.center == G.P_CENTERS.c_base or not other_c.config.center) then
+                        other_c:set_ability(G.P_CENTERS.m_mult)
+                        other_c:juice_up(0.4, 0.4)
+                        converted = converted + 1
+                    end
+                end
+                if converted > 0 then
+                    play_sound('tarot1')
+                    return {
+                        mult = mult,
+                        message = 'Greased!',
+                        colour = HEX('e67e22'),
+                        card = card
+                    }
+                end
+            end
+            return {
+                mult = mult,
+                card = card
+            }
+        end
+    end
+}
+
+SMODS.Enhancement {
+    key = 'clue',
+    atlas = 'enhancements',
+    pos = { x = 1, y = 3 },
+    discovered = true,
+    unlocked = true,
+    config = { bonus = 30 },
+    loc_txt = {
+        name = 'Clue Card',
+        text = {
+            "{C:chips}+#1#{} Chips.",
+            "When held in {C:attention}opening hand{} of round,",
+            "investigates the top card of deck and",
+            "grants it a {C:gold}Gold Seal{} or {C:blue}Blue Seal{}"
+        }
+    },
+    loc_vars = function(self, info_queue, card)
+        if info_queue then
+            if G.P_SEALS and G.P_SEALS.Gold then info_queue[#info_queue + 1] = G.P_SEALS.Gold end
+            if G.P_SEALS and G.P_SEALS.Blue then info_queue[#info_queue + 1] = G.P_SEALS.Blue end
+        end
+        local bonus = (card and card.ability and card.ability.bonus) or (self.config and self.config.bonus) or 30
+        return { vars = { bonus } }
+    end,
+    calculate = function(self, card, context)
+        if context.first_hand_drawn and card.area == G.hand then
+            if G.deck and G.deck.cards and #G.deck.cards > 0 then
+                local top_c = G.deck.cards[#G.deck.cards]
+                if top_c and not top_c.seal then
+                    local seal_choice = pseudorandom_element({'Gold', 'Blue'}, pseudoseed('clue_seal'))
+                    top_c:set_seal(seal_choice, true)
+                    top_c:juice_up(0.4, 0.4)
+                    play_sound('tarot1')
+                    return {
+                        message = 'Clue Discovered!',
+                        colour = HEX('2980b9'),
+                        card = card
+                    }
+                end
+            end
+        end
+        if (context.main_scoring or context.individual) and context.cardarea == G.play then
+            local bonus = (card and card.ability and card.ability.bonus) or (self.config and self.config.bonus) or 30
+            return {
+                chips = bonus,
+                card = card
+            }
+        end
+    end
+}
+
+SMODS.Enhancement {
+    key = 'bounty',
+    atlas = 'enhancements',
+    pos = { x = 2, y = 3 },
+    discovered = true,
+    unlocked = true,
+    config = { extra = { dollars = 7, x_mult = 1.75 } },
+    loc_txt = {
+        name = 'Bounty Card',
+        text = {
+            "Each round designates a {C:red}Wanted Target{} rank.",
+            "Scoring alongside the target awards {C:money}+$#1#{}",
+            "and {X:mult,C:white}X#2#{} Mult",
+            "{C:inactive}(Current Wanted Target: {C:attention}#3#{}{C:inactive}){}"
+        }
+    },
+    loc_vars = function(self, info_queue, card)
+        local extra = (card and card.ability and card.ability.extra) or (self.config and self.config.extra) or { dollars = 7, x_mult = 1.75 }
+        return { vars = { extra.dollars, extra.x_mult, (G.GAME and G.GAME.wanted_target_rank) or 'None' } }
+    end,
+    calculate = function(self, card, context)
+        local extra = (card and card.ability and card.ability.extra) or (self.config and self.config.extra) or { dollars = 7, x_mult = 1.75 }
+        if context.first_hand_drawn and card.area == G.hand then
+            local ranks = { '2', '3', '4', '5', '6', '7', '8', '9', '10', 'Jack', 'Queen', 'King', 'Ace' }
+            G.GAME.wanted_target_rank = pseudorandom_element(ranks, pseudoseed('bounty_target'))
+            card_eval_status_text(card, 'extra', nil, nil, nil, {
+                message = 'Wanted: ' .. tostring(G.GAME.wanted_target_rank) .. '!',
+                colour = HEX('c0392b')
+            })
+        end
+        if (context.main_scoring or context.individual) and context.cardarea == G.play then
+            local target_rank = G.GAME and G.GAME.wanted_target_rank
+            local has_target = false
+            if target_rank and context.scoring_hand then
+                for _, sc in ipairs(context.scoring_hand) do
+                    local val = sc.base and sc.base.value
+                    if val == target_rank or (sc.get_id and sc:get_id() == target_rank) then
+                        has_target = true
+                        break
+                    end
+                end
+            end
+            if has_target then
+                return {
+                    x_mult = extra.x_mult,
+                    dollars = extra.dollars,
+                    message = 'Bounty Claimed!',
+                    colour = G.C.GOLD,
+                    card = card
+                }
+            end
+        end
+    end
+}
+
+
 
 if SMODS and SMODS.Shader then
     SMODS.Shader {

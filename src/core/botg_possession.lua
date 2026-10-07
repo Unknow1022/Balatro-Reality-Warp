@@ -12,6 +12,8 @@ SMODS.Sticker {
     badge_colour = HEX('e5b80b'),
     prefix_config = { key = false },
     order = 11,
+    sets = { Joker = true },
+    rate = 0.05,
     should_apply = false,
     loc_txt = {
         name = "Possessed (Needle)",
@@ -42,6 +44,8 @@ SMODS.Sticker {
     badge_colour = HEX('e56a2f'),
     prefix_config = { key = false },
     order = 12,
+    sets = { Joker = true },
+    rate = 0.05,
     should_apply = false,
     loc_txt = {
         name = "Possessed (Flint)",
@@ -73,6 +77,8 @@ SMODS.Sticker {
     badge_colour = HEX('7e6752'),
     prefix_config = { key = false },
     order = 13,
+    sets = { Joker = true },
+    rate = 0.05,
     should_apply = false,
     loc_txt = {
         name = "Possessed (Pillar)",
@@ -102,6 +108,8 @@ SMODS.Sticker {
     badge_colour = HEX('a84024'),
     prefix_config = { key = false },
     order = 14,
+    sets = { Joker = true },
+    rate = 0.05,
     should_apply = false,
     loc_txt = {
         name = "Possessed (Hook)",
@@ -144,6 +152,8 @@ SMODS.Sticker {
     badge_colour = HEX('efc03c'),
     prefix_config = { key = false },
     order = 15,
+    sets = { Joker = true },
+    rate = 0.05,
     should_apply = false,
     loc_txt = {
         name = "Possessed (Psychic)",
@@ -171,6 +181,8 @@ SMODS.Sticker {
     badge_colour = HEX('6865f3'),
     prefix_config = { key = false },
     order = 16,
+    sets = { Joker = true },
+    rate = 0.05,
     should_apply = false,
     loc_txt = {
         name = "Possessed (Arm)",
@@ -201,6 +213,8 @@ SMODS.Sticker {
     badge_colour = HEX('4b71e4'),
     prefix_config = { key = false },
     order = 17,
+    sets = { Joker = true },
+    rate = 0.05,
     should_apply = false,
     loc_txt = {
         name = "Possessed (Eye)",
@@ -233,6 +247,8 @@ SMODS.Sticker {
     badge_colour = HEX('8a59a5'),
     prefix_config = { key = false },
     order = 18,
+    sets = { Joker = true },
+    rate = 0.05,
     should_apply = false,
     loc_txt = {
         name = "Possessed (Wall)",
@@ -266,6 +282,8 @@ SMODS.Sticker {
     badge_colour = HEX('439a4f'),
     prefix_config = { key = false },
     order = 19,
+    sets = { Joker = true },
+    rate = 0.05,
     should_apply = false,
     loc_txt = {
         name = "Possessed (Serpent)",
@@ -297,6 +315,8 @@ SMODS.Sticker {
     badge_colour = HEX('579ec2'),
     prefix_config = { key = false },
     order = 20,
+    sets = { Joker = true },
+    rate = 0.05,
     should_apply = false,
     loc_txt = {
         name = "Possessed (Water)",
@@ -344,7 +364,7 @@ local ALL_POSSESSED_KEYS = {
     'possessed_water'
 }
 
-function possess_joker(card, boss_key)
+function possess_joker(card, boss_key, silent)
     if not card or not card.ability then return end
 
     local matched_sticker = nil
@@ -372,11 +392,24 @@ function possess_joker(card, boss_key)
         card.ability.active_possessed_key = matched_sticker
     end
 
-    local st_name = (SMODS.Stickers[matched_sticker] and SMODS.Stickers[matched_sticker].loc_txt and SMODS.Stickers[matched_sticker].loc_txt.name) or "Boss Possessed"
-    card_eval_status_text(card, 'extra', nil, nil, nil, {
-        message = st_name .. '!',
-        colour = G.C.PURPLE
-    })
-    play_sound('whoosh1', 0.8, 0.7)
-    card:juice_up(0.4, 0.4)
+    if not silent then
+        local st_name = (SMODS.Stickers[matched_sticker] and SMODS.Stickers[matched_sticker].loc_txt and SMODS.Stickers[matched_sticker].loc_txt.name) or "Boss Possessed"
+        card_eval_status_text(card, 'extra', nil, nil, nil, {
+            message = st_name .. '!',
+            colour = G.C.PURPLE
+        })
+        play_sound('whoosh1', 0.8, 0.7)
+        card:juice_up(0.4, 0.4)
+    end
+end
+
+local orig_card_set_ability = Card.set_ability
+function Card:set_ability(center, initial, delay_sprites)
+    local ret = orig_card_set_ability(self, center, initial, delay_sprites)
+    if initial and G.GAME and G.GAME.pseudorandom and self.ability and self.ability.set == 'Joker' and not self.ability.possessed then
+        if pseudorandom('boss_possession_joker_spawn') < 0.05 then
+            possess_joker(self, nil, true)
+        end
+    end
+    return ret
 end
