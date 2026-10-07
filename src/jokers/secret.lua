@@ -179,15 +179,15 @@ local function draw_mad_ghost_companion(self, is_front)
         end
     end
 
-    local t = ((G.TIMERS and G.TIMERS.REAL) or 0) * 1.5
+    local t = ((G.TIMERS and G.TIMERS.REAL) or 0) * 1.2
     local z = math.cos(t)
     if is_front and z < 0 then return end
     if not is_front and z >= 0 then return end
 
-    local float_x = 0.55 * math.sin(t)
-    local float_y = -0.28 + 0.28 * math.sin(2 * t)
-    local scale_mod = -0.26 + 0.08 * z
-    local rotate_mod = 0.05 * math.cos(t)
+    local float_x = 1.95 * math.sin(t)
+    local float_y = -0.20 + 0.85 * math.sin(2 * t)
+    local scale_mod = -0.38 + 0.12 * z
+    local rotate_mod = 0.14 * math.cos(t)
 
     local prev_overlay = G.BRUTE_OVERLAY
     G.BRUTE_OVERLAY = { 1, 1, 1, 0.25 }
@@ -206,7 +206,7 @@ end
 
 SMODS.DrawStep {
     key = 'mew_mew_mad_ghost_behind',
-    order = 48,
+    order = -15,
     func = function(self)
         draw_mad_ghost_companion(self, false)
     end,
@@ -215,7 +215,7 @@ SMODS.DrawStep {
 
 SMODS.DrawStep {
     key = 'mew_mew_mad_ghost_in_front',
-    order = 52,
+    order = 65,
     func = function(self)
         draw_mad_ghost_companion(self, true)
     end,
