@@ -333,23 +333,7 @@ SMODS.Tag {
         return { vars = { "Combination Joker 1", "Combination Joker 2" } }
     end,
     apply = function(self, tag, context)
-        if context.type == 'shop_start' then
-            local untriggered_amalgams = 0
-            for _, t in ipairs(G.GAME.tags or {}) do
-                if (t.key == 'tag_reality_warp_amalgam' or t.key == 'amalgam') and not t.triggered then
-                    untriggered_amalgams = untriggered_amalgams + 1
-                end
-            end
-            local needed = untriggered_amalgams * 2
-            if G.GAME and G.GAME.shop and G.GAME.shop.joker_max < needed then
-                G.GAME.shop.joker_max = needed
-            end
-            if G.shop_jokers and G.shop_jokers.config and G.shop_jokers.config.card_limit < needed then
-                G.shop_jokers.config.card_limit = needed
-                G.shop_jokers.T.w = needed * 1.01 * G.CARD_W
-                if G.shop then G.shop:recalculate() end
-            end
-        elseif context.type == 'store_joker_create' then
+        if context.type == 'store_joker_create' then
             if not (tag.ability and tag.ability.amalgam_pair) then
                 self:set_ability(tag)
             end
@@ -375,10 +359,10 @@ SMODS.Tag {
                     if card2 then card2:start_materialize() end
                     local pot_key = (G.P_CENTERS and G.P_CENTERS['c_reality_warp_potion_amalgam'] and 'c_reality_warp_potion_amalgam') or (G.P_CENTERS and G.P_CENTERS['c_reality_warp_potion_amalgama'] and 'c_reality_warp_potion_amalgama') or 'c_potion_amalgam'
                     if G.consumeables then
-                        if #G.consumeables.cards >= G.consumeables.config.card_limit then
-                            G.consumeables.config.card_limit = G.consumeables.config.card_limit + 1
-                        end
                         local pot = create_card('Potion', G.consumeables, nil, nil, nil, nil, pot_key, 'amalgam_tag')
+                        if #G.consumeables.cards >= G.consumeables.config.card_limit then
+                            pot:set_edition('e_negative', true)
+                        end
                         pot:add_to_deck()
                         G.consumeables:emplace(pot)
                         pot:start_materialize()
@@ -394,10 +378,10 @@ SMODS.Tag {
                 if card1 then card1:start_materialize() end
                 local pot_key = (G.P_CENTERS and G.P_CENTERS['c_reality_warp_potion_amalgam'] and 'c_reality_warp_potion_amalgam') or (G.P_CENTERS and G.P_CENTERS['c_reality_warp_potion_amalgama'] and 'c_reality_warp_potion_amalgama') or 'c_potion_amalgam'
                 if G.consumeables then
-                    if #G.consumeables.cards >= G.consumeables.config.card_limit then
-                        G.consumeables.config.card_limit = G.consumeables.config.card_limit + 1
-                    end
                     local pot = create_card('Potion', G.consumeables, nil, nil, nil, nil, pot_key, 'amalgam_tag')
+                    if #G.consumeables.cards >= G.consumeables.config.card_limit then
+                        pot:set_edition('e_negative', true)
+                    end
                     pot:add_to_deck()
                     G.consumeables:emplace(pot)
                     pot:start_materialize()
@@ -560,9 +544,16 @@ SMODS.Tag {
                     for i = 1, 2 do
                         local c = create_card('Consumeables', G.shop_jokers, nil, nil, nil, nil, nil, 'black_market')
                         c:set_edition({ negative = true }, true)
-                        c.cost = 0
+                        c.ability.couponed = true
+                        c:set_cost()
+                        create_shop_card_ui(c, c.ability.set or 'Tarot', G.shop_jokers)
                         G.shop_jokers:emplace(c)
+                        c:start_materialize()
                     end
+                    G.shop_jokers.config.card_limit = math.max(G.shop_jokers.config.card_limit or 2, #G.shop_jokers.cards)
+                    G.shop_jokers.T.w = G.shop_jokers.config.card_limit * 1.02 * G.CARD_W
+                    if G.shop_jokers.align_cards then G.shop_jokers:align_cards() end
+                    if G.shop and G.shop.recalculate then G.shop:recalculate() end
                 end
                 return true
             end)
@@ -570,6 +561,10 @@ SMODS.Tag {
             return true
         elseif context.type == 'round_eval' or context.type == 'end_of_round' then
             if G.GAME then G.GAME.black_market_tag_active = nil end
+            if G.shop_jokers and G.GAME and G.GAME.shop then
+                G.shop_jokers.config.card_limit = G.GAME.shop.joker_max or 2
+                G.shop_jokers.T.w = G.shop_jokers.config.card_limit * 1.02 * G.CARD_W
+            end
         end
     end
 }

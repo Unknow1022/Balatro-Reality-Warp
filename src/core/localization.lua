@@ -178,6 +178,14 @@ end
 
 local SPANISH_TRANSLATIONS = {
     descriptions = {
+        Joker = {
+            j_reality_warp_mad_ghost = {
+                name = 'Mad Ghost',
+                text = {
+                    "Acompañante de mew mew"
+                }
+            }
+        },
         Tag = {},
         Other = {
             bull_market = {
@@ -541,8 +549,7 @@ local function build_reality_warp_config_tab()
                                             save_reality_warp_config()
                                         end,
                                         info = {
-                                            "Post-Ante 8 Battle of Gods mode.",
-                                            "Only appears if Amulet mod is installed."
+                                            "Post-Ante 8 Battle of Gods mode."
                                         }
                                     })
                                 }

@@ -8067,7 +8067,65 @@ if Sprite then
             if self.shader_tab then love.graphics.setShader() end
             return
         end
-        return orig_sprite_draw_self(self, overlay, ...)
+        return orig_sprite_draw_self(self, overlay or G.BRUTE_OVERLAY, ...)
+    end
+end
+
+if SMODS and SMODS.Scoring_Parameter and SMODS.Scoring_Parameters and not SMODS.Scoring_Parameters.e_mult then
+    SMODS.Scoring_Parameter({
+        key = 'e_mult',
+        default_value = 0,
+        colour = G.C.DARK_EDITION,
+        calculation_keys = { 'e_mult', 'emult', 'Emult' },
+        calc_effect = function(self, effect, scored_card, key, amount, from_edition)
+            if not amount or amount <= 1 or not SMODS.Calculation_Controls or not SMODS.Calculation_Controls.mult then
+                return
+            end
+            if effect.card and effect.card ~= scored_card then
+                juice_card(effect.card)
+            end
+            local mult_param = SMODS.Scoring_Parameters.mult
+            local cur = mult_param and mult_param.current
+            if cur and (type(cur) == 'table' or cur >= 1) then
+                local target = type(cur) == 'table' and (cur ^ amount) or math.floor(cur ^ amount)
+                mult_param:modify(target - cur)
+                if not effect.remove_default_message then
+                    card_eval_status_text(
+                        effect.message_card or scored_card or effect.card or effect.focus,
+                        'extra', nil, nil, nil,
+                        {
+                            sound = 'multhit2',
+                            message = '^' .. tostring(amount) .. ' Mult!',
+                            colour = G.C.DARK_EDITION,
+                        }
+                    )
+                end
+                return true
+            end
+        end,
+    })
+end
+
+if G.FUNCS and G.FUNCS.buy_from_shop and not G.reality_warp_echo_dice_hooked then
+    G.reality_warp_echo_dice_hooked = true
+    local orig_buy_from_shop = G.FUNCS.buy_from_shop
+    G.FUNCS.buy_from_shop = function(e)
+        local card = e and e.config and e.config.ref_table
+        if card then
+            local is_dice = (card.config and card.config.center and card.config.center.key == 'j_oops')
+                or (card.ability and card.ability.name == 'Oops! All 6s')
+                or (card.config and card.config.center_key == 'j_oops')
+            if is_dice then
+                local has_echo = (find_joker and (next(find_joker('echo_chamber')) or next(find_joker('Echo Chamber'))))
+                    or (SMODS and SMODS.find_card and (next(SMODS.find_card('j_reality_warp_echo_chamber')) or next(SMODS.find_card('j_echo_chamber'))))
+                if has_echo then
+                    card_eval_status_text(card, 'extra', nil, nil, nil, { message = 'Nope!', colour = G.C.RED })
+                    play_sound('cancel', 1.0, 0.8)
+                    return
+                end
+            end
+        end
+        return orig_buy_from_shop(e)
     end
 end
 

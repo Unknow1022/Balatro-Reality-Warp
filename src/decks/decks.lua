@@ -1004,6 +1004,60 @@ SMODS.Back {
     end
 }
 
+SMODS.Back {
+    name = 'Galactic Deck',
+    key = 'galactica',
+    atlas = 'reality_warp_decks',
+    pos = { x = 2, y = 3 },
+    config = { hand_size = -1 },
+    unlocked = true,
+    discovered = true,
+    loc_txt = {
+        name = 'Galactic Deck',
+        text = {
+            "Start run with a random",
+            "{C:attention}Outsider{} or {C:purple}Amalgam{} Joker,",
+            "{C:red}-1{} Hand Size"
+        }
+    },
+    loc_vars = function(self, info_queue, back)
+        return { vars = {} }
+    end,
+    apply = function(self, back)
+        G.E_MANAGER:add_event(Event({
+            func = function()
+                G.GAME.starting_params.hand_size = G.GAME.starting_params.hand_size - 1
+                G.hand:change_size(-1)
+
+                local pool = {}
+                if G.P_CENTERS then
+                    for k, v in pairs(G.P_CENTERS) do
+                        if v.set == 'Joker' and (v.is_secret or v.is_amalgam) and k ~= 'j_reality_warp_mad_ghost' then
+                            table.insert(pool, k)
+                        end
+                    end
+                end
+                if #pool == 0 then
+                    pool = {
+                        'j_reality_warp_esteban', 'j_reality_warp_thiago', 'j_reality_warp_black_hole_joker',
+                        'j_reality_warp_squele', 'j_reality_warp_bluxdir', 'j_reality_warp_charles',
+                        'j_reality_warp_mochi', 'j_reality_warp_helin', 'j_reality_warp_raytracing',
+                        'j_reality_warp_paco', 'j_reality_warp_yairo', 'j_reality_warp_kyra',
+                        'j_reality_warp_astra', 'j_reality_warp_mew_mew', 'j_reality_warp_brainprint',
+                        'j_reality_warp_vampiric_midas', 'j_reality_warp_certified_programming',
+                        'j_reality_warp_galactic_traveler', 'j_reality_warp_colorful_street'
+                    }
+                end
+                local chosen = pseudorandom_element(pool, 'galactic_deck')
+                if chosen then
+                    SMODS.add_card({ key = chosen })
+                end
+                return true
+            end
+        }))
+    end
+}
+
 function inject_reality_warp_deck_localization()
     if not (G.localization and G.localization.descriptions) then return end
     G.localization.descriptions.Back = G.localization.descriptions.Back or {}
@@ -1170,6 +1224,22 @@ function inject_reality_warp_deck_localization()
                 "Defeating a {C:attention}Boss Blind{} awards a random",
                 "{C:attention}Bounty{}: {C:money}Cash ($15){}, {C:tarot}Tarot{},",
                 "{C:spectral}Spectral Card{}, or {C:attention}Tag{}"
+            }
+        },
+        galactic = {
+            name = "Galactic Deck",
+            text = {
+                "Start run with a random",
+                "{C:attention}Outsider{} or {C:purple}Amalgam{} Joker,",
+                "{C:red}-1{} Hand Size"
+            }
+        },
+        galactica = {
+            name = "Galactic Deck",
+            text = {
+                "Start run with a random",
+                "{C:attention}Outsider{} or {C:purple}Amalgam{} Joker,",
+                "{C:red}-1{} Hand Size"
             }
         }
     }

@@ -1,17 +1,4 @@
 
-local function has_amulet_mod()
-    if SMODS and SMODS.Mods then
-        for k, v in pairs(SMODS.Mods) do
-            local key_str = string.lower(tostring(k))
-            local id_str = v.id and string.lower(tostring(v.id)) or ''
-            local name_str = v.name and string.lower(tostring(v.name)) or ''
-            if key_str == 'amulet' or id_str == 'amulet' or name_str == 'amulet' then
-                return true
-            end
-        end
-    end
-    return false
-end
 
 function apply_battle_of_gods_bg()
     G.C.BOTG_BLACK = G.C.BOTG_BLACK or HEX('080808')
@@ -435,6 +422,42 @@ if reset_blinds then
                 G.GAME.round_resets.blind_choices.Boss = get_new_boss_filtered(true)
             end
         end
+    end
+end
+
+function reality_warp_divine_ward_free_available()
+    return not not (G.GAME and G.GAME.battle_of_gods and G.GAME.round_resets and G.GAME.round_resets.divine_ward_free)
+end
+
+function reality_warp_boss_reroll_button_visible()
+    if not (G.GAME and G.GAME.used_vouchers) then return false end
+    if reality_warp_divine_ward_free_available() then return true end
+    return not not (G.GAME.used_vouchers["v_retcon"] or G.GAME.used_vouchers["v_directors_cut"])
+end
+
+function reality_warp_divine_ward_reroll_button()
+    local is_free = reality_warp_divine_ward_free_available()
+    local cost_str = is_free and (localize('$') .. '0') or (localize('$') .. '10')
+    return UIBox_button({
+        label = {localize('b_reroll_boss'), cost_str},
+        button = "reroll_boss",
+        func = 'reroll_boss_button'
+    })
+end
+
+function reality_warp_pay_boss_reroll()
+    if reality_warp_divine_ward_free_available() then
+        G.GAME.round_resets.divine_ward_free = false
+        attention_text({
+            text = 'Divine Ward: Free Reroll!',
+            scale = 0.7,
+            hold = 1.2,
+            backdrop_colour = G.C.GOLD,
+            align = 'cm',
+            offset = {x = 0, y = -1}
+        })
+    else
+        ease_dollars(-10)
     end
 end
 
@@ -1131,7 +1154,7 @@ if create_UIBox_win then
             return t
         end
 
-        if cfg.battle_of_gods ~= false and has_amulet_mod() then
+        if cfg.battle_of_gods ~= false then
             local parent, idx = find_endless_node(t)
             if parent and idx then
                 parent.nodes[idx] = UIBox_button({

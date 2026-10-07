@@ -216,6 +216,12 @@ SMODS.Joker {
         G.GAME.modifiers.extra_packs = (G.GAME.modifiers.extra_packs or 0) + 1
         G.GAME.discount_percent = (G.GAME.discount_percent or 0) + 25
         G.GAME.merchant_rare_boost = (G.GAME.merchant_rare_boost or 0) + 1
+        if G.shop_jokers and (G.STATE == G.STATES.SHOP or (G.shop and not G.shop.REMOVED)) then
+            G.shop_jokers.config.card_limit = G.GAME.shop.joker_max
+            G.shop_jokers.T.w = G.shop_jokers.config.card_limit * 1.02 * G.CARD_W
+            if G.shop_jokers.align_cards then G.shop_jokers:align_cards() end
+            if G.shop and G.shop.recalculate then G.shop:recalculate() end
+        end
     end,
     remove_from_deck = function(self, card, from_debuff)
         G.GAME.shop.joker_max = math.max(1, (G.GAME.shop.joker_max or 3) - 1)
@@ -223,6 +229,12 @@ SMODS.Joker {
         G.GAME.modifiers.extra_packs = math.max(0, (G.GAME.modifiers.extra_packs or 0) - 1)
         G.GAME.discount_percent = math.max(0, (G.GAME.discount_percent or 0) - 25)
         G.GAME.merchant_rare_boost = math.max(0, (G.GAME.merchant_rare_boost or 0) - 1)
+        if G.shop_jokers and (G.STATE == G.STATES.SHOP or (G.shop and not G.shop.REMOVED)) then
+            G.shop_jokers.config.card_limit = G.GAME.shop.joker_max
+            G.shop_jokers.T.w = G.shop_jokers.config.card_limit * 1.02 * G.CARD_W
+            if G.shop_jokers.align_cards then G.shop_jokers:align_cards() end
+            if G.shop and G.shop.recalculate then G.shop:recalculate() end
+        end
     end,
     calculate = function(self, card, context)
         if context.ending_shop then
@@ -2604,6 +2616,44 @@ SMODS.Joker {
 
         if (context.end_of_round or context.setting_blind) and not context.blueprint then
             ex.played_this_round = false
+        end
+    end
+}
+
+SMODS.Joker {
+    key = 'echo_chamber',
+    atlas = 'reality_warp_jokers',
+    pos = { x = 1, y = 12 },
+    rarity = 3,
+    cost = 8,
+    blueprint_compat = true,
+    config = { extra = {} },
+    loc_txt = {
+        name = 'Echo Chamber',
+        text = {
+            "{C:green}1 in 2{} chance to retrigger scored card.",
+            "Can retrigger {C:attention}infinitely{} as long",
+            "as the chance succeeds.",
+            "{C:inactive}(Probability is not affected by dice){}"
+        }
+    },
+    loc_vars = function(self, info_queue, card)
+        return { vars = {} }
+    end,
+    calculate = function(self, card, context)
+        if context.repetition and context.cardarea == G.play then
+            local reps = 0
+            while pseudorandom('echo_chamber') < 0.5 and reps < 50 do
+                reps = reps + 1
+            end
+            if reps > 0 then
+                play_sound('tarot2', 1.2)
+                return {
+                    message = 'Echo! (x' .. reps .. ')',
+                    repetitions = reps,
+                    card = card
+                }
+            end
         end
     end
 }

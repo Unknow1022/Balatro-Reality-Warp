@@ -5,7 +5,8 @@ A reality-bending expansion mod for **Balatro** powered by **Steamodded** and **
 ---
 
 ## Screenshots & Showcase
-<!-- Add your photos, gameplay screenshots, or animated GIFs below -->
+<img width="808" height="598" alt="image" src="https://github.com/user-attachments/assets/340eb982-17ed-4339-ab32-948c86d36656" />
+
 
 <p align="center">
   <img src="assets/screenshots/preview.png" alt="Reality Warp Gameplay Showcase" width="85%" />
@@ -15,7 +16,7 @@ A reality-bending expansion mod for **Balatro** powered by **Steamodded** and **
 
 ## Notes & Disclaimer
 
-* **Origins & Evolution:** The earliest prototype versions of this mod were originally titled **"Cracklatro"** and later **"Wichter Brew Expansion"**. This revised release has been rebuilt to be cleaner, well-structured, and leverages partial AI assistance strictly for testing and rapid development iteration.
+* **Origins & Evolution:** The earliest prototype versions of this mod were originally titled **"Cracklatro"** and later **"Wichter Brew Expansion"**.
 * **Experimental Spirit:** This mod is designed fundamentally as an **experiment and creative playground** rather than a strictly competitive, vanilla-balanced expansion.
 
 ---

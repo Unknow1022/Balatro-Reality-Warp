@@ -2608,28 +2608,77 @@ jd_def["j_reality_warp_top_fuel_dragster"] = {
             card.joker_display_values.x_mult = ex.x_mult_perfect or 10
             card.joker_display_values.timing_status = "(PERFECT!)"
         elseif ex.perfect_launch == false then
-            card.joker_display_values.x_mult = ex.x_mult_normal or 5
+            card.joker_display_values.x_mult = ex.x_mult_normal or 3
             card.joker_display_values.timing_status = "(Late/Early)"
         elseif ex.active then
             if t > 0.05 then
-                card.joker_display_values.x_mult = ex.x_mult_normal or 5
+                card.joker_display_values.x_mult = ex.x_mult_normal or 3
                 card.joker_display_values.timing_status = string.format("(%.1fs)", math.max(0, t))
             elseif t >= -0.10 then
                 card.joker_display_values.x_mult = ex.x_mult_perfect or 10
                 card.joker_display_values.timing_status = "(LAUNCH!)"
             else
-                card.joker_display_values.x_mult = ex.x_mult_normal or 5
+                card.joker_display_values.x_mult = ex.x_mult_normal or 3
                 card.joker_display_values.timing_status = string.format("(Late: +%.1fs)", math.abs(t))
             end
         else
-            card.joker_display_values.x_mult = ex.x_mult_normal or 5
+            card.joker_display_values.x_mult = ex.x_mult_normal or 3
             card.joker_display_values.timing_status = "(Ready: 20s)"
         end
     end,
     style_function = function(card, text, reminder_text, extra)
         if text and text.children and text.children[1] and text.children[1].children and text.children[1].children[2] then
-            local is_perfect = (card.joker_display_values.x_mult or 5) >= 10
+            local is_perfect = (card.joker_display_values.x_mult or 3) >= 10
             text.children[1].children[2].config.colour = is_perfect and G.C.GREEN or G.C.MULT
+        end
+        if reminder_text and reminder_text.children and reminder_text.children[1] then
+            local is_launch = card.joker_display_values.timing_status == "(LAUNCH!)" or card.joker_display_values.timing_status == "(PERFECT!)"
+            reminder_text.children[1].config.colour = is_launch and G.C.GREEN or G.C.UI.TEXT_INACTIVE
+        end
+    end
+}
+
+jd_def["j_reality_warp_top_fuel_funny_car"] = {
+    text = {
+        {
+            border_nodes = {
+                { text = "X" },
+                { ref_table = "card.joker_display_values", ref_value = "x_chips", retrigger_type = "exp" }
+            }
+        }
+    },
+    reminder_text = {
+        { ref_table = "card.joker_display_values", ref_value = "timing_status" }
+    },
+    calc_function = function(card)
+        local ex = (card.ability and card.ability.extra) or {}
+        local t = ex.timer or 20
+        if ex.perfect_launch == true then
+            card.joker_display_values.x_chips = ex.x_chips_perfect or 10
+            card.joker_display_values.timing_status = "(PERFECT!)"
+        elseif ex.perfect_launch == false then
+            card.joker_display_values.x_chips = ex.x_chips_normal or 4
+            card.joker_display_values.timing_status = "(Late/Early)"
+        elseif ex.active then
+            if t > 0.05 then
+                card.joker_display_values.x_chips = ex.x_chips_normal or 4
+                card.joker_display_values.timing_status = string.format("(%.1fs)", math.max(0, t))
+            elseif t >= -0.10 then
+                card.joker_display_values.x_chips = ex.x_chips_perfect or 10
+                card.joker_display_values.timing_status = "(LAUNCH!)"
+            else
+                card.joker_display_values.x_chips = ex.x_chips_normal or 4
+                card.joker_display_values.timing_status = string.format("(Late: +%.1fs)", math.abs(t))
+            end
+        else
+            card.joker_display_values.x_chips = ex.x_chips_normal or 4
+            card.joker_display_values.timing_status = "(Ready: 20s)"
+        end
+    end,
+    style_function = function(card, text, reminder_text, extra)
+        if text and text.children and text.children[1] and text.children[1].children and text.children[1].children[2] then
+            local is_perfect = (card.joker_display_values.x_chips or 4) >= 10
+            text.children[1].children[2].config.colour = is_perfect and G.C.GREEN or G.C.CHIPS
         end
         if reminder_text and reminder_text.children and reminder_text.children[1] then
             local is_launch = card.joker_display_values.timing_status == "(LAUNCH!)" or card.joker_display_values.timing_status == "(PERFECT!)"
@@ -2651,19 +2700,11 @@ jd_def["j_reality_warp_mew_mew"] = {
     reminder_text = {
         { text = "(" },
         { ref_table = "card.joker_display_values", ref_value = "target_hand" },
-        { text = " | " },
-        { ref_table = "card.joker_display_values", ref_value = "doki" },
-        { text = " Doki [" },
-        { ref_table = "card.joker_display_values", ref_value = "streak" },
-        { text = "/5])" }
+        { text = ")" }
     },
     calc_function = function(card)
         local ex = (card.ability and card.ability.extra) or {}
-        local doki = ex.doki or 0
-        local mult_bonus = math.floor(doki / (ex.doki_per_mult or 5))
-        card.joker_display_values.x_mult = 1.0 + mult_bonus
-        card.joker_display_values.doki = tostring(doki)
-        card.joker_display_values.streak = tostring(ex.consecutive or 0)
+        card.joker_display_values.x_mult = ex.xmult or 1.5
         card.joker_display_values.target_hand = tostring(ex.target_hand or 'Pair')
     end
 }
@@ -2671,23 +2712,9 @@ jd_def["j_reality_warp_mew_mew"] = {
 jd_def["j_reality_warp_astral_calamity"] = jd_def["j_reality_warp_astra"]
 
 jd_def["j_reality_warp_mad_ghost"] = {
-    text = {
-        {
-            border_nodes = {
-                { text = "X" },
-                { ref_table = "card.joker_display_values", ref_value = "card_xmult", retrigger_type = "exp" }
-            }
-        }
-    },
     reminder_text = {
-        { text = "(Each played card)" }
-    },
-    calc_function = function(card)
-        local ex = (card.ability and card.ability.extra) or {}
-        local doki = ex.doki or 0
-        local mew_mult = math.floor(doki / (ex.doki_per_mult or 5))
-        card.joker_display_values.card_xmult = (ex.base_xmult or 1.5) + (mew_mult * (ex.per_mult_gain or 0.5))
-    end
+        { text = "(Companion)" }
+    }
 }
 
 local new_entries = {}

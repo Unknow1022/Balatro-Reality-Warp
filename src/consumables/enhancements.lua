@@ -1237,7 +1237,7 @@ if new_round then
         orig_new_round_glitch()
         if G.GAME and G.consumeables then
             local seed = 'glitch_spawn_' .. (G.GAME.round_resets and G.GAME.round_resets.ante or 1) .. '_' .. (G.GAME.round or 0)
-            if pseudorandom(seed) < 0.10 then
+            if pseudorandom(seed) < ((G.GAME and G.GAME.probabilities.normal or 1) / 13) then
                 G.E_MANAGER:add_event(Event({
                     trigger = 'after',
                     func = function()

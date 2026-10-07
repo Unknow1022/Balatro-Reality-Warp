@@ -4,6 +4,7 @@ SMODS.Atlas {
     px = 71,
     py = 95
 }
+G.C.PINK = G.C.PINK or HEX('ec4899')
 local function register_secret_joker(def)
     def.rarity = def.rarity or 4
     def.is_secret = true
@@ -155,8 +156,77 @@ SMODS.DrawStep {
     conditions = { vortex = false, facing = 'front' },
 }
 
+local function draw_mad_ghost_companion(self, is_front)
+    local c = self.config and self.config.center
+    if not (c and (c.key == 'j_reality_warp_mew_mew' or c.key == 'mew_mew')) then return end
+
+    if not self.children.mad_ghost_card or not self.children.mad_ghost_soul then
+        local atlas = (SMODS and SMODS.get_atlas and (SMODS.get_atlas('reality_warp_secret_jokers') or SMODS.get_atlas('secret_jokers')))
+            or (G.ASSET_ATLAS and (G.ASSET_ATLAS['reality_warp_secret_jokers'] or G.ASSET_ATLAS['secret_jokers']))
+        if atlas then
+            if not self.children.mad_ghost_card then
+                self.children.mad_ghost_card = Sprite(self.T.x, self.T.y, self.T.w, self.T.h, atlas, { x = 2, y = 15 })
+                self.children.mad_ghost_card.role.draw_major = self
+                self.children.mad_ghost_card.states.hover.can = false
+                self.children.mad_ghost_card.states.click.can = false
+            end
+            if not self.children.mad_ghost_soul then
+                self.children.mad_ghost_soul = Sprite(self.T.x, self.T.y, self.T.w, self.T.h, atlas, { x = 3, y = 15 })
+                self.children.mad_ghost_soul.role.draw_major = self
+                self.children.mad_ghost_soul.states.hover.can = false
+                self.children.mad_ghost_soul.states.click.can = false
+            end
+        end
+    end
+
+    local t = ((G.TIMERS and G.TIMERS.REAL) or 0) * 1.5
+    local z = math.cos(t)
+    if is_front and z < 0 then return end
+    if not is_front and z >= 0 then return end
+
+    local float_x = 0.55 * math.sin(t)
+    local float_y = -0.28 + 0.28 * math.sin(2 * t)
+    local scale_mod = -0.26 + 0.08 * z
+    local rotate_mod = 0.05 * math.cos(t)
+
+    local prev_overlay = G.BRUTE_OVERLAY
+    G.BRUTE_OVERLAY = { 1, 1, 1, 0.25 }
+    if self.children.mad_ghost_card then
+        pcall(function()
+            self.children.mad_ghost_card:draw_shader('dissolve', nil, nil, nil, self.children.center, scale_mod, rotate_mod, float_x, float_y)
+        end)
+    end
+    if self.children.mad_ghost_soul then
+        pcall(function()
+            self.children.mad_ghost_soul:draw_shader('dissolve', nil, nil, nil, self.children.center, scale_mod, rotate_mod, float_x, float_y)
+        end)
+    end
+    G.BRUTE_OVERLAY = prev_overlay
+end
+
+SMODS.DrawStep {
+    key = 'mew_mew_mad_ghost_behind',
+    order = 48,
+    func = function(self)
+        draw_mad_ghost_companion(self, false)
+    end,
+    conditions = { vortex = false, facing = 'front' },
+}
+
+SMODS.DrawStep {
+    key = 'mew_mew_mad_ghost_in_front',
+    order = 52,
+    func = function(self)
+        draw_mad_ghost_companion(self, true)
+    end,
+    conditions = { vortex = false, facing = 'front' },
+}
+
 if SMODS.draw_ignore_keys then
     SMODS.draw_ignore_keys.secret_particles = true
+    SMODS.draw_ignore_keys.mad_ghost_sprite = true
+    SMODS.draw_ignore_keys.mad_ghost_card = true
+    SMODS.draw_ignore_keys.mad_ghost_soul = true
 end
 
 local orig_card_set_sprites = Card.set_sprites
@@ -167,6 +237,38 @@ function Card:set_sprites(_center, _front)
         self.children.secret_particles = nil
     end
     local c = _center or self.config.center
+    if self.children and not (c and (c.key == 'j_reality_warp_mew_mew' or c.key == 'mew_mew')) then
+        if self.children.mad_ghost_card then
+            self.children.mad_ghost_card:remove()
+            self.children.mad_ghost_card = nil
+        end
+        if self.children.mad_ghost_soul then
+            self.children.mad_ghost_soul:remove()
+            self.children.mad_ghost_soul = nil
+        end
+        if self.children.mad_ghost_sprite then
+            self.children.mad_ghost_sprite:remove()
+            self.children.mad_ghost_sprite = nil
+        end
+    end
+    if c and (c.key == 'j_reality_warp_mew_mew' or c.key == 'mew_mew') then
+        local atlas = (SMODS and SMODS.get_atlas and (SMODS.get_atlas('reality_warp_secret_jokers') or SMODS.get_atlas('secret_jokers')))
+            or (G.ASSET_ATLAS and (G.ASSET_ATLAS['reality_warp_secret_jokers'] or G.ASSET_ATLAS['secret_jokers']))
+        if atlas then
+            if not self.children.mad_ghost_card then
+                self.children.mad_ghost_card = Sprite(self.T.x, self.T.y, self.T.w, self.T.h, atlas, { x = 2, y = 15 })
+                self.children.mad_ghost_card.role.draw_major = self
+                self.children.mad_ghost_card.states.hover.can = false
+                self.children.mad_ghost_card.states.click.can = false
+            end
+            if not self.children.mad_ghost_soul then
+                self.children.mad_ghost_soul = Sprite(self.T.x, self.T.y, self.T.w, self.T.h, atlas, { x = 3, y = 15 })
+                self.children.mad_ghost_soul.role.draw_major = self
+                self.children.mad_ghost_soul.states.hover.can = false
+                self.children.mad_ghost_soul.states.click.can = false
+            end
+        end
+    end
     if c and (c.is_secret or c.is_amalgam or (is_secret_card and is_secret_card(self)) or (is_amalgam_card and is_amalgam_card(self))) then
         add_secret_particles(self, c)
     end
@@ -177,6 +279,18 @@ function Card:remove()
     if self.children and self.children.secret_particles then
         self.children.secret_particles:remove()
         self.children.secret_particles = nil
+    end
+    if self.children and self.children.mad_ghost_card then
+        self.children.mad_ghost_card:remove()
+        self.children.mad_ghost_card = nil
+    end
+    if self.children and self.children.mad_ghost_soul then
+        self.children.mad_ghost_soul:remove()
+        self.children.mad_ghost_soul = nil
+    end
+    if self.children and self.children.mad_ghost_sprite then
+        self.children.mad_ghost_sprite:remove()
+        self.children.mad_ghost_sprite = nil
     end
     return orig_card_remove(self)
 end
@@ -301,6 +415,10 @@ register_secret_joker {
     config = { extra = { mult = 10, xmult = 1.5, odds = 8 } },
     blueprint_compat = true,
     loc_vars = function(self, info_queue, card)
+        if info_queue and G.P_CENTERS then
+            if G.P_CENTERS.j_bloodstone then table.insert(info_queue, G.P_CENTERS.j_bloodstone) end
+            if G.P_CENTERS.e_negative then table.insert(info_queue, G.P_CENTERS.e_negative) end
+        end
         local mult = (card and card.ability and card.ability.extra and card.ability.extra.mult) or (self.config and self.config.extra and self.config.extra.mult) or 10
         local xmult = (card and card.ability and card.ability.extra and card.ability.extra.xmult) or (self.config and self.config.extra and self.config.extra.xmult) or 1.5
         local odds = (card and card.ability and card.ability.extra and card.ability.extra.odds) or (self.config and self.config.extra and self.config.extra.odds) or 8
@@ -507,15 +625,26 @@ register_secret_joker {
     calculate = function(self, card, context)
         if context.joker_main then
             local pow = (card.ability and card.ability.extra and card.ability.extra.power) or 2
-            if to_big or type(mult) == 'table' then
+            if to_big or (Talisman and Talisman.config_file) then
                 return {
                     e_mult = pow,
                     card = card
                 }
-            elseif mult and mult > 1 then
-                mult = math.floor(mult ^ pow)
-                update_hand_text({ sound = 'multhit2', modded = true }, { mult = mult })
+            elseif SMODS.Scoring_Parameters and SMODS.Scoring_Parameters.mult then
+                local mult_param = SMODS.Scoring_Parameters.mult
+                local cur = mult_param.current
+                if cur and (type(cur) == 'table' or cur >= 1) then
+                    local target = type(cur) == 'table' and (cur ^ pow) or math.floor(cur ^ pow)
+                    mult_param:modify(target - cur)
+                    return {
+                        message = '^' .. tostring(pow) .. ' Mult!',
+                        colour = G.C.DARK_EDITION,
+                        card = card
+                    }
+                end
+            else
                 return {
+                    e_mult = pow,
                     message = '^' .. tostring(pow) .. ' Mult!',
                     colour = G.C.DARK_EDITION,
                     card = card
@@ -711,53 +840,6 @@ G.FUNCS.pay_kyra = function(e)
     end
 end
 
-G.FUNCS.can_change_mew_mew = function(e)
-    local card = e.config.ref_table
-    if not (card and card.debuff) and not (G.STATE == G.STATES.HAND_PLAYED or G.STATE == G.STATES.DRAW_TO_HAND or G.STATE == G.STATES.PLAY_TAROT) then
-        local is_mew = card_has_key(card, 'mew_mew')
-        e.config.colour = is_mew and HEX('ec4899') or HEX('9333ea')
-        e.config.button = 'change_mew_mew'
-    else
-        e.config.colour = G.C.UI.BACKGROUND_INACTIVE
-        e.config.button = nil
-    end
-end
-
-G.FUNCS.change_mew_mew = function(e)
-    local card = e.config.ref_table
-    if not card then return end
-    local is_mew = (card.config and card.config.center and (card.config.center.key == 'j_reality_warp_mew_mew' or card.config.center.key == 'mew_mew'))
-    local next_center = is_mew and (G.P_CENTERS.j_reality_warp_mad_ghost or G.P_CENTERS.mad_ghost) or (G.P_CENTERS.j_reality_warp_mew_mew or G.P_CENTERS.mew_mew)
-    if not next_center then return end
-
-    play_sound('card1')
-    card:flip()
-    G.E_MANAGER:add_event(Event({
-        trigger = 'after',
-        delay = 0.15,
-        func = function()
-            local doki = (card.ability and card.ability.extra and card.ability.extra.doki) or 0
-            local target_hand = (card.ability and card.ability.extra and card.ability.extra.target_hand) or 'Pair'
-            local consecutive = (card.ability and card.ability.extra and card.ability.extra.consecutive) or 0
-            local played_req = (card.ability and card.ability.extra and card.ability.extra.played_requested_this_round) or false
-            card:set_ability(next_center)
-            if card.ability and card.ability.extra then
-                card.ability.extra.doki = doki
-                card.ability.extra.target_hand = target_hand
-                card.ability.extra.consecutive = consecutive
-                card.ability.extra.played_requested_this_round = played_req
-            end
-            add_secret_particles(card, next_center)
-            card:flip()
-            card:juice_up(0.6, 0.6)
-            if G.jokers and G.jokers.highlighted then
-                G.jokers:unhighlight_all()
-            end
-            return true
-        end
-    }))
-end
-
 local orig_use_and_sell_buttons = G.UIDEF.use_and_sell_buttons
 function G.UIDEF.use_and_sell_buttons(card)
     local t = orig_use_and_sell_buttons(card)
@@ -815,57 +897,6 @@ function G.UIDEF.use_and_sell_buttons(card)
         }
         if t and t.nodes and t.nodes[1] and t.nodes[1].nodes then
             table.insert(t.nodes[1].nodes, pay_button)
-        end
-    end
-    if card and card.area and card.area.config and card.area.config.type == 'joker' and (card_has_key(card, 'mew_mew') or card_has_key(card, 'mad_ghost')) and not card.debuff then
-        local is_mew = card_has_key(card, 'mew_mew')
-        local btn_colour = is_mew and HEX('ec4899') or HEX('9333ea')
-        local change_button = {
-            n = G.UIT.R,
-            config = { align = 'cl' },
-            nodes = {
-                {
-                    n = G.UIT.C,
-                    config = { align = "cr" },
-                    nodes = {
-                        {
-                            n = G.UIT.C,
-                            config = {
-                                ref_table = card,
-                                align = "cr",
-                                padding = 0.1,
-                                r = 0.08,
-                                minw = 1.25,
-                                hover = true,
-                                shadow = true,
-                                colour = btn_colour,
-                                one_press = false,
-                                button = 'change_mew_mew',
-                                func = 'can_change_mew_mew'
-                            },
-                            nodes = {
-                                { n = G.UIT.B, config = { w = 0.1, h = 0.6 } },
-                                {
-                                    n = G.UIT.C,
-                                    config = { align = "tm" },
-                                    nodes = {
-                                        {
-                                            n = G.UIT.R,
-                                            config = { align = "cm", maxw = 1.25 },
-                                            nodes = {
-                                                { n = G.UIT.T, config = { text = "CHANGE", colour = G.C.WHITE, scale = 0.42, shadow = true } }
-                                            }
-                                        }
-                                    }
-                                }
-                            }
-                        }
-                    }
-                }
-            }
-        }
-        if t and t.nodes and t.nodes[1] and t.nodes[1].nodes then
-            table.insert(t.nodes[1].nodes, change_button)
         end
     end
     return t
@@ -2284,6 +2315,192 @@ register_secret_joker {
     end
 }
 
+if SMODS and SMODS.Sound then
+    SMODS.Sound {
+        key = 'pink_gasp',
+        path = 'pink-gasp.mp3',
+    }
+    SMODS.Sound {
+        key = 'pink_surprise',
+        path = 'pink_surprise.mp3',
+    }
+end
+
+local function play_mew_sound(sound_key, pitch, volume)
+    pitch = pitch or 1
+    volume = volume or 1
+    local candidates = {
+        'reality_warp_' .. sound_key,
+        sound_key,
+        'reality_warp_' .. sound_key:gsub('_', '-'),
+        sound_key:gsub('_', '-')
+    }
+    for _, k in ipairs(candidates) do
+        if G.AUDIO and G.AUDIO[k] then
+            play_sound(k, pitch, volume)
+            return
+        end
+    end
+    pcall(play_sound, 'reality_warp_' .. sound_key, pitch, volume)
+end
+
+local function trigger_mega_flirt_visual()
+    if ease_background_colour then
+        ease_background_colour {
+            new_colour = HEX('f472b6'),
+            special_colour = HEX('fb7185'),
+            contrast = 2,
+            _is_reality_warp_theme = true,
+            _mega_flirt = true
+        }
+    end
+
+    if G.GAME then
+        G.GAME.mega_flirt_until = ((G.TIMERS and G.TIMERS.REAL) or (love and love.timer and love.timer.getTime and love.timer.getTime()) or 0) + 5.0
+    end
+
+    G.reality_warp_mega_flirt_hearts = G.reality_warp_mega_flirt_hearts or {}
+    local screen_w = (love and love.graphics and love.graphics.getWidth and love.graphics.getWidth()) or 1920
+    local screen_h = (love and love.graphics and love.graphics.getHeight and love.graphics.getHeight()) or 1080
+    local heart_palette = {
+        { 0.98, 0.42, 0.65, 0.95 },
+        { 0.96, 0.28, 0.55, 0.90 },
+        { 1.00, 0.65, 0.82, 0.95 },
+        { 0.95, 0.15, 0.45, 0.85 },
+        { 1.00, 0.80, 0.90, 0.95 }
+    }
+
+    for _ = 1, 36 do
+        local max_l = 4.0 + (math.random() * 1.0)
+        table.insert(G.reality_warp_mega_flirt_hearts, {
+            x = math.random() * screen_w,
+            y = (screen_h * 0.35) + math.random() * (screen_h * 0.75),
+            speed = 90 + math.random() * 140,
+            sway = 25 + math.random() * 35,
+            phase = math.random() * 6.28,
+            size = 22 + math.random() * 26,
+            rot = (math.random() - 0.5) * 0.4,
+            life = max_l,
+            max_life = max_l,
+            alpha = 0,
+            color = heart_palette[math.random(1, #heart_palette)]
+        })
+    end
+
+    if Particles and G.ROOM_ATTACH then
+        local p = Particles(0, 0, 0, 0, {
+            timer = 0.02,
+            pulse_max = 28,
+            max = 0,
+            scale = 0.38,
+            speed = 1.3,
+            lifespan = 2.2,
+            attach = G.ROOM_ATTACH,
+            colours = { HEX('ec4899'), HEX('f472b6'), HEX('fb7185'), HEX('ffffff'), HEX('f43f5e'), HEX('fda4af') },
+            fill = true
+        })
+        G.E_MANAGER:add_event(Event({
+            trigger = 'after',
+            delay = 4.5,
+            blockable = false,
+            blocking = false,
+            func = function()
+                if p and p.fade then p:fade(0.5, 1) end
+                return true
+            end
+        }))
+        G.E_MANAGER:add_event(Event({
+            trigger = 'after',
+            delay = 5.2,
+            blockable = false,
+            blocking = false,
+            func = function()
+                if p and p.remove then p:remove() end
+                return true
+            end
+        }))
+    end
+
+    G.E_MANAGER:add_event(Event({
+        trigger = 'after',
+        delay = 5.0,
+        blockable = false,
+        blocking = false,
+        func = function()
+            if G.GAME then G.GAME.mega_flirt_until = nil end
+            if ease_background_colour_blind then
+                ease_background_colour_blind(G.STATE or G.STATES.SELECTING_HAND)
+            elseif ease_background_colour then
+                local bg_col = (G.C and G.C.BLIND and G.C.BLIND['Small']) or (G.C and G.C.BACKGROUND and G.C.BACKGROUND.D) or HEX('374244')
+                ease_background_colour{
+                    new_colour = bg_col,
+                    special_colour = bg_col,
+                    contrast = 1
+                }
+            end
+            return true
+        end
+    }))
+end
+
+if Game and Game.update then
+    local orig_game_update = Game.update
+    function Game:update(dt)
+        orig_game_update(self, dt)
+        if G.reality_warp_mega_flirt_hearts and #G.reality_warp_mega_flirt_hearts > 0 then
+            local t = (love and love.timer and love.timer.getTime and love.timer.getTime()) or ((G.TIMERS and G.TIMERS.REAL) or 0)
+            for i = #G.reality_warp_mega_flirt_hearts, 1, -1 do
+                local h = G.reality_warp_mega_flirt_hearts[i]
+                h.life = h.life - dt
+                if h.life <= 0 then
+                    table.remove(G.reality_warp_mega_flirt_hearts, i)
+                else
+                    h.y = h.y - h.speed * dt
+                    h.x = h.x + math.sin(t * 2.8 + h.phase) * (h.sway * dt)
+                    h.rot = math.sin(t * 2.0 + h.phase) * 0.22
+                    if h.life < 0.8 then
+                        h.alpha = math.max(0, h.life / 0.8)
+                    elseif (h.max_life - h.life) < 0.4 then
+                        h.alpha = math.min(1, (h.max_life - h.life) / 0.4)
+                    else
+                        h.alpha = 1.0
+                    end
+                end
+            end
+        end
+    end
+end
+
+if not G.reality_warp_mega_flirt_draw_hooked and love and love.draw then
+    G.reality_warp_mega_flirt_draw_hooked = true
+    local orig_love_draw = love.draw
+    love.draw = function(...)
+        orig_love_draw(...)
+        local hearts = G.reality_warp_mega_flirt_hearts
+        if hearts and #hearts > 0 and love and love.graphics then
+            love.graphics.push('all')
+            love.graphics.origin()
+            for i = 1, #hearts do
+                local h = hearts[i]
+                local alpha = h.alpha or 1
+                if alpha > 0.01 then
+                    local col = h.color or { 1, 0.4, 0.7, 1 }
+                    local r = h.size * 0.5
+                    love.graphics.push()
+                    love.graphics.translate(h.x, h.y)
+                    if h.rot then love.graphics.rotate(h.rot) end
+                    love.graphics.setColor(col[1], col[2], col[3], alpha * (col[4] or 1))
+                    love.graphics.circle('fill', -r * 0.48, -r * 0.2, r * 0.52)
+                    love.graphics.circle('fill', r * 0.48, -r * 0.2, r * 0.52)
+                    love.graphics.polygon('fill', -r * 0.96, -r * 0.08, r * 0.96, -r * 0.08, 0, r * 1.08)
+                    love.graphics.pop()
+                end
+            end
+            love.graphics.pop()
+        end
+    end
+end
+
 local function pick_mew_mew_hand(card)
     local available = {}
     if G.GAME and G.GAME.hands then
@@ -2297,8 +2514,116 @@ local function pick_mew_mew_hand(card)
     if #available == 0 then
         available = { 'Pair', 'Two Pair', 'Three of a Kind', 'Full House', 'Flush', 'Straight' }
     end
-    local doki_seed = (card and card.ability and card.ability.extra and card.ability.extra.doki) or 0
-    return pseudorandom_element(available, pseudoseed('mew_mew_' .. tostring(G.GAME.round or 0) .. '_' .. tostring(doki_seed)))
+    return pseudorandom_element(available, 'mew_mew')
+end
+
+local function spawn_mew_mew_heart_burst(card)
+    local click_x, click_y
+    if G.CONTROLLER and G.CONTROLLER.cursor_position and G.CONTROLLER.cursor_position.x then
+        click_x = G.CONTROLLER.cursor_position.x
+        click_y = G.CONTROLLER.cursor_position.y
+    elseif card and card.VT and card.VT.x and G.TILESCALE and G.TILESIZE then
+        local room_x = (G.ROOM and G.ROOM.T and G.ROOM.T.x) or 0
+        local room_y = (G.ROOM and G.ROOM.T and G.ROOM.T.y) or 0
+        click_x = (card.VT.x + (card.VT.w or 1) * 0.5) * (G.TILESCALE * G.TILESIZE) + room_x
+        click_y = (card.VT.y + (card.VT.h or 1) * 0.5) * (G.TILESCALE * G.TILESIZE) + room_y
+    else
+        local screen_w = (love and love.graphics and love.graphics.getWidth and love.graphics.getWidth()) or 1920
+        local screen_h = (love and love.graphics and love.graphics.getHeight and love.graphics.getHeight()) or 1080
+        click_x = screen_w * 0.5
+        click_y = screen_h * 0.5
+    end
+
+    G.reality_warp_mega_flirt_hearts = G.reality_warp_mega_flirt_hearts or {}
+    local heart_palette = {
+        { 0.98, 0.42, 0.65, 0.95 },
+        { 0.96, 0.28, 0.55, 0.90 },
+        { 1.00, 0.65, 0.82, 0.95 },
+        { 0.95, 0.15, 0.45, 0.85 },
+        { 1.00, 0.80, 0.90, 0.95 }
+    }
+
+    for _ = 1, 14 do
+        local max_l = 1.0 + (math.random() * 0.7)
+        table.insert(G.reality_warp_mega_flirt_hearts, {
+            x = click_x + (math.random() - 0.5) * 60,
+            y = click_y + (math.random() - 0.5) * 35,
+            speed = 110 + math.random() * 95,
+            sway = 22 + math.random() * 25,
+            phase = math.random() * 6.28,
+            size = 9 + math.random() * 8,
+            rot = (math.random() - 0.5) * 0.45,
+            life = max_l,
+            max_life = max_l,
+            alpha = 0,
+            color = heart_palette[math.random(1, #heart_palette)]
+        })
+    end
+
+    if Particles and card and card.T then
+        local p = Particles(card.T.x, card.T.y, card.T.w or 1, card.T.h or 1, {
+            timer = 0.02,
+            pulse_max = 16,
+            max = 0,
+            scale = 0.26,
+            speed = 1.3,
+            lifespan = 0.7,
+            attach = G.ROOM_ATTACH or card,
+            colours = { HEX('ec4899'), HEX('f472b6'), HEX('fb7185'), HEX('ffffff'), HEX('f43f5e'), HEX('fda4af') },
+            fill = true
+        })
+        G.E_MANAGER:add_event(Event({
+            trigger = 'after',
+            delay = 0.5,
+            blockable = false,
+            blocking = false,
+            func = function()
+                if p and p.fade then p:fade(0.3, 1) end
+                return true
+            end
+        }))
+        G.E_MANAGER:add_event(Event({
+            trigger = 'after',
+            delay = 0.9,
+            blockable = false,
+            blocking = false,
+            func = function()
+                if p and p.remove then p:remove() end
+                return true
+            end
+        }))
+    end
+end
+
+if Card and Card.click then
+    local orig_card_click = Card.click
+    function Card:click(...)
+        local is_mew = (self.config and self.config.center and (self.config.center.key == 'j_reality_warp_mew_mew' or self.config.center.key == 'mew_mew'))
+        if not is_mew and type(card_has_key) == 'function' then
+            is_mew = card_has_key(self, 'mew_mew')
+        end
+
+        if is_mew then
+            local now = (love and love.timer and love.timer.getTime and love.timer.getTime()) or ((G.TIMERS and G.TIMERS.REAL) or 0)
+            if self.mew_last_click and (now - self.mew_last_click) < 1.2 then
+                self.mew_click_count = (self.mew_click_count or 0) + 1
+            else
+                self.mew_click_count = 1
+            end
+            self.mew_last_click = now
+
+            if self.mew_click_count >= 5 then
+                play_mew_sound('pink_surprise', 1.0 + (math.random() - 0.5) * 0.1, 1.0)
+                self:juice_up(0.6, 0.5)
+                spawn_mew_mew_heart_burst(self)
+            else
+                play_mew_sound('pink_gasp', 0.95 + math.random() * 0.1, 0.9)
+                self:juice_up(0.25, 0.2)
+            end
+        end
+
+        return orig_card_click(self, ...)
+    end
 end
 
 register_secret_joker {
@@ -2317,31 +2642,34 @@ register_secret_joker {
         end
         badges[#badges + 1] = create_badge('Mew mew!', HEX('ec4899'), G.C.WHITE, 1.0)
     end,
-    config = { extra = { doki = 0, target_hand = 'Pair', doki_per_mult = 5 } },
+    config = { extra = { xmult = 1.5, xmult_gain = 0.25, target_hand = 'Pair' } },
     loc_txt = {
         name = 'Mew mew!',
         text = {
-            "If played poker hand matches her request ({C:attention}#1#{})",
-            "gain {C:pink}+1 Doki{}.",
-            "Gives {X:mult,C:white}X1{} Mult per {C:attention}5 Doki{}",
-            "{C:inactive}(Currently {C:pink}#2#{} Doki, {X:mult,C:white}X#3#{} Mult){}",
-            "{C:inactive}(Click {C:purple}Change{} to flip into {C:purple}Mad Ghost{}){}"
+            "Played cards each give {X:mult,C:white}X#1#{} Mult.",
+            "Increases by {X:mult,C:white}+X#2#{} Mult when",
+            "{C:attention}#3#{} is played",
+            "{C:inactive}(Poker hand changes when scored){}"
         }
     },
     loc_vars = function(self, info_queue, card)
         local ex = (card and card.ability and card.ability.extra) or self.config.extra
-        local doki = ex.doki or 0
-        local mult_bonus = math.floor(doki / (ex.doki_per_mult or 5))
-        local x_mult = 1.0 + mult_bonus
+        local xmult = ex.xmult or 1.5
+        local gain = ex.xmult_gain or 0.25
         local target = ex.target_hand or 'Pair'
-        local target_loc = (localize and localize(target, 'poker_hands')) or target
-        return { vars = { target_loc, doki, x_mult } }
+        local target_loc = (type(localize) == 'function' and localize(target, 'poker_hands')) or target
+        if info_queue and G.P_CENTERS and (G.P_CENTERS.j_reality_warp_mad_ghost or G.P_CENTERS.mad_ghost) then
+            info_queue[#info_queue + 1] = G.P_CENTERS.j_reality_warp_mad_ghost or G.P_CENTERS.mad_ghost
+        end
+        return { vars = { xmult, gain, target_loc } }
     end,
     set_ability = function(self, card, initial, delay_sprites)
         if card and card.ability and card.ability.extra then
             if not card.ability.extra.target_hand or card.ability.extra.target_hand == '' then
                 card.ability.extra.target_hand = 'Pair'
             end
+            card.ability.extra.xmult = card.ability.extra.xmult or 1.5
+            card.ability.extra.xmult_gain = card.ability.extra.xmult_gain or 0.25
         end
     end,
     calculate = function(self, card, context)
@@ -2359,26 +2687,22 @@ register_secret_joker {
                 ex.target_hand = pick_mew_mew_hand(card)
             end
             if context.scoring_name == ex.target_hand then
-                ex.doki = (ex.doki or 0) + 1
+                ex.xmult = (ex.xmult or 1.5) + (ex.xmult_gain or 0.25)
                 ex.target_hand = pick_mew_mew_hand(card)
+                play_mew_sound('pink_gasp')
                 return {
-                    message = '+1 Doki! (' .. tostring(ex.doki) .. ')',
+                    message = 'Upgrade! X' .. string.format('%.2f', ex.xmult),
                     colour = HEX('ec4899'),
                     card = card
                 }
             end
         end
 
-        if context.joker_main then
-            local doki = ex.doki or 0
-            local mult_bonus = math.floor(doki / (ex.doki_per_mult or 5))
-            local total_xmult = 1.0 + mult_bonus
-            if total_xmult > 1.0 then
-                return {
-                    Xmult = total_xmult,
-                    card = card
-                }
-            end
+        if context.individual and context.cardarea == G.play then
+            return {
+                x_mult = ex.xmult or 1.5,
+                card = card
+            }
         end
     end
 }
@@ -2389,7 +2713,12 @@ register_secret_joker {
     pos = { x = 2, y = 15 },
     soul_pos = { x = 3, y = 15 },
     cost = 20,
-    blueprint_compat = true,
+    blueprint_compat = false,
+    no_collection = true,
+    omit = true,
+    in_pool = function(self, args)
+        return false, { allow_duplicates = false }
+    end,
     set_card_type_badge = function(self, card, badges)
         badges[1] = create_badge('Outsider', HEX('000000'), G.C.WHITE, 1.2)
     end,
@@ -2399,37 +2728,15 @@ register_secret_joker {
         end
         badges[#badges + 1] = create_badge('Mad Ghost', HEX('9333ea'), G.C.WHITE, 1.0)
     end,
-    config = { extra = { doki = 0, base_xmult = 1.5, per_mult_gain = 0.5, doki_per_mult = 5 } },
+    config = {},
     loc_txt = {
         name = 'Mad Ghost',
         text = {
-            "Played cards each give {X:mult,C:white}X#1#{} Mult.",
-            "Increases by {X:mult,C:white}X0.5{} for each",
-            "{X:mult,C:white}X1{} Mult possessed by {C:pink}Mew mew!{}",
-            "{C:inactive}(Mew mew has +#2# Mult from #3# Doki){}",
-            "{C:inactive}(Click {C:purple}Change{} to flip into {C:pink}Mew mew!{}){}"
+            "Mew mew's companion"
         }
     },
     loc_vars = function(self, info_queue, card)
-        local ex = (card and card.ability and card.ability.extra) or self.config.extra
-        local doki = ex.doki or 0
-        local mew_mult = math.floor(doki / (ex.doki_per_mult or 5))
-        local card_xmult = (ex.base_xmult or 1.5) + (mew_mult * (ex.per_mult_gain or 0.5))
-        return { vars = { card_xmult, mew_mult, doki } }
-    end,
-    calculate = function(self, card, context)
-        local ex = card.ability and card.ability.extra
-        if not ex then return end
-
-        if context.individual and context.cardarea == G.play then
-            local doki = ex.doki or 0
-            local mew_mult = math.floor(doki / (ex.doki_per_mult or 5))
-            local card_xmult = (ex.base_xmult or 1.5) + (mew_mult * (ex.per_mult_gain or 0.5))
-            return {
-                x_mult = card_xmult,
-                card = card
-            }
-        end
+        return { vars = {} }
     end
 }
 

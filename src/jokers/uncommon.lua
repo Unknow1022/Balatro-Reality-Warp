@@ -177,6 +177,9 @@ SMODS.Joker {
     cost = 8,
     blueprint_compat = true,
     loc_vars = function(self, info_queue, card)
+        if info_queue and G.P_CENTERS and G.P_CENTERS.e_negative then
+            table.insert(info_queue, G.P_CENTERS.e_negative)
+        end
         local ex = (card and card.ability and card.ability.extra) or self.config.extra
         return { vars = { ex.perma_chips or 2, ex.hand_threshold or 7, ex.xmult or 2.5, ex.sell_cash or 15 } }
     end,
@@ -2394,44 +2397,6 @@ SMODS.Joker {
                     chips = card.ability.extra.chips_per_shift or 15,
                     message = 'Shift: ' .. nxt .. '!',
                     colour = G.C.CHIPS,
-                    card = card
-                }
-            end
-        end
-    end
-}
-
-SMODS.Joker {
-    key = 'echo_chamber',
-    atlas = 'reality_warp_jokers',
-    pos = { x = 1, y = 12 },
-    rarity = 2,
-    cost = 6,
-    blueprint_compat = true,
-    config = { extra = {} },
-    loc_txt = {
-        name = 'Echo Chamber',
-        text = {
-            "{C:green}1 in 2{} chance to retrigger scored card.",
-            "Can retrigger {C:attention}infinitely{} as long",
-            "as the chance succeeds.",
-            "{C:inactive}(Probability is not affected by dice){}"
-        }
-    },
-    loc_vars = function(self, info_queue, card)
-        return { vars = {} }
-    end,
-    calculate = function(self, card, context)
-        if context.repetition and context.cardarea == G.play then
-            local reps = 0
-            while pseudorandom('echo_chamber') < 0.5 and reps < 50 do
-                reps = reps + 1
-            end
-            if reps > 0 then
-                play_sound('tarot2', 1.2)
-                return {
-                    message = 'Echo! (x' .. reps .. ')',
-                    repetitions = reps,
                     card = card
                 }
             end

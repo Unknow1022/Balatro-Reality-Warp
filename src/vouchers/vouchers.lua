@@ -13,7 +13,8 @@ SMODS.Voucher {
         name = 'Taster',
         text = {
             "{C:common}Common Jokers{} appear",
-            "{C:attention}less frequently{} in shop"
+            "{C:attention}less frequently{} in shop",
+            "{C:inactive,s:0.8}(Art by le_ginger_){}"
         }
     },
     redeem = function(self, card)
@@ -39,7 +40,8 @@ SMODS.Voucher {
         name = 'Critic',
         text = {
             "{C:common}Common Jokers{} no longer",
-            "appear in shop"
+            "appear in shop",
+            "{C:inactive,s:0.8}(Art by le_ginger_){}"
         }
     },
     redeem = function(self, card)
@@ -319,6 +321,9 @@ SMODS.Voucher {
                 create_shop_card_ui(v_card, 'Voucher', G.shop_vouchers)
                 v_card:start_materialize()
                 G.shop_vouchers:emplace(v_card)
+                G.shop_vouchers.T.w = G.shop_vouchers.config.card_limit * 1.02 * G.CARD_W
+                if G.shop_vouchers.align_cards then G.shop_vouchers:align_cards() end
+                if G.shop and G.shop.recalculate then G.shop:recalculate() end
             end
         end
     end
@@ -461,14 +466,17 @@ if G.UIDEF and G.UIDEF.shop then
     G.UIDEF.shop = function()
         local ret = orig_uidef_shop_nectar()
         if G.GAME and G.GAME.used_vouchers and (G.GAME.used_vouchers.v_reality_warp_nectar or G.GAME.used_vouchers.v_nectar or G.GAME.used_vouchers.nectar) then
-            if G.shop_vouchers and G.shop_vouchers.cards then
-                G.shop_vouchers.config.card_limit = G.shop_vouchers.config.card_limit + 1
+            if G.shop_vouchers and G.shop_vouchers.cards and #G.shop_vouchers.cards < (G.shop_vouchers.config.card_limit or 1) + 1 then
+                G.shop_vouchers.config.card_limit = math.max(G.shop_vouchers.config.card_limit or 1, #G.shop_vouchers.cards + 1)
                 local v_key = get_next_voucher_key and get_next_voucher_key(true)
                 if v_key and G.P_CENTERS and G.P_CENTERS[v_key] then
                     local v_card = Card(G.shop_vouchers.T.x + G.shop_vouchers.T.w/2, G.shop_vouchers.T.y, G.CARD_W, G.CARD_H, G.P_CARDS.empty, G.P_CENTERS[v_key], {bypass_discovery_center = true, bypass_discovery_ui = true})
                     create_shop_card_ui(v_card, 'Voucher', G.shop_vouchers)
                     v_card:start_materialize()
                     G.shop_vouchers:emplace(v_card)
+                    G.shop_vouchers.T.w = G.shop_vouchers.config.card_limit * 1.02 * G.CARD_W
+                    if G.shop_vouchers.align_cards then G.shop_vouchers:align_cards() end
+                    if G.shop and G.shop.recalculate then G.shop:recalculate() end
                 end
             end
         end
