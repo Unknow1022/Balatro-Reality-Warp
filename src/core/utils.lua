@@ -635,6 +635,17 @@ function Card:redeem(...)
     return ret
 end
 
+function is_oil_card(card)
+    if not card then return false end
+    if card.config and card.config.center then
+        local k = card.config.center.key
+        if k == 'oil' or k == 'm_reality_warp_oil' or k == 'm_oil' then return true end
+    end
+    if SMODS and SMODS.has_enhancement and SMODS.has_enhancement(card, 'oil') then return true end
+    if card.ability and (card.ability.name == 'Oil Card' or card.ability.effect == 'Oil Card') then return true end
+    return false
+end
+
 if eval_card then
     local eval_card_ref = eval_card
     function eval_card(card, context)
@@ -645,6 +656,18 @@ if eval_card then
             return {}, {}
         end
         local ret, post_trig = eval_card_ref(card, context)
+        if context and context.cardarea == G.play and context.scoring_hand and not (card.destroyed or card.shattered) and not card.debuff then
+            local oil_count = 0
+            for _, other in ipairs(context.scoring_hand) do
+                if other ~= card and is_oil_card(other) and not other.debuff then
+                    oil_count = oil_count + 1
+                end
+            end
+            if oil_count > 0 then
+                ret = ret or {}
+                ret.mult = (ret.mult or 0) + (5 * oil_count)
+            end
+        end
         if ret and ret.dollars and (ret.mult or ret.h_mult or ret.x_mult or ret.Xmult) then
             if G.GAME then G.GAME.lucky_hit_both = true end
             check_for_unlock({ type = 'lucky_both' })
@@ -2691,17 +2714,6 @@ function transmute_lead_card(card)
 end
 
 function check_and_transmute_lead_cards(cards)
-    local blind_req = (G.GAME and G.GAME.blind and G.GAME.blind.chips) or 0
-    local current_chips = (G.GAME and G.GAME.chips) or 0
-    if blind_req > 0 and current_chips >= blind_req then
-        local list = cards or (G.play and G.play.cards) or {}
-        for _, c in ipairs(list) do
-            if is_lead_card(c) and not c.destroyed and not c.shattered and not c.lead_transmuted_this_round then
-                c.lead_transmuted_this_round = true
-                transmute_lead_card(c)
-            end
-        end
-    end
 end
 
 if G and G.FUNCS and G.FUNCS.draw_from_play_to_discard then

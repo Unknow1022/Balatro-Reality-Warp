@@ -252,26 +252,53 @@ SMODS.Enhancement {
     pos = { x = 1, y = 1 },
     discovered = true,
     unlocked = true,
-    config = { bonus = 10 },
+    config = { extra = { x_mult = 1.25, odds = 4 } },
     loc_txt = {
         name = 'Lead Card',
         text = {
-            "{C:chips}+#1#{} Chips.",
-            "Transmutes permanently at random into",
-            "{C:gold}Gold{}, {C:attention}Shiny{}, or {C:grey}Metal Card{}",
-            "if hand beats the Blind requirement"
+            "Gives {X:mult,C:white}X#1#{} Mult.",
+            "{C:green}#2# in #3#{} chance to transmute into",
+            "a {C:money}Gold{}, {C:grey}Steel{}, or {C:attention}Shiny Card{}",
+            "when scored"
         }
     },
     loc_vars = function(self, info_queue, card)
-        if card and card.ability and not card.ability.bonus then
-            card.ability.bonus = (self.config and self.config.bonus) or 10
+        if info_queue then
+            info_queue[#info_queue + 1] = G.P_CENTERS.m_gold
+            info_queue[#info_queue + 1] = G.P_CENTERS.m_steel
+            info_queue[#info_queue + 1] = get_diamond_enhancement_center()
         end
-        local bonus = (card and card.ability and card.ability.bonus) or (self.config and self.config.bonus) or 10
-        return { vars = { bonus } }
+        local x_mult = (card and card.ability and card.ability.extra and card.ability.extra.x_mult) or (self.config and self.config.extra and self.config.extra.x_mult) or 1.25
+        local odds = (card and card.ability and card.ability.extra and card.ability.extra.odds) or (self.config and self.config.extra and self.config.extra.odds) or 4
+        return { vars = { x_mult, (G.GAME and G.GAME.probabilities.normal) or 1, odds } }
     end,
     calculate = function(self, card, context)
         if (context.main_scoring or context.individual) and context.cardarea == G.play then
-            card.lead_scored_in_hand = true
+            local odds = (card and card.ability and card.ability.extra and card.ability.extra.odds) or (self.config and self.config.extra and self.config.extra.odds) or 4
+            local x_mult = (card and card.ability and card.ability.extra and card.ability.extra.x_mult) or (self.config and self.config.extra and self.config.extra.x_mult) or 1.25
+            if pseudorandom('lead_transmute') < ((G.GAME and G.GAME.probabilities.normal) or 1) / odds then
+                local pool = {
+                    { center = G.P_CENTERS.m_gold, msg = 'Transmuted to Gold!', colour = G.C.GOLD },
+                    { center = G.P_CENTERS.m_steel, msg = 'Transmuted to Steel!', colour = G.C.GREY },
+                    { center = get_diamond_enhancement_center() or G.P_CENTERS.m_gold, msg = 'Transmuted to Shiny!', colour = HEX('1b4d2e') }
+                }
+                local chosen = pseudorandom_element(pool, pseudoseed('lead_transmute_choice')) or pool[1]
+                G.E_MANAGER:add_event(Event({
+                    trigger = 'after',
+                    delay = 0.3,
+                    func = function()
+                        card:set_ability(chosen.center)
+                        card:juice_up()
+                        card_eval_status_text(card, 'extra', nil, nil, nil, { message = chosen.msg, colour = chosen.colour })
+                        play_sound('tarot1', 1.0, 0.6)
+                        return true
+                    end
+                }))
+            end
+            return {
+                x_mult = x_mult,
+                card = card
+            }
         end
     end
 }
@@ -603,59 +630,19 @@ SMODS.Enhancement {
     pos = { x = 0, y = 3 },
     discovered = true,
     unlocked = true,
-    config = { mult = 4 },
+    config = { extra = { mult = 5 } },
     loc_txt = {
         name = 'Oil Card',
         text = {
-            "{C:mult}+#1#{} Mult.",
-            "If scored alongside a {C:attention}Face card{},",
-            "greases hand: converts all unenhanced",
-            "scoring cards into {C:mult}Mult Cards{}"
+            "Other cards scored alongside",
+            "this card give {C:mult}+#1#{} Mult"
         }
     },
     loc_vars = function(self, info_queue, card)
-        if info_queue then
-            info_queue[#info_queue + 1] = G.P_CENTERS.m_mult
-        end
-        local mult = (card and card.ability and card.ability.mult) or (self.config and self.config.mult) or 4
+        local mult = (card and card.ability and card.ability.extra and card.ability.extra.mult) or (self.config and self.config.extra and self.config.extra.mult) or 5
         return { vars = { mult } }
     end,
     calculate = function(self, card, context)
-        if (context.main_scoring or context.individual) and context.cardarea == G.play then
-            local mult = (card and card.ability and card.ability.mult) or (self.config and self.config.mult) or 4
-            local has_face = false
-            if context.scoring_hand then
-                for _, sc in ipairs(context.scoring_hand) do
-                    if sc ~= card and sc:is_face() then
-                        has_face = true
-                        break
-                    end
-                end
-            end
-            if has_face and context.scoring_hand then
-                local converted = 0
-                for _, other_c in ipairs(context.scoring_hand) do
-                    if other_c ~= card and other_c.config and (other_c.config.center == G.P_CENTERS.c_base or not other_c.config.center) then
-                        other_c:set_ability(G.P_CENTERS.m_mult)
-                        other_c:juice_up(0.4, 0.4)
-                        converted = converted + 1
-                    end
-                end
-                if converted > 0 then
-                    play_sound('tarot1')
-                    return {
-                        mult = mult,
-                        message = 'Greased!',
-                        colour = HEX('e67e22'),
-                        card = card
-                    }
-                end
-            end
-            return {
-                mult = mult,
-                card = card
-            }
-        end
     end
 }
 
