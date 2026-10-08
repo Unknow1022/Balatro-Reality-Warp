@@ -551,6 +551,15 @@ local reality_warp_challenge_keys = {
     'c_reality_warp_ray_trial',
     'c_reality_warp_charles_trial',
     'c_reality_warp_mochi_trial',
+    'c_reality_warp_paco_trial',
+    'c_reality_warp_esteban_trial',
+    'c_reality_warp_thiago_trial',
+    'c_reality_warp_yairo_trial',
+    'c_reality_warp_helin_trial',
+    'c_reality_warp_calamari_trial',
+    'c_reality_warp_sally_trial',
+    'c_reality_warp_cefalopop_trial',
+    'c_reality_warp_mew_mew_trial',
 }
 
 function reality_warp_sync_challenges(enable)

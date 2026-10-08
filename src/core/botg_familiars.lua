@@ -148,6 +148,11 @@ if set_screen_positions then
     local orig_set_screen_positions = set_screen_positions
     function set_screen_positions()
         orig_set_screen_positions()
+        if G.STAGE == G.STAGES.RUN and G.GAME and G.GAME.botg_current_familiar then
+            if not G.botg_familiars or #G.botg_familiars.cards == 0 then
+                init_botg_familiars_area()
+            end
+        end
         if G.botg_familiars and G.deck and G.STAGE == G.STAGES.RUN then
             G.botg_familiars.T.x = G.deck.T.x + (G.deck.T.w - G.botg_familiars.T.w) * 0.5
             G.botg_familiars.T.y = G.deck.T.y - G.botg_familiars.T.h - 0.2
@@ -158,6 +163,33 @@ if set_screen_positions then
             G.botg_familiars:align_cards()
             for _, card in ipairs(G.botg_familiars.cards) do
                 card:hard_set_T(card.T.x, card.T.y, card.T.w, card.T.h)
+            end
+        end
+    end
+end
+
+if Game and Game.start_run then
+    local orig_game_start_run_fam = Game.start_run
+    function Game:start_run(args)
+        orig_game_start_run_fam(self, args)
+        G.E_MANAGER:add_event(Event({
+            func = function()
+                if G.STAGE == G.STAGES.RUN and G.GAME and G.GAME.botg_current_familiar then
+                    init_botg_familiars_area()
+                end
+                return true
+            end
+        }))
+    end
+end
+
+if Game and Game.update then
+    local orig_game_update_fam = Game.update
+    function Game:update(dt)
+        orig_game_update_fam(self, dt)
+        if G.STAGE == G.STAGES.RUN and G.GAME and G.GAME.botg_current_familiar then
+            if not G.botg_familiars or #G.botg_familiars.cards == 0 then
+                init_botg_familiars_area()
             end
         end
     end

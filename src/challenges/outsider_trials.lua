@@ -119,11 +119,430 @@ SMODS.Challenge {
     },
 }
 
+SMODS.Challenge {
+    key = 'paco_trial',
+    loc_txt = {
+        name = "Paco's Wish: Zero Discards",
+    },
+    rules = {
+        custom = {},
+        modifiers = {
+            { id = 'discards', value = 0 },
+        },
+    },
+    jokers = {
+        { id = 'j_reality_warp_paco', eternal = true },
+    },
+    deck = {
+        type = 'Challenge Deck',
+    },
+    restrictions = {
+        banned_cards = {
+            { id = 'j_delayed_grat' }, { id = 'j_burglar' }, { id = 'j_merry_andy' },
+            { id = 'j_drunkard' }, { id = 'j_trading' }, { id = 'j_castle' },
+            { id = 'j_ramen' }, { id = 'j_faceless' }, { id = 'j_hit_the_road' },
+            { id = 'j_banner' }, { id = 'j_yorick' }, { id = 'j_mail' },
+            { id = 'j_reality_warp_discard_accumulator' }, { id = 'j_reality_warp_beat_it' },
+            { id = 'v_wasteful' }, { id = 'v_recycler' },
+        },
+        banned_other = {
+            { id = 'bl_hook', type = 'blind' },
+            { id = 'bl_water', type = 'blind' },
+        },
+    },
+}
+
+SMODS.Challenge {
+    key = 'esteban_trial',
+    loc_txt = {
+        name = "Esteban's Wish: Dark Ascension",
+    },
+    rules = {
+        custom = {},
+        modifiers = {},
+    },
+    jokers = {
+        { id = 'j_reality_warp_esteban', eternal = true },
+    },
+    deck = {
+        type = 'Challenge Deck',
+    },
+    restrictions = {
+        banned_cards = {
+            { id = 'c_sun' },
+            { id = 'c_star' },
+        },
+    },
+}
+
+SMODS.Challenge {
+    key = 'thiago_trial',
+    loc_txt = {
+        name = "Thiago's Wish: Chips Dominion",
+    },
+    rules = {
+        custom = {},
+        modifiers = {},
+    },
+    jokers = {
+        { id = 'j_reality_warp_thiago', eternal = true },
+    },
+    deck = {
+        type = 'Challenge Deck',
+    },
+    restrictions = {
+        banned_cards = {
+            { id = 'j_joker' }, { id = 'j_greedy_joker' }, { id = 'j_lusty_joker' },
+            { id = 'j_wrathful_joker' }, { id = 'j_glutinous_joker' }, { id = 'j_jolly' },
+            { id = 'j_zany' }, { id = 'j_mad' }, { id = 'j_crazy' }, { id = 'j_droll' },
+            { id = 'j_half' }, { id = 'j_stencil' }, { id = 'j_ceremonial' },
+            { id = 'j_mystic_summit' }, { id = 'j_misprint' }, { id = 'j_steel_joker' },
+            { id = 'j_abstract' }, { id = 'j_gros_michel' }, { id = 'j_even_steven' },
+            { id = 'j_scholar' }, { id = 'j_supernova' }, { id = 'j_ride_the_bus' },
+            { id = 'j_blackboard' }, { id = 'j_constellation' }, { id = 'j_green_joker' },
+            { id = 'j_cavendish' }, { id = 'j_card_sharp' }, { id = 'j_red_card' },
+            { id = 'j_madness' }, { id = 'j_vampire' }, { id = 'j_hologram' },
+            { id = 'j_baron' }, { id = 'j_obelisk' }, { id = 'j_caino' },
+            { id = 'j_triboulet' }, { id = 'j_the_duo' }, { id = 'j_the_trio' },
+            { id = 'j_the_family' }, { id = 'j_the_order' }, { id = 'j_the_tribe' },
+            { id = 'j_driver_license' }, { id = 'j_bootstraps' }, { id = 'j_swashbuckler' },
+            { id = 'j_acrobat' }, { id = 'j_sock_and_buskin' }, { id = 'j_flower_pot' },
+        },
+    },
+}
+
+SMODS.Challenge {
+    key = 'yairo_trial',
+    loc_txt = {
+        name = "Yairo's Wish: Sixes & Sevens",
+    },
+    rules = {
+        custom = {},
+        modifiers = {},
+    },
+    jokers = {
+        { id = 'j_reality_warp_yairo', eternal = true },
+    },
+    deck = {
+        type = 'Challenge Deck',
+    },
+    restrictions = {
+        banned_cards = {},
+    },
+}
+
+SMODS.Challenge {
+    key = 'helin_trial',
+    loc_txt = {
+        name = "Helin's Wish: Lone Celestial",
+    },
+    rules = {
+        custom = {},
+        modifiers = {
+            { id = 'joker_slots', value = 1 },
+        },
+    },
+    jokers = {
+        { id = 'j_reality_warp_helin', eternal = true },
+    },
+    deck = {
+        type = 'Challenge Deck',
+    },
+    restrictions = {
+        banned_cards = {
+            { id = 'c_fool' }, { id = 'c_magician' }, { id = 'c_high_priestess' },
+            { id = 'c_empress' }, { id = 'c_emperor' }, { id = 'c_hierophant' },
+            { id = 'c_lovers' }, { id = 'c_chariot' }, { id = 'c_justice' },
+            { id = 'c_hermit' }, { id = 'c_wheel_of_fortune' }, { id = 'c_strength' },
+            { id = 'c_hanged_man' }, { id = 'c_death' }, { id = 'c_temperance' },
+            { id = 'c_devil' }, { id = 'c_tower' }, { id = 'c_star' },
+            { id = 'c_moon' }, { id = 'c_sun' }, { id = 'c_judgement' }, { id = 'c_world' },
+        },
+    },
+}
+
+SMODS.Challenge {
+    key = 'calamari_trial',
+    loc_txt = {
+        name = "Calamari Wish: Squid Sisters",
+    },
+    rules = {
+        custom = {},
+        modifiers = {
+            { id = 'joker_slots', value = 2 },
+        },
+    },
+    jokers = {
+        { id = 'j_reality_warp_marie', eternal = true },
+        { id = 'j_reality_warp_callie', eternal = true },
+    },
+    deck = {
+        type = 'Challenge Deck',
+    },
+    restrictions = {
+        banned_cards = {},
+    },
+}
+
+SMODS.Challenge {
+    key = 'sally_trial',
+    loc_txt = {
+        name = "Sally's Wish: Quest Master",
+    },
+    rules = {
+        custom = {},
+        modifiers = {},
+    },
+    jokers = {
+        { id = 'j_reality_warp_sally', eternal = true },
+    },
+    deck = {
+        type = 'Challenge Deck',
+    },
+    restrictions = {
+        banned_cards = {},
+    },
+}
+
+SMODS.Challenge {
+    key = 'cefalopop_trial',
+    loc_txt = {
+        name = "Off the Hook: Cephalopop Harmony",
+    },
+    rules = {
+        custom = {},
+        modifiers = {
+            { id = 'joker_slots', value = 2 },
+        },
+    },
+    jokers = {
+        { id = 'j_reality_warp_marina', eternal = true },
+        { id = 'j_reality_warp_perla', eternal = true },
+    },
+    deck = {
+        type = 'Challenge Deck',
+    },
+    restrictions = {
+        banned_cards = {},
+    },
+}
+
+SMODS.Challenge {
+    key = 'mew_mew_trial',
+    loc_txt = {
+        name = "Mew Mew's Wish: Doki Doki Rush",
+    },
+    rules = {
+        custom = {},
+        modifiers = {},
+    },
+    jokers = {
+        { id = 'j_reality_warp_mew_mew', eternal = true },
+    },
+    deck = {
+        type = 'Challenge Deck',
+    },
+    restrictions = {
+        banned_cards = {},
+    },
+}
+
 local OUTSIDER_TRIALS_DATA = {
     {
+        id = 'paco',
+        name = "PACO",
+        title = "PACO'S WISH: ZERO DISCARDS",
+        accent = HEX('ebb746'),
+        bg_color = HEX('2e1a05'),
+        quote = "\"No mulligans in my domain! You play the exact hand fate dealt you.\"",
+        rules = {
+            "Win Condition: Ante 8",
+            "Discards permanently locked to 0",
+            "Discarding cards is strictly disabled",
+            "Banned: Blinds that discard cards (Hook, Water)",
+        },
+        deck_rules = {
+            "Starting Joker: Paco (Eternal)",
+            "Discards: 0 every single round",
+            "Banned: All discard-granting Jokers",
+            "Banned Vouchers: Wasteful & Recycler",
+        },
+        challenge_id = 'c_reality_warp_paco_trial',
+    },
+    {
+        id = 'esteban',
+        name = "ESTEBAN",
+        title = "ESTEBAN'S WISH: DARK ASCENSION",
+        accent = HEX('d6d3d1'),
+        bg_color = HEX('1c1917'),
+        quote = "\"Purge the red hues from our court. Turn every soul into Spades or Clubs!\"",
+        rules = {
+            "Goal: Convert 100% of deck to Spades or Clubs",
+            "Deck starts with ONLY Hearts & Diamonds (0 Spades/Clubs)",
+            "Vertical gauge tracks your conversion progress",
+            "Banned: The Sun and The Star Tarots",
+        },
+        deck_rules = {
+            "Starting Joker: Esteban (Eternal)",
+            "Deck: Red Suits only at the beginning",
+            "Target: 52/52 Spades & Clubs",
+            "Vertical Progress Gauge on the right",
+        },
+        challenge_id = 'c_reality_warp_esteban_trial',
+    },
+    {
+        id = 'thiago',
+        name = "THIAGO",
+        title = "THIAGO'S WISH: CHIPS DOMINION",
+        accent = HEX('a1a0ff'),
+        bg_color = HEX('17153b'),
+        quote = "\"Multipliers are a distraction! Only pure, unadulterated Chips determine victory.\"",
+        rules = {
+            "Win Condition: Ante 8",
+            "Banned: ALL Mult & X-Mult Jokers",
+            "Only Chip-granting Jokers appear and function",
+            "Scale your Chip engine to overcome blind targets",
+        },
+        deck_rules = {
+            "Starting Joker: Thiago (Eternal)",
+            "Jokers allowed: Chips-only Jokers",
+            "Shop & Booster Packs: Chips Jokers guaranteed",
+            "Banned: All +Mult / XMult Jokers",
+        },
+        challenge_id = 'c_reality_warp_thiago_trial',
+    },
+    {
+        id = 'yairo',
+        name = "YAIRO",
+        title = "YAIRO'S WISH: SIXES & SEVENS",
+        accent = HEX('8fb6e8'),
+        bg_color = HEX('161f38'),
+        quote = "\"Life is in turmoil! Remake every card in your deck into 6s and 7s.\"",
+        rules = {
+            "Goal: Convert 100% of deck into ranks 6 and 7",
+            "Vertical progress bar monitors transformed cards",
+            "Use Tarots, Spectrals and Strengths wisely",
+            "Complete the transmutation across Ante 8",
+        },
+        deck_rules = {
+            "Starting Joker: Yairo (Eternal)",
+            "Deck: Standard 52 starting cards",
+            "Target: Entire deck composed of 6s & 7s",
+            "Vertical Progress Gauge on the right",
+        },
+        challenge_id = 'c_reality_warp_yairo_trial',
+    },
+    {
+        id = 'helin',
+        name = "HELIN",
+        title = "HELIN'S WISH: LONE CELESTIAL",
+        accent = HEX('8d60b5'),
+        bg_color = HEX('25103a'),
+        quote = "\"The cosmos need no interference. Just you, me, and the stars above.\"",
+        rules = {
+            "Complete the run with ONLY Helin",
+            "Joker slots locked to 1 (No extra Jokers)",
+            "Tarots and other consumables are banned",
+            "ONLY Planet cards appear in shop & Celestial packs",
+        },
+        deck_rules = {
+            "Starting Joker: Helin (Eternal)",
+            "Joker Slots: 1 maximum",
+            "Consumables: 100% Planet cards",
+            "Packs: Celestial Booster Packs only",
+        },
+        challenge_id = 'c_reality_warp_helin_trial',
+    },
+    {
+        id = 'calamari',
+        name = "CALAMARI",
+        title = "CALAMARI WISH: SQUID SISTERS",
+        accent = HEX('3afb41'),
+        bg_color = HEX('07331e'),
+        quote = "\"Stay Fresh! Only Callie & Marie on stage, no backup dancers allowed!\"",
+        rules = {
+            "Win Condition: Ante 8",
+            "Play exclusively with Marie & Callie",
+            "Joker slots capped to 2",
+            "No other Jokers appear throughout the run",
+        },
+        deck_rules = {
+            "Starting Jokers: Marie (Eternal) & Callie (Eternal)",
+            "Joker Slots: 2 fixed",
+            "Jokers in Shop & Packs: Completely disabled",
+            "Synergize between Green & Red suits",
+        },
+        challenge_id = 'c_reality_warp_calamari_trial',
+    },
+    {
+        id = 'sally',
+        name = "SALLY",
+        title = "SALLY'S WISH: QUEST MASTER",
+        accent = HEX('e8413e'),
+        bg_color = HEX('380b0b'),
+        quote = "\"Step right up! Complete 10 of my dynamic quests before you hit Ante 8!\"",
+        rules = {
+            "Goal: Complete at least 10 Sally Quests before Ante 8",
+            "Vertical gauge increments upon each finished quest",
+            "Each completed quest rewards $40 & Negative Tarot",
+            "Reach Ante 8 with 10+ completed quests to win",
+        },
+        deck_rules = {
+            "Starting Joker: Sally (Eternal)",
+            "Target: 10 Completed Quests",
+            "Quests reset and update on every Blind",
+            "Vertical Progress Gauge on the right",
+        },
+        challenge_id = 'c_reality_warp_sally_trial',
+    },
+    {
+        id = 'cefalopop',
+        name = "CEFALOPOP",
+        title = "OFF THE HOOK: CEPHALOPOP HARMONY",
+        accent = HEX('28d2dc'),
+        bg_color = HEX('082730'),
+        quote = "\"Don't get cooked, stay Off the Hook! Marina and Pearl run the entire show!\"",
+        rules = {
+            "Win Condition: Ante 8",
+            "Play solely with Marina & Pearl",
+            "Joker slots capped to 2",
+            "No other Jokers can ever appear or be bought",
+        },
+        deck_rules = {
+            "Starting Jokers: Marina (Eternal) & Pearl (Eternal)",
+            "Joker Slots: 2 fixed",
+            "Jokers in Shop & Packs: Disabled",
+            "Synergy: Massive Mult & Chip boosts",
+        },
+        challenge_id = 'c_reality_warp_cefalopop_trial',
+    },
+    {
+        id = 'mew_mew',
+        name = "MEW MEW",
+        title = "MEW MEW'S WISH: DOKI DOKI RUSH",
+        accent = HEX('ec4899'),
+        bg_color = HEX('3b0820'),
+        quote = "\"Play the hand my heart desires! Fill my Doki Meter to 30 for an instant WIN!\"",
+        rules = {
+            "Goal: Fill the Doki Meter to 30",
+            "Every time you play the requested Poker Hand: +1 Doki",
+            "Reach 30 Doki points to AUTOMATICALLY WIN the run!",
+            "Vertical Doki gauge tracks your real-time progress",
+        },
+        deck_rules = {
+            "Starting Joker: Mew mew! (Eternal)",
+            "Doki Target: 30 / 30",
+            "Victory condition triggers instantly upon reaching 30",
+            "Vertical Progress Gauge on the right",
+        },
+        challenge_id = 'c_reality_warp_mew_mew_trial',
+    },
+    {
         id = 'kyra',
+        name = "KYRA",
         title = "KYRA'S WISH: POTION MASTERY",
         accent = HEX('00e5ff'),
+        bg_color = HEX('082530'),
         quote = "\"Show me your mastery of the brewing arts! Only potions can pave your path to Ante 6.\"",
         rules = {
             "Win Condition: Ante 6",
@@ -131,12 +550,20 @@ local OUTSIDER_TRIALS_DATA = {
             "Jokers: Potion-related Jokers ONLY",
             "Starts with Kyra & Potion Brewer",
         },
+        deck_rules = {
+            "Starting Jokers: Kyra (Eternal) & Potion Brewer (Eternal)",
+            "Banned: All Tarots, Spectrals & Planets",
+            "Shop & Booster Packs: Potions exclusively",
+            "Win Ante: 6",
+        },
         challenge_id = 'c_reality_warp_kyra_trial',
     },
     {
         id = 'ray',
+        name = "RAY",
         title = "RAY'S WISH: SPECTRAL RIFT",
         accent = HEX('818cf8'),
+        bg_color = HEX('1e1b4b'),
         quote = "\"The rift is unstable... only pure Spectral energies may be harnessed across the rifts!\"",
         rules = {
             "Consumables: Spectral cards ONLY",
@@ -144,31 +571,53 @@ local OUTSIDER_TRIALS_DATA = {
             "Tarots & Planets are strictly banned",
             "Starts with RayTracing",
         },
+        deck_rules = {
+            "Starting Joker: RayTracing (Eternal)",
+            "Shop & Packs: Pure Spectral cards only",
+            "Banned Consumables: Tarots, Planets, The Soul",
+            "Win Condition: Ante 8",
+        },
         challenge_id = 'c_reality_warp_ray_trial',
     },
     {
         id = 'charles',
+        name = "CHARLES",
         title = "CHARLES' WISH: HEART OF GOLD",
         accent = HEX('ef4444'),
+        bg_color = HEX('3a0909'),
         quote = "\"Every royal court must beat in unison. Turn every single card in your deck into a Heart!\"",
         rules = {
             "Goal: Convert 100% of your deck to Hearts",
             "Banned: Tarots converting to other suits",
-            "Includes a freely movable progress HUD",
+            "Vertical gauge on the right tracks your progress",
             "Starts with Charles",
+        },
+        deck_rules = {
+            "Starting Joker: Charles (Eternal)",
+            "Target: 52/52 Hearts in playing deck",
+            "Banned: Spades, Diamonds, Clubs conversions",
+            "Vertical Progress Gauge on the right",
         },
         challenge_id = 'c_reality_warp_charles_trial',
     },
     {
         id = 'mochi',
+        name = "MOCHI",
         title = "MOCHI'S WISH: WILD WONDERLAND",
         accent = HEX('e879f9'),
+        bg_color = HEX('330638'),
         quote = "\"Why be confined to one suit? Let adaptability run wild across your entire deck!\"",
         rules = {
             "Goal: Convert 100% of deck to Wild Cards",
             "Banned: All Tarot cards & Arcana packs",
-            "Includes a freely movable progress HUD",
+            "Vertical gauge on the right tracks your progress",
             "Starts with Mochi",
+        },
+        deck_rules = {
+            "Starting Joker: Mochi (Eternal)",
+            "Target: 52/52 Wild Cards in playing deck",
+            "Banned: Tarot Cards & Arcana Booster Packs",
+            "Vertical Progress Gauge on the right",
         },
         challenge_id = 'c_reality_warp_mochi_trial',
     },
@@ -177,84 +626,193 @@ local OUTSIDER_TRIALS_DATA = {
 G.UIDEF = G.UIDEF or {}
 
 G.UIDEF.outsider_trials_tab = function(args)
-    local trial_cards = {}
-    for _, t in ipairs(OUTSIDER_TRIALS_DATA) do
-        local rule_nodes = {}
-        for _, r in ipairs(t.rules) do
-            table.insert(rule_nodes, {
-                n = G.UIT.R,
-                config = { align = "cl", minh = 0.22 },
-                nodes = {
-                    { n = G.UIT.T, config = { text = "• " .. r, scale = 0.20, colour = G.C.UI.TEXT_LIGHT } }
-                }
-            })
-        end
+    G.SELECTED_OUTSIDER_TRIAL = G.SELECTED_OUTSIDER_TRIAL or 'paco'
 
-        local card_box = {
+    local selected_trial = OUTSIDER_TRIALS_DATA[1]
+    for _, t in ipairs(OUTSIDER_TRIALS_DATA) do
+        if t.id == G.SELECTED_OUTSIDER_TRIAL then
+            selected_trial = t
+            break
+        end
+    end
+
+    -- 1. Horizontal row of Secret Jokers with color palette backgrounds
+    local joker_chips = {}
+    for _, t in ipairs(OUTSIDER_TRIALS_DATA) do
+        local is_sel = (t.id == selected_trial.id)
+        table.insert(joker_chips, {
             n = G.UIT.C,
             config = {
                 align = "cm",
-                padding = 0.08,
-                r = 0.12,
-                colour = HEX('0f172a'),
-                outline = 0.03,
-                outline_colour = t.accent,
+                padding = 0.03,
+                r = 0.08,
+                colour = is_sel and t.accent or t.bg_color,
+                outline = is_sel and 0.04 or 0.02,
+                outline_colour = is_sel and G.C.GOLD or t.accent,
+                hover = true,
                 shadow = true,
-                minw = 5.2,
-                minh = 2.45
+                button = 'select_outsider_trial',
+                trial_id = t.id,
+                minw = 0.74,
+                minh = 0.70,
             },
             nodes = {
                 {
                     n = G.UIT.R,
-                    config = { align = "cm", minh = 0.35 },
+                    config = { align = "cm" },
                     nodes = {
-                        { n = G.UIT.T, config = { text = t.title, scale = 0.28, colour = t.accent, shadow = true } }
-                    }
-                },
-                {
-                    n = G.UIT.R,
-                    config = { align = "cm", minh = 0.40, maxw = 4.8 },
-                    nodes = {
-                        { n = G.UIT.T, config = { text = t.quote, scale = 0.20, colour = G.C.WHITE, shadow = false } }
-                    }
-                },
-                {
-                    n = G.UIT.R,
-                    config = { align = "cm", minh = 0.05 },
-                    nodes = {}
-                },
-                {
-                    n = G.UIT.C,
-                    config = { align = "cl", padding = 0.02, minw = 4.8 },
-                    nodes = rule_nodes
-                },
-                {
-                    n = G.UIT.R,
-                    config = { align = "cm", minh = 0.06 },
-                    nodes = {}
-                },
-                {
-                    n = G.UIT.R,
-                    config = {
-                        align = "cm",
-                        padding = 0.04,
-                        r = 0.08,
-                        colour = G.C.GREEN,
-                        hover = true,
-                        shadow = true,
-                        button = 'start_outsider_trial',
-                        trial_id = t.id,
-                        minw = 2.4,
-                        minh = 0.38
-                    },
-                    nodes = {
-                        { n = G.UIT.T, config = { text = "START TRIAL", scale = 0.26, colour = G.C.WHITE, shadow = true } }
+                        {
+                            n = G.UIT.T,
+                            config = {
+                                text = t.name,
+                                scale = 0.16,
+                                colour = is_sel and G.C.WHITE or t.accent,
+                                shadow = true
+                            }
+                        }
                     }
                 }
             }
-        }
-        table.insert(trial_cards, card_box)
+        })
     end
+
+    -- 2. Left Box: Challenge Objectives & Start Button
+    local challenge_rules_nodes = {}
+    for _, r in ipairs(selected_trial.rules) do
+        table.insert(challenge_rules_nodes, {
+            n = G.UIT.R,
+            config = { align = "cl", minh = 0.22 },
+            nodes = {
+                { n = G.UIT.T, config = { text = "• " .. r, scale = 0.20, colour = G.C.UI.TEXT_LIGHT } }
+            }
+        })
+    end
+
+    local left_box = {
+        n = G.UIT.C,
+        config = {
+            align = "cm",
+            padding = 0.08,
+            r = 0.12,
+            colour = HEX('0f172a'),
+            outline = 0.03,
+            outline_colour = selected_trial.accent,
+            shadow = true,
+            minw = 5.2,
+            minh = 3.6
+        },
+        nodes = {
+            {
+                n = G.UIT.R,
+                config = { align = "cm", minh = 0.35 },
+                nodes = {
+                    { n = G.UIT.T, config = { text = selected_trial.title, scale = 0.28, colour = selected_trial.accent, shadow = true } }
+                }
+            },
+            {
+                n = G.UIT.R,
+                config = { align = "cm", minh = 0.40, maxw = 4.8 },
+                nodes = {
+                    { n = G.UIT.T, config = { text = selected_trial.quote, scale = 0.20, colour = G.C.WHITE, shadow = false } }
+                }
+            },
+            {
+                n = G.UIT.R,
+                config = { align = "cl", minh = 0.25 },
+                nodes = {
+                    { n = G.UIT.T, config = { text = "CHALLENGE OBJECTIVES:", scale = 0.21, colour = G.C.GOLD, shadow = true } }
+                }
+            },
+            {
+                n = G.UIT.C,
+                config = { align = "cl", padding = 0.02, minw = 4.8 },
+                nodes = challenge_rules_nodes
+            },
+            {
+                n = G.UIT.R,
+                config = { align = "cm", minh = 0.10 },
+                nodes = {}
+            },
+            {
+                n = G.UIT.R,
+                config = {
+                    align = "cm",
+                    padding = 0.04,
+                    r = 0.08,
+                    colour = G.C.GREEN,
+                    hover = true,
+                    shadow = true,
+                    button = 'start_outsider_trial',
+                    trial_id = selected_trial.id,
+                    minw = 2.6,
+                    minh = 0.38
+                },
+                nodes = {
+                    { n = G.UIT.T, config = { text = "START TRIAL", scale = 0.26, colour = G.C.WHITE, shadow = true } }
+                }
+            }
+        }
+    }
+
+    -- 3. Right Box: Deck Challenge & Restrictions ("el reto de dicha baraja")
+    local deck_rules_nodes = {}
+    for _, dr in ipairs(selected_trial.deck_rules) do
+        table.insert(deck_rules_nodes, {
+            n = G.UIT.R,
+            config = { align = "cl", minh = 0.22 },
+            nodes = {
+                { n = G.UIT.T, config = { text = "✦ " .. dr, scale = 0.20, colour = G.C.UI.TEXT_LIGHT } }
+            }
+        })
+    end
+
+    local right_box = {
+        n = G.UIT.C,
+        config = {
+            align = "cm",
+            padding = 0.08,
+            r = 0.12,
+            colour = HEX('0f172a'),
+            outline = 0.03,
+            outline_colour = selected_trial.accent,
+            shadow = true,
+            minw = 5.2,
+            minh = 3.6
+        },
+        nodes = {
+            {
+                n = G.UIT.R,
+                config = { align = "cm", minh = 0.35 },
+                nodes = {
+                    { n = G.UIT.T, config = { text = "DECK RULES & RESTRICTIONS", scale = 0.28, colour = G.C.GOLD, shadow = true } }
+                }
+            },
+            {
+                n = G.UIT.R,
+                config = { align = "cm", minh = 0.30 },
+                nodes = {
+                    { n = G.UIT.T, config = { text = "Unique deck conditions & parameters", scale = 0.20, colour = G.C.UI.TEXT_INACTIVE } }
+                }
+            },
+            {
+                n = G.UIT.C,
+                config = { align = "cl", padding = 0.02, minw = 4.8 },
+                nodes = deck_rules_nodes
+            },
+            {
+                n = G.UIT.R,
+                config = { align = "cm", minh = 0.15 },
+                nodes = {}
+            },
+            {
+                n = G.UIT.R,
+                config = { align = "cm", minh = 0.35, padding = 0.04, r = 0.08, colour = HEX('1e293b') },
+                nodes = {
+                    { n = G.UIT.T, config = { text = "VERTICAL PROGRESS GAUGE ACTIVE", scale = 0.18, colour = selected_trial.accent, shadow = true } }
+                }
+            }
+        }
+    }
 
     local layout = {
         n = G.UIT.ROOT,
@@ -262,34 +820,37 @@ G.UIDEF.outsider_trials_tab = function(args)
         nodes = {
             {
                 n = G.UIT.R,
-                config = { align = "cm", minh = 0.45 },
+                config = { align = "cm", minh = 0.40 },
                 nodes = {
                     { n = G.UIT.T, config = { text = "OUTSIDER JOKER TRIALS", scale = 0.45, colour = G.C.GOLD, shadow = true } }
                 }
             },
             {
                 n = G.UIT.R,
-                config = { align = "cm", minh = 0.28 },
+                config = { align = "cm", minh = 0.25 },
                 nodes = {
-                    { n = G.UIT.T, config = { text = "Fulfill the unique desires of the dimensional Outsiders", scale = 0.24, colour = G.C.UI.TEXT_LIGHT } }
+                    { n = G.UIT.T, config = { text = "Select an Outsider to inspect their trials and deck restrictions", scale = 0.22, colour = G.C.UI.TEXT_LIGHT } }
                 }
+            },
+            -- Horizontal row of Outsider Jokers
+            {
+                n = G.UIT.R,
+                config = { align = "cm", padding = 0.04 },
+                nodes = joker_chips
             },
             {
                 n = G.UIT.R,
-                config = { align = "cm", padding = 0.05 },
-                nodes = {
-                    trial_cards[1],
-                    { n = G.UIT.C, config = { minw = 0.2 }, nodes = {} },
-                    trial_cards[2]
-                }
+                config = { align = "cm", minh = 0.06 },
+                nodes = {}
             },
+            -- Two boxes side-by-side: Challenges & Deck Rules
             {
                 n = G.UIT.R,
-                config = { align = "cm", padding = 0.05 },
+                config = { align = "cm", padding = 0.04 },
                 nodes = {
-                    trial_cards[3],
-                    { n = G.UIT.C, config = { minw = 0.2 }, nodes = {} },
-                    trial_cards[4]
+                    left_box,
+                    { n = G.UIT.C, config = { minw = 0.15 }, nodes = {} },
+                    right_box
                 }
             }
         }
@@ -297,8 +858,41 @@ G.UIDEF.outsider_trials_tab = function(args)
     return layout
 end
 
+G.FUNCS = G.FUNCS or {}
+
+G.FUNCS.select_outsider_trial = function(e)
+    local tid = (e and e.config and e.config.trial_id) or 'paco'
+    G.SELECTED_OUTSIDER_TRIAL = tid
+    play_sound('cardSlide1', 1.0, 0.7)
+
+    local tab_contents = nil
+    if G.OVERLAY_MENU then
+        tab_contents = G.OVERLAY_MENU:get_UIE_by_ID('tab_contents')
+    end
+    if not tab_contents and e and e.UIBox then
+        local curr = e.UIBox
+        while curr do
+            if curr.get_UIE_by_ID then
+                tab_contents = curr:get_UIE_by_ID('tab_contents')
+                if tab_contents then break end
+            end
+            curr = curr.parent
+        end
+    end
+    if tab_contents and tab_contents.config and tab_contents.config.object then
+        tab_contents.config.object:remove()
+        tab_contents.config.object = UIBox{
+            definition = G.UIDEF.outsider_trials_tab('Joker Trials'),
+            config = { offset = { x = 0, y = 0 }, parent = tab_contents, type = 'cm' }
+        }
+        if tab_contents.UIBox then
+            tab_contents.UIBox:recalculate()
+        end
+    end
+end
+
 G.FUNCS.start_outsider_trial = function(e)
-    local tid = (e and e.config and e.config.trial_id) or 'kyra'
+    local tid = (e and e.config and e.config.trial_id) or G.SELECTED_OUTSIDER_TRIAL or 'paco'
     local challenge_id = 'c_reality_warp_' .. tid .. '_trial'
 
     if G.OVERLAY_MENU then
@@ -323,18 +917,30 @@ G.FUNCS.start_outsider_trial = function(e)
     end
 end
 
+-- ============================================================================
+-- VERTICAL PROGRESS HUD (Appears on the right side above G.deck)
+-- ============================================================================
 function create_outsider_trial_hud(text_title, count, total, percent, is_complete, col)
-    local cur_pos_x = (G.HUD_outsider_trial and G.HUD_outsider_trial.T and G.HUD_outsider_trial.T.x) or (G.ROOM.T.w * 0.5 - 1.3)
-    local cur_pos_y = (G.HUD_outsider_trial and G.HUD_outsider_trial.T and G.HUD_outsider_trial.T.y) or 0.35
+    local deck_x = (G.deck and G.deck.T.x) or 10.5
+    local deck_y = (G.deck and G.deck.T.y) or 6.8
+    local deck_w = (G.deck and G.deck.T.w) or 1.5
+
+    local cur_pos_x = (G.HUD_outsider_trial and G.HUD_outsider_trial.T and G.HUD_outsider_trial.T.x) or (deck_x + deck_w - 0.70)
+    local cur_pos_y = (G.HUD_outsider_trial and G.HUD_outsider_trial.T and G.HUD_outsider_trial.T.y) or (deck_y - 2.85)
 
     if G.HUD_outsider_trial and not G.HUD_outsider_trial.REMOVED then
         G.HUD_outsider_trial:remove()
         G.HUD_outsider_trial = nil
     end
 
-    local status_text = tostring(count) .. " / " .. tostring(total) .. " (" .. string.format("%.1f", percent) .. "%)"
+    local clamped_pct = math.max(0, math.min(100, percent or 0))
+    local total_gauge_h = 2.10
+    local fill_h = math.max(0.04, total_gauge_h * (clamped_pct / 100))
+    local empty_h = math.max(0.02, total_gauge_h - fill_h)
+
+    local status_display = tostring(count) .. "/" .. tostring(total)
     if is_complete then
-        status_text = "COMPLETE! " .. tostring(count) .. "/" .. tostring(total)
+        status_display = "DONE!"
     end
 
     local t = {
@@ -346,35 +952,76 @@ function create_outsider_trial_hud(text_title, count, total, percent, is_complet
                 config = {
                     id = 'outsider_trial_hud_box',
                     align = "cm",
-                    padding = 0.08,
+                    padding = 0.05,
                     r = 0.12,
-                    colour = HEX('0f172a'),
+                    colour = HEX('0a0f1d'),
                     outline = 0.03,
                     outline_colour = is_complete and G.C.GOLD or col,
                     shadow = true,
-                    minw = 2.6,
-                    minh = 0.90
+                    minw = 0.88,
+                    minh = 3.35
                 },
                 nodes = {
                     {
                         n = G.UIT.R,
                         config = { align = "cm" },
                         nodes = {
-                            { n = G.UIT.T, config = { text = text_title, scale = 0.28, colour = col, shadow = true } }
+                            { n = G.UIT.T, config = { text = text_title, scale = 0.19, colour = is_complete and G.C.GOLD or col, shadow = true } }
+                        }
+                    },
+                    {
+                        n = G.UIT.R,
+                        config = { align = "cm", padding = 0.01 },
+                        nodes = {
+                            { n = G.UIT.T, config = { text = string.format("%.0f%%", clamped_pct), scale = 0.23, colour = is_complete and G.C.GOLD or G.C.WHITE, shadow = true } }
+                        }
+                    },
+                    -- Vertical gauge container (fills upwards from bottom)
+                    {
+                        n = G.UIT.C,
+                        config = {
+                            align = "bm",
+                            padding = 0.02,
+                            r = 0.08,
+                            colour = HEX('020617'),
+                            outline = 0.02,
+                            outline_colour = col,
+                            minw = 0.52,
+                            minh = total_gauge_h + 0.04,
+                            emboss = 0.04
+                        },
+                        nodes = {
+                            {
+                                n = G.UIT.R,
+                                config = { align = "cm", minh = empty_h, minw = 0.44, colour = G.C.CLEAR },
+                                nodes = {}
+                            },
+                            {
+                                n = G.UIT.R,
+                                config = {
+                                    align = "cm",
+                                    minh = fill_h,
+                                    minw = 0.44,
+                                    r = 0.06,
+                                    colour = is_complete and G.C.GOLD or col,
+                                    shadow = false
+                                },
+                                nodes = {}
+                            }
                         }
                     },
                     {
                         n = G.UIT.R,
                         config = { align = "cm", padding = 0.02 },
                         nodes = {
-                            { n = G.UIT.T, config = { text = status_text, scale = 0.32, colour = is_complete and G.C.GOLD or G.C.WHITE, shadow = true } }
+                            { n = G.UIT.T, config = { text = status_display, scale = 0.19, colour = G.C.WHITE, shadow = true } }
                         }
                     },
                     {
                         n = G.UIT.R,
                         config = { align = "cm" },
                         nodes = {
-                            { n = G.UIT.T, config = { text = "[DRAG TO MOVE]", scale = 0.18, colour = G.C.GREY } }
+                            { n = G.UIT.T, config = { text = "[DRAG]", scale = 0.13, colour = G.C.GREY } }
                         }
                     }
                 }
@@ -419,12 +1066,17 @@ function create_outsider_trial_hud(text_title, count, total, percent, is_complet
     G.HUD_outsider_trial._last_total = total
 end
 
+-- ============================================================================
+-- GAMEPLAY TRACKING & HOOKS
+-- ============================================================================
 if Game and Game.update then
     local orig_game_update_trials = Game.update
     function Game:update(dt)
         orig_game_update_trials(self, dt)
         if G.STAGE == G.STAGES.RUN and G.playing_cards and #G.playing_cards > 0 then
-            if G.GAME and G.GAME.challenge == 'c_reality_warp_charles_trial' then
+            local ch = G.GAME and G.GAME.challenge
+
+            if ch == 'c_reality_warp_charles_trial' then
                 local hearts_count = 0
                 local total_cards = #G.playing_cards
                 for _, c in ipairs(G.playing_cards) do
@@ -435,9 +1087,10 @@ if Game and Game.update then
                 local pct = (total_cards > 0) and (hearts_count / total_cards * 100) or 0
                 local is_comp = (hearts_count == total_cards and total_cards > 0)
                 if not G.HUD_outsider_trial or G.HUD_outsider_trial.REMOVED or G.HUD_outsider_trial._last_val ~= hearts_count or G.HUD_outsider_trial._last_total ~= total_cards then
-                    create_outsider_trial_hud("♥ CHARLES' HEARTS QUEST", hearts_count, total_cards, pct, is_comp, G.C.RED)
+                    create_outsider_trial_hud("♥ HEARTS", hearts_count, total_cards, pct, is_comp, G.C.RED)
                 end
-            elseif G.GAME and G.GAME.challenge == 'c_reality_warp_mochi_trial' then
+
+            elseif ch == 'c_reality_warp_mochi_trial' then
                 local wild_count = 0
                 local total_cards = #G.playing_cards
                 for _, c in ipairs(G.playing_cards) do
@@ -448,8 +1101,56 @@ if Game and Game.update then
                 local pct = (total_cards > 0) and (wild_count / total_cards * 100) or 0
                 local is_comp = (wild_count == total_cards and total_cards > 0)
                 if not G.HUD_outsider_trial or G.HUD_outsider_trial.REMOVED or G.HUD_outsider_trial._last_val ~= wild_count or G.HUD_outsider_trial._last_total ~= total_cards then
-                    create_outsider_trial_hud("★ MOCHI'S WILD QUEST", wild_count, total_cards, pct, is_comp, HEX('e879f9'))
+                    create_outsider_trial_hud("★ WILD", wild_count, total_cards, pct, is_comp, HEX('e879f9'))
                 end
+
+            elseif ch == 'c_reality_warp_esteban_trial' then
+                local dark_count = 0
+                local total_cards = #G.playing_cards
+                for _, c in ipairs(G.playing_cards) do
+                    if c:is_suit('Spades') or c:is_suit('Clubs') then
+                        dark_count = dark_count + 1
+                    end
+                end
+                local pct = (total_cards > 0) and (dark_count / total_cards * 100) or 0
+                local is_comp = (dark_count == total_cards and total_cards > 0)
+                if not G.HUD_outsider_trial or G.HUD_outsider_trial.REMOVED or G.HUD_outsider_trial._last_val ~= dark_count or G.HUD_outsider_trial._last_total ~= total_cards then
+                    create_outsider_trial_hud("♠♣ DARK", dark_count, total_cards, pct, is_comp, HEX('d6d3d1'))
+                end
+
+            elseif ch == 'c_reality_warp_yairo_trial' then
+                local six_seven_count = 0
+                local total_cards = #G.playing_cards
+                for _, c in ipairs(G.playing_cards) do
+                    local id = c:get_id()
+                    if id == 6 or id == 7 then
+                        six_seven_count = six_seven_count + 1
+                    end
+                end
+                local pct = (total_cards > 0) and (six_seven_count / total_cards * 100) or 0
+                local is_comp = (six_seven_count == total_cards and total_cards > 0)
+                if not G.HUD_outsider_trial or G.HUD_outsider_trial.REMOVED or G.HUD_outsider_trial._last_val ~= six_seven_count or G.HUD_outsider_trial._last_total ~= total_cards then
+                    create_outsider_trial_hud("6 & 7", six_seven_count, total_cards, pct, is_comp, HEX('8fb6e8'))
+                end
+
+            elseif ch == 'c_reality_warp_sally_trial' then
+                local q_count = G.GAME.sally_quests_completed or 0
+                local total_q = 10
+                local pct = math.min(100, (q_count / total_q) * 100)
+                local is_comp = (q_count >= total_q)
+                if not G.HUD_outsider_trial or G.HUD_outsider_trial.REMOVED or G.HUD_outsider_trial._last_val ~= q_count or G.HUD_outsider_trial._last_total ~= total_q then
+                    create_outsider_trial_hud("QUESTS", q_count, total_q, pct, is_comp, HEX('e8413e'))
+                end
+
+            elseif ch == 'c_reality_warp_mew_mew_trial' then
+                local doki = G.GAME.mew_mew_doki_meter or 0
+                local total_doki = 30
+                local pct = math.min(100, (doki / total_doki) * 100)
+                local is_comp = (doki >= total_doki)
+                if not G.HUD_outsider_trial or G.HUD_outsider_trial.REMOVED or G.HUD_outsider_trial._last_val ~= doki or G.HUD_outsider_trial._last_total ~= total_doki then
+                    create_outsider_trial_hud("DOKI", doki, total_doki, pct, is_comp, HEX('ec4899'))
+                end
+
             elseif G.HUD_outsider_trial then
                 G.HUD_outsider_trial:remove()
                 G.HUD_outsider_trial = nil
@@ -461,30 +1162,108 @@ if Game and Game.update then
     end
 end
 
+-- Hook Game:start_run for Deck Initializations
+if Game and Game.start_run then
+    local orig_game_start_run_trials = Game.start_run
+    function Game:start_run(args)
+        orig_game_start_run_trials(self, args)
+        if G.GAME and G.GAME.challenge then
+            local ch = G.GAME.challenge
+
+            -- Esteban: Start with ONLY Hearts and Diamonds
+            if ch == 'c_reality_warp_esteban_trial' and not args.savetag then
+                G.E_MANAGER:add_event(Event({
+                    func = function()
+                        if G.playing_cards then
+                            for _, c in ipairs(G.playing_cards) do
+                                if c:is_suit('Spades') then
+                                    c:change_suit('Hearts')
+                                elseif c:is_suit('Clubs') then
+                                    c:change_suit('Diamonds')
+                                end
+                            end
+                        end
+                        return true
+                    end
+                }))
+            end
+
+            -- Paco: Discards strictly 0
+            if ch == 'c_reality_warp_paco_trial' then
+                G.GAME.round_resets.discards = 0
+                G.GAME.current_round.discards_left = 0
+            end
+
+            -- Helin: 1 Joker slot max
+            if ch == 'c_reality_warp_helin_trial' then
+                if G.jokers and G.jokers.config then
+                    G.jokers.config.card_limit = 1
+                end
+            end
+
+            -- Calamari / Cefalopop: 2 Joker slots max
+            if ch == 'c_reality_warp_calamari_trial' or ch == 'c_reality_warp_cefalopop_trial' then
+                if G.jokers and G.jokers.config then
+                    G.jokers.config.card_limit = 2
+                end
+            end
+        end
+    end
+end
+
+-- Paco Discard Prevention
+if ease_discard then
+    local orig_ease_discard_paco = ease_discard
+    function ease_discard(mod, instant, silent)
+        if G.GAME and G.GAME.challenge == 'c_reality_warp_paco_trial' and (mod or 0) > 0 then
+            return
+        end
+        orig_ease_discard_paco(mod, instant, silent)
+    end
+end
+
+if Blind and Blind.set_blind then
+    local orig_blind_set_blind_paco = Blind.set_blind
+    function Blind:set_blind(blind, reset, silent)
+        orig_blind_set_blind_paco(self, blind, reset, silent)
+        if G.GAME and G.GAME.challenge == 'c_reality_warp_paco_trial' then
+            G.GAME.round_resets.discards = 0
+            G.GAME.current_round.discards_left = 0
+            if G.GAME.round_resets then G.GAME.round_resets.discards = 0 end
+        end
+    end
+end
+
+-- Consumable Restrictions
 if Card and Card.can_use_consumeable then
     local orig_can_use_consumeable = Card.can_use_consumeable
     function Card:can_use_consumeable(any_state, skip_check)
-        if G.GAME and G.GAME.challenge == 'c_reality_warp_kyra_trial' then
-            local set = (self.ability and self.ability.set) or (self.config and self.config.center and self.config.center.set)
-            if set ~= 'Potion' then
-                return false
-            end
+        local ch = G.GAME and G.GAME.challenge
+        local set = (self.ability and self.ability.set) or (self.config and self.config.center and self.config.center.set)
+
+        if ch == 'c_reality_warp_kyra_trial' and set ~= 'Potion' then
+            return false
         end
-        if G.GAME and G.GAME.challenge == 'c_reality_warp_ray_trial' then
-            local set = (self.ability and self.ability.set) or (self.config and self.config.center and self.config.center.set)
+        if ch == 'c_reality_warp_ray_trial' then
             local k = (self.config and self.config.center and self.config.center.key) or ''
             if set ~= 'Spectral' or k == 'c_soul' or k == 'c_reality_warp_warp_portal' or k == 'c_warp_portal' then
                 return false
             end
         end
+        if ch == 'c_reality_warp_helin_trial' and set ~= 'Planet' then
+            return false
+        end
         return orig_can_use_consumeable(self, any_state, skip_check)
     end
 end
 
+-- Card Creation Filter
 if create_card then
     local orig_create_card_trials = create_card
     function create_card(_type, area, legendary, _rarity, skip_materialize, soulable, forced_key, key_append)
-        if G.GAME and G.GAME.challenge == 'c_reality_warp_kyra_trial' then
+        local ch = G.GAME and G.GAME.challenge
+
+        if ch == 'c_reality_warp_kyra_trial' then
             if _type == 'Consumeables' or _type == 'Tarot' or _type == 'Planet' or _type == 'Spectral' then
                 if create_potion_card_safe then
                     return create_potion_card_safe(area, key_append or 'kyra_trial')
@@ -495,7 +1274,8 @@ if create_card then
                 forced_key = pseudorandom_element(potion_jokers, pseudoseed('kyra_trial_jokers'))
             end
         end
-        if G.GAME and G.GAME.challenge == 'c_reality_warp_ray_trial' then
+
+        if ch == 'c_reality_warp_ray_trial' then
             if _type == 'Consumeables' or _type == 'Tarot' or _type == 'Planet' or _type == 'Potion' then
                 _type = 'Spectral'
             end
@@ -503,6 +1283,92 @@ if create_card then
                 forced_key = 'c_ankh'
             end
         end
+
+        if ch == 'c_reality_warp_helin_trial' then
+            if _type == 'Joker' and key_append ~= 'start' then
+                forced_key = 'j_reality_warp_helin'
+            end
+            if _type == 'Consumeables' or _type == 'Tarot' or _type == 'Spectral' then
+                _type = 'Planet'
+            end
+        end
+
+        if ch == 'c_reality_warp_thiago_trial' and _type == 'Joker' and key_append ~= 'start' then
+            local chip_jokers = {
+                'j_reality_warp_thiago', 'j_blue_joker', 'j_ice_cream', 'j_bull',
+                'j_stone', 'j_runner', 'j_hiker', 'j_wee', 'j_arrowhead',
+                'j_scary_face', 'j_sly', 'j_wily', 'j_clever', 'j_devious', 'j_crafty'
+            }
+            forced_key = pseudorandom_element(chip_jokers, pseudoseed('thiago_trial_chips'))
+        end
+
+        if (ch == 'c_reality_warp_calamari_trial' or ch == 'c_reality_warp_cefalopop_trial') and _type == 'Joker' and key_append ~= 'start' then
+            return nil
+        end
+
         return orig_create_card_trials(_type, area, legendary, _rarity, skip_materialize, soulable, forced_key, key_append)
+    end
+end
+
+-- Scoring Hooks for Sally Quests & Mew Mew Doki Meter
+if Card and Card.calculate_joker then
+    local orig_calculate_joker_trials = Card.calculate_joker
+    function Card:calculate_joker(context)
+        local ret = orig_calculate_joker_trials(self, context)
+        local ch = G.GAME and G.GAME.challenge
+
+        -- Mew Mew Doki Meter: +1 when requested poker hand is played
+        if ch == 'c_reality_warp_mew_mew_trial' and context.before and not context.blueprint then
+            local jk = self.config and self.config.center and self.config.center.key
+            if jk == 'j_reality_warp_mew_mew' and self.ability and self.ability.extra then
+                if context.scoring_name == self.ability.extra.target_hand then
+                    G.GAME.mew_mew_doki_meter = (G.GAME.mew_mew_doki_meter or 0) + 1
+                    attention_text({
+                        text = "DOKI! (" .. G.GAME.mew_mew_doki_meter .. "/30)",
+                        scale = 0.55,
+                        hold = 0.8,
+                        backdrop_colour = HEX('ec4899'),
+                        major = self,
+                        align = 'tm',
+                        offset = { x = 0, y = -0.5 }
+                    })
+                    if G.GAME.mew_mew_doki_meter >= 30 and not G.GAME.won then
+                        G.GAME.won = true
+                        G.E_MANAGER:add_event(Event({
+                            trigger = 'after',
+                            delay = 0.5,
+                            func = function()
+                                if G.FUNCS and G.FUNCS.overlay_menu and create_UIBox_win then
+                                    G.FUNCS.overlay_menu{ definition = create_UIBox_win(), config = { no_esc = true } }
+                                end
+                                return true
+                            end
+                        }))
+                    end
+                end
+            end
+        end
+
+        -- Sally Quests Completed Tracker
+        if ch == 'c_reality_warp_sally_trial' and not context.blueprint then
+            local jk = self.config and self.config.center and self.config.center.key
+            if jk == 'j_reality_warp_sally' and self.ability and self.ability.extra and self.ability.extra.completed then
+                if not self.ability.extra._counted_for_trial then
+                    self.ability.extra._counted_for_trial = true
+                    G.GAME.sally_quests_completed = (G.GAME.sally_quests_completed or 0) + 1
+                    attention_text({
+                        text = "QUEST COMPLETE! (" .. G.GAME.sally_quests_completed .. "/10)",
+                        scale = 0.55,
+                        hold = 0.8,
+                        backdrop_colour = HEX('e8413e'),
+                        major = self,
+                        align = 'tm',
+                        offset = { x = 0, y = -0.5 }
+                    })
+                end
+            end
+        end
+
+        return ret
     end
 end
