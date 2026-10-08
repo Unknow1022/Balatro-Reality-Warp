@@ -1369,6 +1369,10 @@ if G and G.UIDEF and G.UIDEF.shop then
             G.GAME.black_market_available = true
         end
 
+        if G.GAME and G.GAME.modifiers and G.GAME.modifiers.no_black_market then
+            G.GAME.black_market_available = false
+        end
+
         local res = orig_uidef_shop()
 
         if G.GAME and G.GAME.black_market_available then

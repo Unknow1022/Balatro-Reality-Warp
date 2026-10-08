@@ -61,6 +61,17 @@ if Card and Card.calculate_joker then
             local glitch = reality_warp_glitch_bonus(self, context)
             if glitch then append(glitch) end
         end
+        if ability and (ability.weakened or ability.reality_warp_weakened) and result[1] and type(result[1]) == 'table' then
+            local r = result[1]
+            if r.mult and type(r.mult) == 'number' then r.mult = math.max(1, math.floor(r.mult * 0.5)) end
+            if r.chips and type(r.chips) == 'number' then r.chips = math.max(1, math.floor(r.chips * 0.5)) end
+            if r.x_mult and type(r.x_mult) == 'number' then r.x_mult = math.max(1, 1 + (r.x_mult - 1) * 0.5) end
+            if r.dollars and type(r.dollars) == 'number' then r.dollars = math.max(1, math.floor(r.dollars * 0.5)) end
+            if r.p_dollars and type(r.p_dollars) == 'number' then r.p_dollars = math.max(1, math.floor(r.p_dollars * 0.5)) end
+            if r.h_mult and type(r.h_mult) == 'number' then r.h_mult = math.max(1, math.floor(r.h_mult * 0.5)) end
+            if r.h_chips and type(r.h_chips) == 'number' then r.h_chips = math.max(1, math.floor(r.h_chips * 0.5)) end
+            if r.h_x_mult and type(r.h_x_mult) == 'number' then r.h_x_mult = math.max(1, 1 + (r.h_x_mult - 1) * 0.5) end
+        end
         return unpack(result, 1, result.n)
     end
 end

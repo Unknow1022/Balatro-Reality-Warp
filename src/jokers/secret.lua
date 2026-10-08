@@ -770,13 +770,9 @@ register_secret_joker {
     loc_txt = {
         name = 'Kyra',
         text = {
-            {
-                "{C:attention}Potions{} don't take consumable space"
-            },
-            {
-                "Click button and pay {C:money}$#1#{}",
-                "to brew a random {C:attention}Potion{}"
-            }
+            "{C:attention}Potions{} don't take consumable space.",
+            "Click button and pay {C:money}$#1#{}",
+            "to brew a random {C:attention}Potion{}."
         }
     },
     config = { extra = { cost = 2 } },
@@ -844,9 +840,18 @@ G.FUNCS.pay_kyra = function(e)
     end
 end
 
+function get_marina_debuff_cost(card)
+    if card and card.ability and card.ability.set == 'Joker' then
+        return 5
+    end
+    return 1
+end
+
 local orig_use_and_sell_buttons = G.UIDEF.use_and_sell_buttons
 function G.UIDEF.use_and_sell_buttons(card)
     local t = orig_use_and_sell_buttons(card)
+    if not t or not t.nodes or not t.nodes[1] or not t.nodes[1].nodes then return t end
+
     if card and card.area and card.area.config and card.area.config.type == 'joker' and card_has_key(card, 'kyra') and not card.debuff then
         local pay_button = {
             n = G.UIT.R,
@@ -899,10 +904,119 @@ function G.UIDEF.use_and_sell_buttons(card)
                 }
             }
         }
-        if t and t.nodes and t.nodes[1] and t.nodes[1].nodes then
-            table.insert(t.nodes[1].nodes, pay_button)
-        end
+        table.insert(t.nodes[1].nodes, pay_button)
     end
+
+    if card and card.area and card.area.config and card.area.config.type == 'joker' and card_has_key(card, 'marina') and not card.debuff then
+        local hack_button = {
+            n = G.UIT.R,
+            config = { align = 'cl' },
+            nodes = {
+                {
+                    n = G.UIT.C,
+                    config = { align = "cr" },
+                    nodes = {
+                        {
+                            n = G.UIT.C,
+                            config = {
+                                ref_table = card,
+                                align = "cr",
+                                padding = 0.1,
+                                r = 0.08,
+                                minw = 1.25,
+                                hover = true,
+                                shadow = true,
+                                colour = HEX('28d2dc'),
+                                one_press = false,
+                                button = 'marina_open_hack_menu',
+                            },
+                            nodes = {
+                                { n = G.UIT.B, config = { w = 0.1, h = 0.6 } },
+                                {
+                                    n = G.UIT.C,
+                                    config = { align = "tm" },
+                                    nodes = {
+                                        {
+                                            n = G.UIT.R,
+                                            config = { align = "cm", maxw = 1.25 },
+                                            nodes = {
+                                                { n = G.UIT.T, config = { text = "HACK", colour = G.C.WHITE, scale = 0.38, shadow = true } }
+                                            }
+                                        },
+                                        {
+                                            n = G.UIT.R,
+                                            config = { align = "cm" },
+                                            nodes = {
+                                                { n = G.UIT.T, config = { text = "MENU", colour = G.C.WHITE, scale = 0.28, shadow = true } }
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+        table.insert(t.nodes[1].nodes, hack_button)
+    end
+
+    if card and card.debuff and get_active_marina and get_active_marina() then
+        local cost = get_marina_debuff_cost(card)
+        local hack_debuff_button = {
+            n = G.UIT.R,
+            config = { align = 'cl' },
+            nodes = {
+                {
+                    n = G.UIT.C,
+                    config = { align = "cr" },
+                    nodes = {
+                        {
+                            n = G.UIT.C,
+                            config = {
+                                ref_table = card,
+                                align = "cr",
+                                padding = 0.1,
+                                r = 0.08,
+                                minw = 1.25,
+                                hover = true,
+                                shadow = true,
+                                colour = HEX('28d2dc'),
+                                one_press = false,
+                                button = 'marina_hack_debuff_card',
+                                func = 'can_marina_hack_debuff'
+                            },
+                            nodes = {
+                                { n = G.UIT.B, config = { w = 0.1, h = 0.6 } },
+                                {
+                                    n = G.UIT.C,
+                                    config = { align = "tm" },
+                                    nodes = {
+                                        {
+                                            n = G.UIT.R,
+                                            config = { align = "cm", maxw = 1.25 },
+                                            nodes = {
+                                                { n = G.UIT.T, config = { text = "HACK", colour = G.C.WHITE, scale = 0.38, shadow = true } }
+                                            }
+                                        },
+                                        {
+                                            n = G.UIT.R,
+                                            config = { align = "cm" },
+                                            nodes = {
+                                                { n = G.UIT.T, config = { text = "$" .. tostring(cost), colour = G.C.WHITE, scale = 0.45, shadow = true } }
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+        table.insert(t.nodes[1].nodes, hack_debuff_button)
+    end
+
     return t
 end
 
@@ -1082,14 +1196,10 @@ register_amalgam_joker {
     loc_txt = {
         name = 'Certified Programming',
         text = {
-            {
-                "At start of round, adds {C:attention}2{} cards with a",
-                "random {C:attention}Seal{} and {C:attention}Enhancement{} to hand"
-            },
-            {
-                "Gains {X:mult,C:white}+X#1#{} Mult when any card is added to deck",
-                "{C:inactive}(Currently {X:mult,C:white}X#2#{C:inactive} Mult){}"
-            }
+            "At start of round, adds {C:attention}2{} cards with a",
+            "random {C:attention}Seal{} and {C:attention}Enhancement{} to hand.",
+            "Gains {X:mult,C:white}+X#1#{} Mult when any card is added to deck",
+            "{C:inactive}(Currently {X:mult,C:white}X#2#{C:inactive} Mult){}"
         }
     },
     config = { extra = { xmult_gain = 0.25, xmult = 1.0 } },
@@ -1498,14 +1608,10 @@ register_secret_joker {
     loc_txt = {
         name = 'Astral Calamity',
         text = {
-            {
-                "Used {C:planet}Planet{} cards give",
-                "{C:attention}+#1#{} extra level"
-            },
-            {
-                "{C:spectral}Black Hole{} gives",
-                "{C:attention}+#2#{} extra levels"
-            }
+            "Used {C:planet}Planet{} cards give",
+            "{C:attention}+#1#{} extra level.",
+            "{C:spectral}Black Hole{} gives",
+            "{C:attention}+#2#{} extra levels."
         }
     },
     config = { extra = { extra_planet_levels = 1, extra_black_hole_levels = 2 } },
@@ -1793,14 +1899,10 @@ register_amalgam_joker {
     loc_txt = {
         name = 'Mime King',
         text = {
-            {
-                "{C:attention}Kings{} held in hand",
-                "give {X:mult,C:white}X#1#{} Mult"
-            },
-            {
-                "Cards held in hand",
-                "retrigger {C:attention}#2#{} times"
-            }
+            "{C:attention}Kings{} held in hand",
+            "give {X:mult,C:white}X#1#{} Mult.",
+            "Cards held in hand",
+            "retrigger {C:attention}#2#{} times."
         }
     },
     config = { extra = { x_mult = 2, repetitions = 2 } },
@@ -1836,14 +1938,10 @@ register_amalgam_joker {
     loc_txt = {
         name = 'Photo Album',
         text = {
-            {
-                "First {C:attention}face card{} gives",
-                "{X:mult,C:white}X#1#{} Mult"
-            },
-            {
-                "First played card retriggers {C:attention}#2#{} times,",
-                "{C:attention}face cards{} retrigger {C:attention}#3#{} time"
-            }
+            "First {C:attention}face card{} gives",
+            "{X:mult,C:white}X#1#{} Mult.",
+            "First played card retriggers {C:attention}#2#{} times,",
+            "{C:attention}face cards{} retrigger {C:attention}#3#{} time."
         }
     },
     config = { extra = { x_mult = 2.5, first_reps = 3, face_reps = 1 } },
@@ -1894,15 +1992,10 @@ register_amalgam_joker {
     loc_txt = {
         name = 'Pirate Egg',
         text = {
-            {
-                "Gains {C:money}$5{} sell value",
-                "at end of round"
-            },
-            {
-                "{X:mult,C:white}X0.1{} Mult per {C:money}$1{} sell value",
-                "of all owned {C:attention}Jokers{}",
-                "{C:inactive}(Currently {X:mult,C:white}X#1#{C:inactive} Mult){}"
-            }
+            "Gains {C:money}$5{} sell value at end of round.",
+            "{X:mult,C:white}X0.1{} Mult per {C:money}$1{} sell value",
+            "of all owned {C:attention}Jokers{}",
+            "{C:inactive}(Currently {X:mult,C:white}X#1#{C:inactive} Mult){}"
         }
     },
     config = { extra = { mult_per_dollar = 0.1 } },
@@ -1986,15 +2079,10 @@ register_amalgam_joker {
     loc_txt = {
         name = 'Wee Comedian',
         text = {
-            {
-                "Gains {C:chips}+10{} Chips per scored {C:attention}2{},",
-                "scored {C:attention}2s{} retrigger {C:attention}2{} times",
-                "{C:inactive}(Currently {C:chips}+#1#{C:inactive} Chips){}"
-            },
-            {
-                "Played {C:attention}Ace, 2, 3, 5, 8{}",
-                "give {C:mult}+16{} Mult"
-            }
+            "Gains {C:chips}+10{} Chips per scored {C:attention}2{},",
+            "scored {C:attention}2s{} retrigger {C:attention}2{} times",
+            "{C:inactive}(Currently {C:chips}+#1#{C:inactive} Chips){}",
+            "Played {C:attention}Ace, 2, 3, 5, 8{} give {C:mult}+16{} Mult."
         }
     },
     config = { extra = { chips = 0, chip_gain = 10 } },
@@ -2046,14 +2134,10 @@ register_amalgam_joker {
     loc_txt = {
         name = 'Golden Lucky Cat',
         text = {
-            {
-                "Adds {C:attention}+2{} to all {C:green}probabilities{}"
-            },
-            {
-                "Gains {X:mult,C:white}+X0.5{} Mult whenever any",
-                "{C:attention}Lucky{} card or probability triggers",
-                "{C:inactive}(Currently {X:mult,C:white}X#1#{C:inactive} Mult){}"
-            }
+            "Adds {C:attention}+2{} to all {C:green}probabilities{}.",
+            "Gains {X:mult,C:white}+X0.5{} Mult whenever any",
+            "{C:attention}Lucky{} card or probability triggers",
+            "{C:inactive}(Currently {X:mult,C:white}X#1#{C:inactive} Mult){}"
         }
     },
     config = { extra = { x_mult = 1.0, gain = 0.5 } },
@@ -2177,55 +2261,385 @@ if COMPONENT_JOKERS_BY_AMALGAM then
     COMPONENT_JOKERS_BY_AMALGAM['emoji_macabro'] = COMPONENT_JOKERS_BY_AMALGAM['macabre_emoji']
 end
 
-local function has_marina_and_perla()
-    if not (G and G.jokers and G.jokers.cards) then return false end
-    local has_m, has_p = false, false
+function get_active_marina()
+    if not (G and G.jokers and G.jokers.cards) then return nil end
     for _, j in ipairs(G.jokers.cards) do
-        if not j.debuff then
-            if card_has_key(j, 'marina') then has_m = true end
-            if card_has_key(j, 'perla') then has_p = true end
+        if not j.debuff and card_has_key(j, 'marina') then
+            return j
         end
     end
-    return has_m and has_p
+    return nil
 end
 
-local function get_boss_card_debuff(blind)
-    if not (blind and blind.boss) then return nil end
-    local debuff_info = {}
-    local b_key = (blind.config and blind.config.blind and blind.config.blind.key) or blind.name or ''
-    local b_l = string.lower(b_key)
-
-    if blind.debuff and blind.debuff.suit then
-        debuff_info.suit = blind.debuff.suit
-    elseif blind.config and blind.config.blind and blind.config.blind.debuff and blind.config.blind.debuff.suit then
-        debuff_info.suit = blind.config.blind.debuff.suit
+local function get_marina_target(card)
+    if not card or not card.ability then return nil end
+    card.ability.extra = card.ability.extra or {}
+    local target_id = card.ability.extra.hacked_target_id
+    if G.jokers and G.jokers.cards then
+        if target_id then
+            for _, j in ipairs(G.jokers.cards) do
+                if j ~= card and (j.ID == target_id or j.sort_id == target_id) then
+                    return j
+                end
+            end
+        end
+        local eligible = {}
+        for _, j in ipairs(G.jokers.cards) do
+            if j ~= card then
+                table.insert(eligible, j)
+            end
+        end
+        if #eligible > 0 then
+            local chosen = pseudorandom_element(eligible, pseudoseed('marina_target'))
+            if chosen then
+                card.ability.extra.hacked_target_id = chosen.ID or chosen.sort_id
+                card.ability.extra.hacked_target_name = (chosen.config and chosen.config.center and chosen.config.center.name) or "Joker"
+                return chosen
+            end
+        end
     end
-
-    if string.find(b_l, 'head') then debuff_info.suit = 'Hearts' end
-    if string.find(b_l, 'club') then debuff_info.suit = 'Clubs' end
-    if string.find(b_l, 'window') then debuff_info.suit = 'Diamonds' end
-    if string.find(b_l, 'goad') or string.find(b_l, 'nightshade') then debuff_info.suit = 'Spades' end
-    if string.find(b_l, 'black_diamond') then debuff_info.suits = { Clubs = true, Diamonds = true } end
-    if string.find(b_l, 'blood_moon') then debuff_info.suits = { Hearts = true, Spades = true } end
-
-    if (blind.debuff and (blind.debuff.is_face or blind.debuff.face)) or
-       (blind.config and blind.config.blind and blind.config.blind.debuff and (blind.config.blind.debuff.is_face or blind.config.blind.debuff.face)) or
-       string.find(b_l, 'plant') or string.find(b_l, 'thorn_crown') then
-        debuff_info.face = true
-    end
-
-    if string.find(b_l, 'pillar') or string.find(b_l, 'obelisk') then
-        debuff_info.played_this_ante = true
-    end
-
-    if string.find(b_l, 'wizard') or string.find(b_l, 'magician') then
-        debuff_info.enhanced = true
-    end
-
-    if debuff_info.suit or debuff_info.suits or debuff_info.face or debuff_info.played_this_ante or debuff_info.enhanced then
-        return debuff_info
-    end
+    card.ability.extra.hacked_target_id = nil
+    card.ability.extra.hacked_target_name = nil
     return nil
+end
+
+local function clean_marina_temp_areas()
+    if G.marina_temp_areas then
+        for _, area in ipairs(G.marina_temp_areas) do
+            if area.cards then
+                for _, c in ipairs(area.cards) do
+                    if c.remove then c:remove() end
+                end
+            end
+            if area.remove then area:remove() end
+        end
+        G.marina_temp_areas = nil
+    end
+end
+
+if G.FUNCS and G.FUNCS.exit_overlay_menu then
+    local orig_marina_exit_overlay_menu = G.FUNCS.exit_overlay_menu
+    G.FUNCS.exit_overlay_menu = function()
+        clean_marina_temp_areas()
+        orig_marina_exit_overlay_menu()
+    end
+end
+
+local function open_marina_hack_menu(marina_card)
+    if not (create_UIBox_generic_options and G.FUNCS and G.FUNCS.overlay_menu) then return end
+    clean_marina_temp_areas()
+    G.marina_temp_areas = {}
+
+    local total_jokers = (G.jokers and G.jokers.cards) or {}
+    local current_target = get_marina_target(marina_card)
+    local cur_target_id = marina_card.ability and marina_card.ability.extra and marina_card.ability.extra.hacked_target_id
+
+    local card_scale = (#total_jokers > 5) and 0.52 or 0.65
+    local joker_cols = {}
+
+    for _, j in ipairs(total_jokers) do
+        local is_marina = (j == marina_card)
+        local is_current = (current_target == j or (cur_target_id and (j.ID == cur_target_id or j.sort_id == cur_target_id)))
+
+        local c_area = CardArea(
+            0, 0,
+            G.CARD_W * card_scale,
+            G.CARD_H * card_scale,
+            { card_limit = 1, type = 'title', highlight_limit = 0, card_w = G.CARD_W * card_scale }
+        )
+        table.insert(G.marina_temp_areas, c_area)
+        local copy = copy_card(j, nil, card_scale)
+        c_area:emplace(copy)
+
+        local action_btn = nil
+        if is_marina then
+            action_btn = {
+                n = G.UIT.R, config = {
+                    align = "cm", minw = 1.4, minh = 0.45, r = 0.1,
+                    colour = G.C.UI.BACKGROUND_INACTIVE
+                },
+                nodes = {
+                    { n = G.UIT.T, config = { text = "MARINA (SOURCE)", scale = 0.25, colour = G.C.UI.TEXT_INACTIVE } }
+                }
+            }
+        elseif is_current then
+            action_btn = {
+                n = G.UIT.R, config = {
+                    align = "cm", minw = 1.4, minh = 0.45, r = 0.1,
+                    colour = HEX('15803d'),
+                    outline = 0.03, outline_colour = G.C.GREEN
+                },
+                nodes = {
+                    { n = G.UIT.T, config = { text = "CURRENT TARGET", scale = 0.28, colour = G.C.WHITE, shadow = true } }
+                }
+            }
+        else
+            action_btn = {
+                n = G.UIT.R, config = {
+                    align = "cm", minw = 1.4, minh = 0.45, r = 0.1,
+                    hover = true,
+                    colour = HEX('0284c7'),
+                    button = 'marina_choose_joker_target',
+                    ref_table = { marina = marina_card, target = j },
+                    shadow = true
+                },
+                nodes = {
+                    { n = G.UIT.T, config = { text = "HACK TARGET", scale = 0.32, colour = G.C.WHITE, shadow = true } }
+                }
+            }
+        end
+
+        local j_name = (j.config and j.config.center and localize{type = 'name_text', key = j.config.center.key, set = 'Joker'}) or "Joker"
+
+        table.insert(joker_cols, {
+            n = G.UIT.C,
+            config = {
+                align = "cm",
+                padding = 0.08,
+                r = 0.12,
+                colour = is_current and { 0.05, 0.2, 0.2, 0.85 } or { 0.08, 0.08, 0.12, 0.8 },
+                outline = is_current and 0.04 or 0.02,
+                outline_colour = is_current and HEX('28d2dc') or { 0.3, 0.3, 0.4, 0.5 }
+            },
+            nodes = {
+                {
+                    n = G.UIT.R, config = { align = "cm", padding = 0.04 },
+                    nodes = { { n = G.UIT.O, config = { object = c_area } } }
+                },
+                {
+                    n = G.UIT.R, config = { align = "cm", padding = 0.02, maxw = 1.8 },
+                    nodes = {
+                        { n = G.UIT.T, config = { text = j_name, scale = 0.25, colour = G.C.WHITE } }
+                    }
+                },
+                action_btn
+            }
+        })
+    end
+
+    local debuffed_cards = {}
+    local function collect_debuffed(area)
+        if area and area.cards then
+            for _, c in ipairs(area.cards) do
+                if c.debuff then table.insert(debuffed_cards, c) end
+            end
+        end
+    end
+    collect_debuffed(G.jokers)
+    collect_debuffed(G.hand)
+    collect_debuffed(G.consumeables)
+
+    local debuff_cols = {}
+    local cur_dollars = (to_number and to_number(G.GAME and G.GAME.dollars)) or tonumber(G.GAME and G.GAME.dollars) or 0
+
+    if #debuffed_cards > 0 then
+        for _, c in ipairs(debuffed_cards) do
+            local cost = get_marina_debuff_cost(c)
+            local can_afford_repair = (cur_dollars >= cost)
+            local c_area = CardArea(
+                0, 0,
+                G.CARD_W * 0.5,
+                G.CARD_H * 0.5,
+                { card_limit = 1, type = 'title', highlight_limit = 0, card_w = G.CARD_W * 0.5 }
+            )
+            table.insert(G.marina_temp_areas, c_area)
+            local copy = copy_card(c, nil, 0.5)
+            c_area:emplace(copy)
+
+            table.insert(debuff_cols, {
+                n = G.UIT.C,
+                config = {
+                    align = "cm",
+                    padding = 0.06,
+                    r = 0.1,
+                    colour = { 0.18, 0.06, 0.06, 0.8 },
+                    outline = 0.03,
+                    outline_colour = G.C.RED
+                },
+                nodes = {
+                    {
+                        n = G.UIT.R, config = { align = "cm", padding = 0.03 },
+                        nodes = { { n = G.UIT.O, config = { object = c_area } } }
+                    },
+                    {
+                        n = G.UIT.R, config = {
+                            align = "cm", minw = 1.2, minh = 0.4, r = 0.08,
+                            hover = can_afford_repair,
+                            colour = can_afford_repair and HEX('16a34a') or G.C.UI.BACKGROUND_INACTIVE,
+                            button = can_afford_repair and 'marina_menu_repair_card' or nil,
+                            ref_table = { marina = marina_card, card = c },
+                            shadow = can_afford_repair
+                        },
+                        nodes = {
+                            { n = G.UIT.T, config = { text = "REPAIR ($" .. tostring(cost) .. ")", scale = 0.28, colour = can_afford_repair and G.C.WHITE or G.C.UI.TEXT_INACTIVE, shadow = can_afford_repair } }
+                        }
+                    }
+                }
+            })
+        end
+    end
+
+    local contents = {
+        {
+            n = G.UIT.R, config = { align = "cm", padding = 0.1 },
+            nodes = {
+                { n = G.UIT.T, config = { text = "MARINA'S HACK TERMINAL", scale = 0.55, colour = HEX('28d2dc'), shadow = true } }
+            }
+        },
+        {
+            n = G.UIT.R, config = { align = "cm", padding = 0.03 },
+            nodes = {
+                { n = G.UIT.T, config = { text = "Select a target Joker to trigger +3 extra times on every calculation:", scale = 0.32, colour = G.C.WHITE } }
+            }
+        },
+        {
+            n = G.UIT.R, config = { align = "cm", padding = 0.08, colour = HEX('0f172a'), r = 0.15, outline = 0.03, outline_colour = HEX('28d2dc') },
+            nodes = (#joker_cols > 0) and joker_cols or {
+                { n = G.UIT.T, config = { text = "No other Jokers available to hack!", scale = 0.35, colour = G.C.UI.TEXT_INACTIVE } }
+            }
+        }
+    }
+
+    if #debuffed_cards > 0 then
+        table.insert(contents, {
+            n = G.UIT.R, config = { align = "cm", padding = 0.06 },
+            nodes = {
+                { n = G.UIT.T, config = { text = "DEBUFFED CARDS OVERRIDE ($1 Cards / $5 Jokers):", scale = 0.34, colour = HEX('fbbf24'), shadow = true } }
+            }
+        })
+        table.insert(contents, {
+            n = G.UIT.R, config = { align = "cm", padding = 0.06, colour = HEX('18181b'), r = 0.12, outline = 0.02, outline_colour = HEX('fbbf24') },
+            nodes = debuff_cols
+        })
+    end
+
+    local t = create_UIBox_generic_options({
+        back_func = 'exit_overlay_menu',
+        back_label = "Close",
+        contents = contents
+    })
+    G.FUNCS.overlay_menu{ definition = t }
+end
+
+G.FUNCS = G.FUNCS or {}
+
+G.FUNCS.marina_open_hack_menu = function(e)
+    local card = e.config.ref_table
+    if card then
+        open_marina_hack_menu(card)
+    end
+end
+
+G.FUNCS.marina_choose_joker_target = function(e)
+    local marina = e.config.ref_table.marina
+    local target = e.config.ref_table.target
+    if marina and target then
+        marina.ability.extra = marina.ability.extra or {}
+        marina.ability.extra.hacked_target_id = target.ID or target.sort_id
+        marina.ability.extra.hacked_target_name = (target.config and target.config.center and target.config.center.name) or "Joker"
+        play_sound('chips2')
+        target:juice_up(0.7, 0.7)
+        marina:juice_up(0.7, 0.7)
+        card_eval_status_text(target, 'extra', nil, nil, nil, { message = 'HACKED (+3)!', colour = HEX('28d2dc') })
+        G.FUNCS.exit_overlay_menu()
+    end
+end
+
+G.FUNCS.marina_menu_repair_card = function(e)
+    local marina = e.config.ref_table.marina
+    local card = e.config.ref_table.card
+    local cost = get_marina_debuff_cost(card)
+    local cur_dollars = (to_number and to_number(G.GAME and G.GAME.dollars)) or tonumber(G.GAME and G.GAME.dollars) or 0
+    if cur_dollars >= cost and card then
+        ease_dollars(-cost)
+        card.marina_repaired = true
+        card:set_debuff(false)
+        card.debuff = false
+        play_sound('coin3')
+        card:juice_up(0.6, 0.6)
+        if marina then marina:juice_up(0.5, 0.5) end
+        card_eval_status_text(card, 'extra', nil, nil, nil, { message = 'UNHACKED!', colour = HEX('28d2dc') })
+        open_marina_hack_menu(marina)
+    end
+end
+
+G.FUNCS.can_marina_hack_debuff = function(e)
+    local card = e.config.ref_table
+    local cost = get_marina_debuff_cost(card)
+    local cur_dollars = (to_number and to_number(G.GAME and G.GAME.dollars)) or tonumber(G.GAME and G.GAME.dollars) or 0
+    if cur_dollars >= cost and card and card.debuff and not (G.STATE == G.STATES.HAND_PLAYED or G.STATE == G.STATES.DRAW_TO_HAND or G.STATE == G.STATES.PLAY_TAROT) then
+        e.config.colour = HEX('28d2dc')
+        e.config.button = 'marina_hack_debuff_card'
+    else
+        e.config.colour = G.C.UI.BACKGROUND_INACTIVE
+        e.config.button = nil
+    end
+end
+
+G.FUNCS.marina_hack_debuff_card = function(e)
+    local card = e.config.ref_table
+    local cost = get_marina_debuff_cost(card)
+    local cur_dollars = (to_number and to_number(G.GAME and G.GAME.dollars)) or tonumber(G.GAME and G.GAME.dollars) or 0
+    if cur_dollars >= cost and card and card.debuff then
+        ease_dollars(-cost)
+        card.marina_repaired = true
+        card:set_debuff(false)
+        card.debuff = false
+        play_sound('coin3')
+        card:juice_up(0.6, 0.6)
+        if card.children and card.children.use_button then
+            card.children.use_button:remove()
+            card.children.use_button = nil
+        end
+        card_eval_status_text(card, 'extra', nil, nil, nil, { message = 'UNHACKED!', colour = HEX('28d2dc') })
+        local marina = get_active_marina()
+        if marina then marina:juice_up(0.5, 0.5) end
+    end
+end
+
+if Card and Card.set_debuff then
+    local orig_marina_set_debuff = Card.set_debuff
+    function Card:set_debuff(should_debuff)
+        if self.marina_repaired then
+            self.debuff = false
+            return orig_marina_set_debuff(self, false)
+        end
+        return orig_marina_set_debuff(self, should_debuff)
+    end
+end
+
+local orig_marina_reset_blind = reset_blind
+function reset_blind()
+    if G.hand and G.hand.cards then for _, c in ipairs(G.hand.cards) do c.marina_repaired = nil end end
+    if G.deck and G.deck.cards then for _, c in ipairs(G.deck.cards) do c.marina_repaired = nil end end
+    if G.jokers and G.jokers.cards then for _, c in ipairs(G.jokers.cards) do c.marina_repaired = nil end end
+    if orig_marina_reset_blind then return orig_marina_reset_blind() end
+end
+
+if Card and Card.highlight then
+    local orig_marina_highlight = Card.highlight
+    function Card:highlight(is_highlighted)
+        local ret = orig_marina_highlight(self, is_highlighted)
+        if self.debuff and get_active_marina and get_active_marina() and self.area == G.hand then
+            if is_highlighted then
+                if not self.children.use_button and G.UIDEF and G.UIDEF.use_and_sell_buttons then
+                    local btns = G.UIDEF.use_and_sell_buttons(self)
+                    if btns then
+                        self.children.use_button = UIBox{
+                            definition = btns,
+                            config = { align = "bm", offset = { x = 0, y = 0.5 }, parent = self }
+                        }
+                    end
+                end
+            else
+                if self.children.use_button then
+                    self.children.use_button:remove()
+                    self.children.use_button = nil
+                end
+            end
+        end
+        return ret
+    end
 end
 
 register_secret_joker {
@@ -2236,68 +2650,46 @@ register_secret_joker {
     loc_txt = {
         name = 'Marina',
         text = {
-            "Disables all {C:attention}Boss Blinds{}.",
-            "Inverts suit and rank debuffs",
-            "into {C:green}buffs{} for those cards."
+            "Hacks a random Joker, causing its",
+            "effects to repeat {C:attention}#1#{} additional times.",
+            "{C:inactive}(Currently Hacking: {C:attention}#2#{}{C:inactive}){}",
+            "Use {C:green}Hack{} to manually select a target,",
+            "or reactivate debuffed {C:attention}cards{} ({C:money}$#3#{})",
+            "and {C:attention}Jokers{} ({C:money}$#4#{})."
         }
     },
-    config = { extra = {} },
+    config = { extra = { repetitions = 3, cost_card = 1, cost_joker = 5 } },
     blueprint_compat = true,
-    calculate = function(self, card, context)
-        if (context.setting_blind or (G.GAME.blind and G.GAME.blind.boss and not G.GAME.blind.disabled)) and not context.blueprint then
-            if G.GAME.blind and G.GAME.blind.boss and not G.GAME.blind.disabled then
-                local debuff_info = get_boss_card_debuff(G.GAME.blind)
-                G.GAME.blind:disable()
-                if debuff_info then
-                    card_eval_status_text(card, 'extra', nil, nil, nil, { message = 'Boss Inverted!', colour = G.C.GREEN })
-                else
-                    card_eval_status_text(card, 'extra', nil, nil, nil, { message = 'Boss Disabled!', colour = G.C.RED })
-                end
+    loc_vars = function(self, info_queue, card)
+        local target = get_marina_target(card)
+        local target_name = "None"
+        if target and target.config and target.config.center then
+            target_name = localize{type = 'name_text', key = target.config.center.key, set = 'Joker'}
+            if not target_name or target_name == '' or string.find(target_name, 'ERROR') then
+                target_name = target.config.center.name or "Joker"
             end
         end
-
-        if context.individual and context.cardarea == G.play then
-            local debuff_info = get_boss_card_debuff(G.GAME.blind)
-            if not debuff_info then return end
-
-            local c = context.other_card
-            local card_buffed = false
-            local ret = {}
-
-            if debuff_info.suit and c:is_suit(debuff_info.suit) then
-                ret.x_mult = 2
-                card_buffed = true
-            elseif debuff_info.suits and ((debuff_info.suits.Clubs and c:is_suit('Clubs')) or
-                                         (debuff_info.suits.Diamonds and c:is_suit('Diamonds')) or
-                                         (debuff_info.suits.Hearts and c:is_suit('Hearts')) or
-                                         (debuff_info.suits.Spades and c:is_suit('Spades'))) then
-                ret.x_mult = 2
-                card_buffed = true
-            end
-
-            if debuff_info.face and c:is_face() then
-                ret.chips = (ret.chips or 0) + 50
-                card_buffed = true
-            end
-
-            if debuff_info.played_this_ante and c.ability and c.ability.played_this_ante then
-                ret.chips = (ret.chips or 0) + 30
-                card_buffed = true
-            end
-
-            if debuff_info.enhanced and ((c.ability and c.ability.set == 'Enhanced') or (c.config and c.config.center and c.config.center.set == 'Enhanced')) then
-                ret.chips = (ret.chips or 0) + 40
-                ret.mult = (ret.mult or 0) + 10
-                card_buffed = true
-            end
-
-            if card_buffed then
-                if has_marina_and_perla() and not context.blueprint then
-                    ret.x_mult = (ret.x_mult or 1) * 1.5
-                    ret.dollars = (ret.dollars or 0) + 5
-                end
-                ret.card = card
-                return ret
+        return {
+            vars = {
+                (card.ability and card.ability.extra and card.ability.extra.repetitions) or 3,
+                target_name,
+                (card.ability and card.ability.extra and card.ability.extra.cost_card) or 1,
+                (card.ability and card.ability.extra and card.ability.extra.cost_joker) or 5
+            }
+        }
+    end,
+    add_to_deck = function(self, card, from_debuff)
+        get_marina_target(card)
+    end,
+    calculate = function(self, card, context)
+        if (context.retrigger_joker_check or context.retrigger_joker) and not context.retrigger_joker then
+            local target = get_marina_target(card)
+            if target and context.other_card == target then
+                return {
+                    message = localize('k_again_ex'),
+                    repetitions = (card.ability and card.ability.extra and card.ability.extra.repetitions) or 3,
+                    card = card
+                }
             end
         end
     end

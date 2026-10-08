@@ -2359,75 +2359,14 @@ jd_def["j_reality_warp_creepy_shadow"] = {
 
 jd_def["j_reality_warp_marina"] = {
     text = {
-        {
-            border_nodes = {
-                { text = "X" },
-                { ref_table = "card.joker_display_values", ref_value = "x_mult", retrigger_type = "exp" }
-            }
-        }
+        { text = "+3 Retriggers", colour = G.C.GREEN }
     },
     reminder_text = {
         { ref_table = "card.joker_display_values", ref_value = "reminder_str" }
     },
     calc_function = function(card)
-        local is_boss = G.GAME and G.GAME.blind and G.GAME.blind.boss
-        local debuff_info = nil
-        if is_boss then
-            local b = G.GAME.blind
-            local b_key = (b.config and b.config.blind and b.config.blind.key) or b.name or ''
-            local b_l = string.lower(b_key)
-            debuff_info = {}
-            if b.debuff and b.debuff.suit then debuff_info.suit = b.debuff.suit
-            elseif b.config and b.config.blind and b.config.blind.debuff and b.config.blind.debuff.suit then debuff_info.suit = b.config.blind.debuff.suit
-            elseif string.find(b_l, 'head') then debuff_info.suit = 'Hearts'
-            elseif string.find(b_l, 'club') then debuff_info.suit = 'Clubs'
-            elseif string.find(b_l, 'window') then debuff_info.suit = 'Diamonds'
-            elseif string.find(b_l, 'goad') or string.find(b_l, 'nightshade') then debuff_info.suit = 'Spades'
-            elseif string.find(b_l, 'plant') or string.find(b_l, 'thorn_crown') then debuff_info.face = true
-            elseif string.find(b_l, 'pillar') or string.find(b_l, 'obelisk') then debuff_info.played_this_ante = true
-            elseif string.find(b_l, 'wizard') or string.find(b_l, 'magician') then debuff_info.enhanced = true
-            end
-        end
-
-        local count = 0
-        local text, _, scoring_hand = JokerDisplay.evaluate_hand()
-        if text ~= 'Unknown' and scoring_hand and debuff_info then
-            for _, c in ipairs(scoring_hand) do
-                local matches = false
-                if debuff_info.suit and c:is_suit(debuff_info.suit) then matches = true
-                elseif debuff_info.face and c:is_face() then matches = true
-                elseif debuff_info.played_this_ante and c.ability and c.ability.played_this_ante then matches = true
-                elseif debuff_info.enhanced and c.ability and c.ability.set == 'Enhanced' then matches = true
-                end
-                if matches then
-                    count = count + JokerDisplay.calculate_card_triggers(c, scoring_hand)
-                end
-            end
-        end
-
-        local has_perla = false
-        if G.jokers and G.jokers.cards then
-            for _, j in ipairs(G.jokers.cards) do
-                if not j.debuff and (j.ability and (j.ability.name == 'Perla' or j.ability.name == 'Pearl') or (j.config and j.config.center and string.find(j.config.center.key or '', 'perla'))) then
-                    has_perla = true
-                    break
-                end
-            end
-        end
-
-        local mult_per = has_perla and 3.0 or 2.0
-        card.joker_display_values.x_mult = count > 0 and (mult_per ^ count) or 1.0
-        card.joker_display_values.active = count > 0
-        if is_boss then
-            card.joker_display_values.reminder_str = count > 0 and "(Inverted Buffs)" or "(Boss Disabled)"
-        else
-            card.joker_display_values.reminder_str = "(Inactive)"
-        end
-    end,
-    style_function = function(card, text, reminder_text, extra)
-        if text and text.children and text.children[1] then
-            text.children[1].config.colour = card.joker_display_values.active and G.C.XMULT or G.C.UI.TEXT_INACTIVE
-        end
+        local t_name = (card.ability and card.ability.extra and card.ability.extra.hacked_target_name) or "Random"
+        card.joker_display_values.reminder_str = "(" .. t_name .. ")"
     end
 }
 

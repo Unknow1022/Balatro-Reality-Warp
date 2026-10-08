@@ -515,6 +515,9 @@ function Game:start_run(args)
                 end
             end
         end
+        if ch_id == 'c_reality_warp_kyra_trial' or ch_id == 'kyra_trial' or (G.GAME.challenge_tab and G.GAME.challenge_tab.id == 'c_reality_warp_kyra_trial') then
+            G.GAME.win_ante = 6
+        end
     end
     return ret
 end
@@ -544,6 +547,10 @@ local reality_warp_challenge_keys = {
     'c_reality_warp_edition_tycoon',
     'c_reality_warp_code_red_er',
     'c_reality_warp_singular_saturation',
+    'c_reality_warp_kyra_trial',
+    'c_reality_warp_ray_trial',
+    'c_reality_warp_charles_trial',
+    'c_reality_warp_mochi_trial',
 }
 
 function reality_warp_sync_challenges(enable)

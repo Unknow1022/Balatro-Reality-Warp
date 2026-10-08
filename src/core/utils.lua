@@ -1358,6 +1358,9 @@ function Card:set_cost()
     if G.GAME and G.GAME.bluxdir_free_boosters and ((self.ability and self.ability.set == 'Booster') or (self.area and self.area == G.shop_booster)) then
         self.cost = 0
     end
+    if G.GAME and G.GAME.modifiers and G.GAME.modifiers.voucher_cost_increase and self.ability and self.ability.set == 'Voucher' then
+        self.cost = math.max(1, self.cost + G.GAME.modifiers.voucher_cost_increase)
+    end
 end
 
 local cardarea_emplace_ref = CardArea.emplace
@@ -1770,6 +1773,9 @@ end
 if calculate_reroll_cost then
     local orig_calculate_reroll_cost = calculate_reroll_cost
     function calculate_reroll_cost(skip_increment)
+        if G.GAME and G.GAME.modifiers and G.GAME.modifiers.reroll_scaling and not skip_increment then
+            G.GAME.current_round.reroll_cost_increase = (G.GAME.current_round.reroll_cost_increase or 0) + (G.GAME.modifiers.reroll_scaling - 1)
+        end
         if G.GAME and G.GAME.dark_alchemy_tag_active and not skip_increment then
             G.GAME.current_round.reroll_cost_increase = (G.GAME.current_round.reroll_cost_increase or 0) + 1
         end
@@ -7199,6 +7205,18 @@ if create_tabs then
                         label = "Nursery",
                         tab_definition_function = G.UIDEF.nursery_tab,
                         tab_definition_function_args = 'Nursery',
+                        chosen = false
+                    })
+                end
+                local exists_trials = false
+                for _, tab in ipairs(args.tabs) do
+                    if tab and tab.label == "Joker Trials" then exists_trials = true; break end
+                end
+                if not exists_trials and G.UIDEF and G.UIDEF.outsider_trials_tab then
+                    table.insert(args.tabs, {
+                        label = "Joker Trials",
+                        tab_definition_function = G.UIDEF.outsider_trials_tab,
+                        tab_definition_function_args = 'Joker Trials',
                         chosen = false
                     })
                 end

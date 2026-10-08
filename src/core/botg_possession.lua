@@ -403,13 +403,15 @@ function possess_joker(card, boss_key, silent)
     end
 end
 
-local orig_card_set_ability = Card.set_ability
-function Card:set_ability(center, initial, delay_sprites)
-    local ret = orig_card_set_ability(self, center, initial, delay_sprites)
-    if initial and G.GAME and G.GAME.pseudorandom and self.ability and self.ability.set == 'Joker' and not self.ability.possessed then
-        if pseudorandom('boss_possession_joker_spawn') < 0.05 then
-            possess_joker(self, nil, true)
+local orig_create_card_possession = create_card
+function create_card(_type, area, legendary, _rarity, skip_materialize, soulable, forced_key, key_append)
+    local card = orig_create_card_possession(_type, area, legendary, _rarity, skip_materialize, soulable, forced_key, key_append)
+    if _type == 'Joker' and card and card.ability and not card.ability.possessed and G.STAGE == G.STAGES.RUN and not G.OVERLAY_MENU then
+        if area == G.shop_jokers or (G.pack_cards and area == G.pack_cards) then
+            if pseudorandom('boss_possession_joker_spawn') < 0.05 then
+                possess_joker(card, nil, true)
+            end
         end
     end
-    return ret
+    return card
 end

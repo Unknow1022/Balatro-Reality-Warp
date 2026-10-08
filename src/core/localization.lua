@@ -155,18 +155,35 @@ function reparse_localization_entry(entry)
     if loc_parse_string then
         if entry.text then
             entry.text_parsed = {}
-            for _, line in ipairs(entry.text) do
-                entry.text_parsed[#entry.text_parsed + 1] = loc_parse_string(line)
+            local flat_text = {}
+            local function parse_lines(lines)
+                for _, line in ipairs(lines) do
+                    if type(line) == 'table' then
+                        parse_lines(line)
+                    elseif type(line) == 'string' then
+                        flat_text[#flat_text + 1] = line
+                        entry.text_parsed[#entry.text_parsed + 1] = loc_parse_string(line)
+                    end
+                end
             end
+            parse_lines(entry.text)
+            entry.text = flat_text
         else
             entry.text_parsed = entry.text_parsed or {}
         end
         if entry.name then
             entry.name_parsed = {}
-            local names = (type(entry.name) == 'table') and entry.name or { entry.name }
-            for _, line in ipairs(names) do
-                entry.name_parsed[#entry.name_parsed + 1] = loc_parse_string(line)
+            local function parse_names(names)
+                for _, line in ipairs(names) do
+                    if type(line) == 'table' then
+                        parse_names(line)
+                    elseif type(line) == 'string' then
+                        entry.name_parsed[#entry.name_parsed + 1] = loc_parse_string(line)
+                    end
+                end
             end
+            local names = (type(entry.name) == 'table') and entry.name or { entry.name }
+            parse_names(names)
         else
             entry.name_parsed = entry.name_parsed or {}
         end

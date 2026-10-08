@@ -59,13 +59,15 @@ local files = {
     "src/decks/decks.lua",
     "src/vouchers/vouchers.lua",
     "src/tags/tags.lua",
+    "src/stakes/stakes.lua",
 
     -- Mod Compatibility
     "src/compat/jokerdisplay.lua",
     "src/compat/cardsleeves.lua",
 
     -- Challenges
-    "src/challenges/challenges.lua"
+    "src/challenges/challenges.lua",
+    "src/challenges/outsider_trials.lua"
 }
 
 for _, file in ipairs(files) do

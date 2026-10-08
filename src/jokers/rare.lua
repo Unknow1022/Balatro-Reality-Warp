@@ -1483,16 +1483,12 @@ SMODS.Joker {
     loc_txt = {
         name = 'Potion Brewer',
         text = {
-            {
-                "Using any consumable permanently",
-                "grants {C:chips}+#1#{} Chips",
-                "{C:inactive}(Currently {C:chips}+#2#{} Chips){}"
-            },
-            {
-                "After defeating each {C:attention}Boss Blind{},",
-                "automatically brews a random",
-                "{C:attention}Potion{} into open slot"
-            }
+            "Using any consumable permanently",
+            "grants {C:chips}+#1#{} Chips",
+            "{C:inactive}(Currently {C:chips}+#2#{} Chips){}",
+            "After defeating each {C:attention}Boss Blind{},",
+            "automatically brews a random",
+            "{C:attention}Potion{} into open slot."
         }
     },
     loc_vars = function(self, info_queue, card)
