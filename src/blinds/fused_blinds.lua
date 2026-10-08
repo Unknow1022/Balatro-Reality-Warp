@@ -607,6 +607,7 @@ SMODS.Blind {
         if blind.disabled then return end
 
         if context.debuff_card and context.debuff_card.area ~= G.jokers and
+            not (context.debuff_card.ability and (context.debuff_card.ability.name == 'Wild Card' or context.debuff_card.ability.effect == 'Wild Card')) and
             (context.debuff_card:is_suit('Clubs', true) or context.debuff_card:is_suit('Diamonds', true)) then
             return { debuff = true }
         end
@@ -635,6 +636,7 @@ SMODS.Blind {
         if blind.disabled then return end
 
         if context.debuff_card and context.debuff_card.area ~= G.jokers and
+            not (context.debuff_card.ability and (context.debuff_card.ability.name == 'Wild Card' or context.debuff_card.ability.effect == 'Wild Card')) and
             (context.debuff_card:is_suit('Hearts', true) or context.debuff_card:is_suit('Spades', true)) then
             return { debuff = true }
         end

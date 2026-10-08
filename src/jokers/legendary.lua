@@ -156,10 +156,15 @@ SMODS.Joker {
     loc_txt = {
         name = 'Star Chronicler',
         text = {
-            "Gains {X:mult,C:white}X#1#{} Mult for each",
-            "{C:blue}Planet{} card discovered.",
-            "{C:spectral}Black Holes{} double its current Mult",
-            "{C:inactive}(Currently {X:mult,C:white}X#2#{C:inactive} Mult){}"
+            {
+                "Gains {X:mult,C:white}X#1#{} Mult for each",
+                "{C:blue}Planet{} card discovered",
+                "{C:inactive}(Currently {X:mult,C:white}X#2#{C:inactive} Mult){}"
+            },
+            {
+                "{C:spectral}Black Holes{} double",
+                "its current Mult"
+            }
         }
     },
     config = { extra = {

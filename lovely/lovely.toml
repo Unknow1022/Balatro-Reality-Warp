@@ -118,23 +118,6 @@ position = 'at'
 times = 2
 payload = '''if not G.from_boss_tag then reality_warp_pay_boss_reroll() end'''
 
-[[patches]]
-[patches.pattern]
-target = 'functions/button_callbacks.lua'
-pattern = 'G.FUNCS.buy_from_shop = function(e)'
-match_indent = true
-position = 'after'
-payload = '''
-    local _card = e and e.config and e.config.ref_table
-    if _card and ((_card.config and _card.config.center and _card.config.center.key == 'j_oops') or (_card.ability and _card.ability.name == 'Oops! All 6s')) then
-        local _has_echo = (find_joker and (next(find_joker('echo_chamber')) or next(find_joker('Echo Chamber')))) or (SMODS and SMODS.find_card and (next(SMODS.find_card('j_reality_warp_echo_chamber')) or next(SMODS.find_card('j_echo_chamber'))))
-        if _has_echo then
-            card_eval_status_text(_card, 'extra', nil, nil, nil, { message = 'Nope!', colour = G.C.RED })
-            play_sound('cancel', 1.0, 0.8)
-            return
-        end
-    end
-'''
 
 # Ward availability may expose the native button without a voucher or $10; native logic handles paid controls afterward.
 [[patches]]

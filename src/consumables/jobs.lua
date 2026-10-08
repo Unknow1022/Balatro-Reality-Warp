@@ -187,50 +187,6 @@ SMODS.Sticker {
 }
 
 
-SMODS.Sticker {
-    key = "jeweler_job",
-    atlas = "job_stickers",
-    pos = { x = 0, y = 1 },
-    badge_colour = HEX('1abc9c'),
-    prefix_config = { key = false },
-    sets = { Default = true, Enhanced = true },
-    rate = 0,
-    needs_enable_flag = false,
-    loc_txt = {
-        name = 'Jeweler',
-        label = 'Jeweler',
-        text = {
-            "When scored in a hand with an {C:attention}Enhanced{} card,",
-            "polishes that card: permanently grants it",
-            "an edition ({C:dark_edition}Foil{}, {C:dark_edition}Holo{}, or {C:dark_edition}Poly{})"
-        }
-    },
-    calculate = function(self, card, context)
-        if (context.main_scoring or context.individual) and context.cardarea == G.play then
-            if context.scoring_hand then
-                local candidates = {}
-                for _, sc in ipairs(context.scoring_hand) do
-                    if sc ~= card and sc.config and sc.config.center and sc.config.center ~= G.P_CENTERS.c_base and not sc.edition then
-                        candidates[#candidates + 1] = sc
-                    end
-                end
-
-                if #candidates > 0 then
-                    local chosen = pseudorandom_element(candidates, pseudoseed('jeweler_polish'))
-                    local editions = { { foil = true }, { holo = true }, { polychrome = true } }
-                    local ed = pseudorandom_element(editions, pseudoseed('jeweler_edition'))
-                    chosen:set_edition(ed, true)
-                    play_sound('gold_seal')
-                    return {
-                        message = 'Polished Edition!',
-                        colour = HEX('1abc9c'),
-                        card = chosen
-                    }
-                end
-            end
-        end
-    end
-}
 
 
 SMODS.Sticker {

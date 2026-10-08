@@ -2444,11 +2444,14 @@ SMODS.Joker {
     loc_txt = {
         name = 'Blackjack Table',
         text = {
-            "Sums card values in scoring hand:",
-            "{C:inactive}(Aces count as 1 or 11, Faces count as 10){}.",
-            "If total equals exactly {C:attention}21{}:",
-            "Pays 3:2: {C:money}+$6{} and {X:mult,C:white}X2.1{} Mult!",
-            "Totals {C:attention}18-20{}: {C:chips}+50 Chips{} and {C:mult}+10 Mult{}"
+            {
+                "Sums card values in scoring hand:",
+                "{C:inactive}(Aces count as 1 or 11, Faces count as 10){}"
+            },
+            {
+                "If total equals {C:attention}21{}: {C:money}+$6{} and {X:mult,C:white}X2.1{} Mult!",
+                "Totals {C:attention}18-20{}: {C:chips}+50{} Chips and {C:mult}+10{} Mult"
+            }
         }
     },
     calculate = function(self, card, context)

@@ -770,9 +770,13 @@ register_secret_joker {
     loc_txt = {
         name = 'Kyra',
         text = {
-            "{C:attention}Potions{} don't take consumable space.",
-            "Click button and pay {C:money}$#1#{}",
-            "to brew a random {C:attention}Potion{}"
+            {
+                "{C:attention}Potions{} don't take consumable space"
+            },
+            {
+                "Click button and pay {C:money}$#1#{}",
+                "to brew a random {C:attention}Potion{}"
+            }
         }
     },
     config = { extra = { cost = 2 } },
@@ -1078,10 +1082,14 @@ register_amalgam_joker {
     loc_txt = {
         name = 'Certified Programming',
         text = {
-            "At start of round, adds {C:attention}2{} cards with a",
-            "random {C:attention}Seal{} and {C:attention}Enhancement{} to hand.",
-            "Gains {X:mult,C:white}+X#1#{} Mult when any card is added to deck",
-            "{C:inactive}(Currently {X:mult,C:white}X#2#{C:inactive} Mult){}"
+            {
+                "At start of round, adds {C:attention}2{} cards with a",
+                "random {C:attention}Seal{} and {C:attention}Enhancement{} to hand"
+            },
+            {
+                "Gains {X:mult,C:white}+X#1#{} Mult when any card is added to deck",
+                "{C:inactive}(Currently {X:mult,C:white}X#2#{C:inactive} Mult){}"
+            }
         }
     },
     config = { extra = { xmult_gain = 0.25, xmult = 1.0 } },
@@ -1490,19 +1498,24 @@ register_secret_joker {
     loc_txt = {
         name = 'Astral Calamity',
         text = {
-            "Used {C:planet}Planet{} cards give",
-            "{C:attention}X2{} their level up effect.",
-            "{C:spectral}Black Hole{} upgrades all",
-            "poker hands by {C:attention}3{} levels"
+            {
+                "Used {C:planet}Planet{} cards give",
+                "{C:attention}+#1#{} extra level"
+            },
+            {
+                "{C:spectral}Black Hole{} gives",
+                "{C:attention}+#2#{} extra levels"
+            }
         }
     },
-    config = { extra = { planet_mult = 2, black_hole_levels = 3 } },
+    config = { extra = { extra_planet_levels = 1, extra_black_hole_levels = 2 } },
     blueprint_compat = true,
     loc_vars = function(self, info_queue, card)
         if info_queue and G.P_CENTERS and G.P_CENTERS.c_black_hole then
             table.insert(info_queue, G.P_CENTERS.c_black_hole)
         end
-        return { vars = {} }
+        local extra = (card and card.ability and card.ability.extra) or self.config.extra
+        return { vars = { extra.extra_planet_levels or 1, extra.extra_black_hole_levels or 2 } }
     end,
     calculate = function(self, card, context)
         if context.using_consumeable then
@@ -1515,21 +1528,22 @@ register_secret_joker {
                 local is_planet = (cons.ability and cons.ability.set == 'Planet')
 
                 if is_black_hole then
+                    local extra_levels = (card.ability and card.ability.extra and card.ability.extra.extra_black_hole_levels) or 2
                     for hand_name, _ in pairs(G.GAME.hands) do
-                        level_up_hand(card, hand_name, true, 2)
+                        level_up_hand(card, hand_name, true, extra_levels)
                     end
                     return {
-                        message = '+3 Levels!',
+                        message = '+' .. tostring(extra_levels) .. ' Extra Levels!',
                         colour = G.C.SECONDARY_SET.Spectral
                     }
                 elseif is_planet then
                     local target_hand = (cons.ability and (cons.ability.hand_type or (cons.ability.consumeable and cons.ability.consumeable.hand_type)))
                         or (cons.config and cons.config.center and cons.config.center.config and cons.config.center.config.hand_type)
                     if target_hand and G.GAME.hands[target_hand] then
-                        local extra_levels = (cons.ability and cons.ability.consumeable and cons.ability.consumeable.level) or 1
+                        local extra_levels = (card.ability and card.ability.extra and card.ability.extra.extra_planet_levels) or 1
                         level_up_hand(card, target_hand, nil, extra_levels)
                         return {
-                            message = 'X2 Level Up!',
+                            message = '+' .. tostring(extra_levels) .. ' Extra Level!',
                             colour = G.C.SECONDARY_SET.Planet
                         }
                     end
@@ -1779,9 +1793,14 @@ register_amalgam_joker {
     loc_txt = {
         name = 'Mime King',
         text = {
-            "Cards held in hand retrigger",
-            "{C:attention}#2#{} times. {C:attention}Kings{} held",
-            "in hand give {X:mult,C:white}X#1#{} Mult"
+            {
+                "{C:attention}Kings{} held in hand",
+                "give {X:mult,C:white}X#1#{} Mult"
+            },
+            {
+                "Cards held in hand",
+                "retrigger {C:attention}#2#{} times"
+            }
         }
     },
     config = { extra = { x_mult = 2, repetitions = 2 } },
@@ -1817,9 +1836,14 @@ register_amalgam_joker {
     loc_txt = {
         name = 'Photo Album',
         text = {
-            "First played card retriggers {C:attention}#2#{} times.",
-            "{C:attention}Face cards{} retrigger {C:attention}#3#{} time.",
-            "First {C:attention}face card{} gives {X:mult,C:white}X#1#{} Mult"
+            {
+                "First {C:attention}face card{} gives",
+                "{X:mult,C:white}X#1#{} Mult"
+            },
+            {
+                "First played card retriggers {C:attention}#2#{} times,",
+                "{C:attention}face cards{} retrigger {C:attention}#3#{} time"
+            }
         }
     },
     config = { extra = { x_mult = 2.5, first_reps = 3, face_reps = 1 } },
@@ -1870,10 +1894,15 @@ register_amalgam_joker {
     loc_txt = {
         name = 'Pirate Egg',
         text = {
-            "Gains {C:money}$5{} sell value at end of round.",
-            "{X:mult,C:white}X0.1{} Mult per {C:money}$1{} sell value",
-            "of all owned {C:attention}Jokers{}",
-            "{C:inactive}(Currently {X:mult,C:white}X#1#{C:inactive} Mult){}"
+            {
+                "Gains {C:money}$5{} sell value",
+                "at end of round"
+            },
+            {
+                "{X:mult,C:white}X0.1{} Mult per {C:money}$1{} sell value",
+                "of all owned {C:attention}Jokers{}",
+                "{C:inactive}(Currently {X:mult,C:white}X#1#{C:inactive} Mult){}"
+            }
         }
     },
     config = { extra = { mult_per_dollar = 0.1 } },
@@ -1957,10 +1986,15 @@ register_amalgam_joker {
     loc_txt = {
         name = 'Wee Comedian',
         text = {
-            "Gains {C:chips}+10{} Chips per scored {C:attention}2{}.",
-            "Scored {C:attention}2s{} retrigger {C:attention}2{} times.",
-            "Played {C:attention}Ace, 2, 3, 5, 8{} give {C:mult}+16{} Mult.",
-            "{C:inactive}(Currently {C:chips}+#1#{C:inactive} Chips){}"
+            {
+                "Gains {C:chips}+10{} Chips per scored {C:attention}2{},",
+                "scored {C:attention}2s{} retrigger {C:attention}2{} times",
+                "{C:inactive}(Currently {C:chips}+#1#{C:inactive} Chips){}"
+            },
+            {
+                "Played {C:attention}Ace, 2, 3, 5, 8{}",
+                "give {C:mult}+16{} Mult"
+            }
         }
     },
     config = { extra = { chips = 0, chip_gain = 10 } },
@@ -2012,10 +2046,14 @@ register_amalgam_joker {
     loc_txt = {
         name = 'Golden Lucky Cat',
         text = {
-            "Adds {C:attention}+2{} to all {C:green}probabilities{}.",
-            "Gains {X:mult,C:white}+X0.5{} Mult whenever any",
-            "{C:attention}Lucky{} card or probability triggers",
-            "{C:inactive}(Currently {X:mult,C:white}X#1#{C:inactive} Mult){}"
+            {
+                "Adds {C:attention}+2{} to all {C:green}probabilities{}"
+            },
+            {
+                "Gains {X:mult,C:white}+X0.5{} Mult whenever any",
+                "{C:attention}Lucky{} card or probability triggers",
+                "{C:inactive}(Currently {X:mult,C:white}X#1#{C:inactive} Mult){}"
+            }
         }
     },
     config = { extra = { x_mult = 1.0, gain = 0.5 } },

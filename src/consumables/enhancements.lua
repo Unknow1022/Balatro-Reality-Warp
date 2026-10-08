@@ -1351,10 +1351,48 @@ local function is_mosaic_card(card)
     return false
 end
 
+local function is_wild_card(card)
+    if not card then return false end
+    if card.ability and (card.ability.name == 'Wild Card' or card.ability.effect == 'Wild Card') then
+        return true
+    end
+    if card.config and card.config.center then
+        if card.config.center.key == 'm_wild' or card.config.center.name == 'Wild Card' then
+            return true
+        end
+    end
+    if card.config and card.config.center_key == 'm_wild' then
+        return true
+    end
+    return false
+end
+
+local function is_suit_debuff_blind(blind)
+    if not blind then return false end
+    if blind.disabled then return false end
+    if blind.debuff and blind.debuff.suit then
+        return true
+    end
+    local name = blind.name or ''
+    if name == 'The Window' or name == 'The Head' or name == 'The Goad' or name == 'The Club'
+       or name == 'The Black Diamond' or name == 'The Blood Moon' then
+        return true
+    end
+    local b_key = (blind.config and blind.config.blind and blind.config.blind.key) or ''
+    if b_key == 'bl_window' or b_key == 'bl_head' or b_key == 'bl_goad' or b_key == 'bl_club'
+       or b_key == 'bl_reality_warp_black_diamond' or b_key == 'bl_reality_warp_blood_moon' then
+        return true
+    end
+    if blind.config and blind.config.blind and blind.config.blind.debuff and blind.config.blind.debuff.suit then
+        return true
+    end
+    return false
+end
+
 if Card then
     local orig_set_debuff = Card.set_debuff
     function Card:set_debuff(should_debuff)
-        if should_debuff and is_blessed_card(self) then
+        if should_debuff and (is_blessed_card(self) or (is_wild_card(self) and G.GAME and G.GAME.blind and is_suit_debuff_blind(G.GAME.blind))) then
             self.debuff = false
             return
         end
@@ -1447,7 +1485,7 @@ end
     local orig_card_update = Card.update
     function Card:update(dt)
         orig_card_update(self, dt)
-        if self.debuff and is_blessed_card(self) then
+        if self.debuff and (is_blessed_card(self) or (is_wild_card(self) and G.GAME and G.GAME.blind and is_suit_debuff_blind(G.GAME.blind))) then
             self.debuff = false
         end
         if self.config and self.config.center and (self.config.center.key == 'c_reality_warp_glitch' or self.config.center.key == 'c_glitch') and not self.destroyed and not self.glitch_used then
@@ -1514,7 +1552,17 @@ if Blind and Blind.debuff_card then
             card.debuff = false
             return false
         end
-        return orig_debuff_card(self, card, from_blind)
+        if is_suit_debuff_blind(self) and is_wild_card(card) then
+            card.debuff = false
+            return false
+        end
+        local res = orig_debuff_card(self, card, from_blind)
+        if is_suit_debuff_blind(self) and is_wild_card(card) then
+            card:set_debuff(false)
+            card.debuff = false
+            return false
+        end
+        return res
     end
 end
 

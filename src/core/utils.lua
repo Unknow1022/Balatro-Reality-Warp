@@ -8118,26 +8118,3 @@ if SMODS and SMODS.Scoring_Parameter and SMODS.Scoring_Parameters and not SMODS.
     })
 end
 
-if G.FUNCS and G.FUNCS.buy_from_shop and not G.reality_warp_echo_dice_hooked then
-    G.reality_warp_echo_dice_hooked = true
-    local orig_buy_from_shop = G.FUNCS.buy_from_shop
-    G.FUNCS.buy_from_shop = function(e)
-        local card = e and e.config and e.config.ref_table
-        if card then
-            local is_dice = (card.config and card.config.center and card.config.center.key == 'j_oops')
-                or (card.ability and card.ability.name == 'Oops! All 6s')
-                or (card.config and card.config.center_key == 'j_oops')
-            if is_dice then
-                local has_echo = (find_joker and (next(find_joker('echo_chamber')) or next(find_joker('Echo Chamber'))))
-                    or (SMODS and SMODS.find_card and (next(SMODS.find_card('j_reality_warp_echo_chamber')) or next(SMODS.find_card('j_echo_chamber'))))
-                if has_echo then
-                    card_eval_status_text(card, 'extra', nil, nil, nil, { message = 'Nope!', colour = G.C.RED })
-                    play_sound('cancel', 1.0, 0.8)
-                    return
-                end
-            end
-        end
-        return orig_buy_from_shop(e)
-    end
-end
-

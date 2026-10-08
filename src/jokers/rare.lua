@@ -1483,10 +1483,16 @@ SMODS.Joker {
     loc_txt = {
         name = 'Potion Brewer',
         text = {
-            "Using any consumable permanently grants {C:chips}+#1# Chips{}.",
-            "{C:inactive}(Currently {C:chips}+#2#{} Chips){}.",
-            "After defeating each {C:attention}Boss Blind{},",
-            "automatically brews a random {C:attention}Potion{} into open slot"
+            {
+                "Using any consumable permanently",
+                "grants {C:chips}+#1#{} Chips",
+                "{C:inactive}(Currently {C:chips}+#2#{} Chips){}"
+            },
+            {
+                "After defeating each {C:attention}Boss Blind{},",
+                "automatically brews a random",
+                "{C:attention}Potion{} into open slot"
+            }
         }
     },
     loc_vars = function(self, info_queue, card)
@@ -2653,6 +2659,33 @@ SMODS.Joker {
                     repetitions = reps,
                     card = card
                 }
+            else
+                local has_dice = false
+                if G.jokers and G.jokers.cards then
+                    for _, j in ipairs(G.jokers.cards) do
+                        local k = (j.config and j.config.center and j.config.center.key) or (j.config and j.config.center_key)
+                        if k == 'j_oops' or (j.ability and j.ability.name == 'Oops! All 6s') then
+                            has_dice = true
+                            break
+                        end
+                    end
+                end
+                if has_dice then
+                    local taunts = {
+                        ":P",
+                        "XD",
+                        "LOL",
+                        "Nope!",
+                        "In Your dreams!",
+                        "Nuh uh!",
+                        "Bleh!",
+                        "You idiot!"
+                    }
+                    local taunt = pseudorandom_element(taunts, pseudoseed('echo_taunt_' .. tostring(G.GAME.round or 1) .. '_' .. tostring(math.random(1, 100000))))
+                    card_eval_status_text(card, 'extra', nil, nil, nil, { message = taunt, colour = G.C.RED })
+                    card:juice_up(0.3, 0.3)
+                    play_sound('cancel', 0.9, 0.8)
+                end
             end
         end
     end

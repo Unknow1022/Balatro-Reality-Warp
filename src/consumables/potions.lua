@@ -1017,13 +1017,12 @@ SMODS.Consumable {
     loc_txt = {
         name = 'Mirror Potion',
         text = {
-            "Retriggers abilities of the",
-            "{C:attention}rightmost Joker{}",
-            "for the entire current round"
+            "Retriggers all played cards",
+            "in the {C:attention}next hand{} {C:attention}1{} time"
         }
     },
     can_use = function(self, card)
-        return G.STATE == G.STATES.SELECTING_HAND and G.jokers and G.jokers.cards and #G.jokers.cards > 0
+        return G.STATE == G.STATES.SELECTING_HAND
     end,
     use = function(self, card, area, copier)
         G.E_MANAGER:add_event(Event({
@@ -1572,41 +1571,29 @@ if orig_draw_from_play_to_discard then
         if #destroyed_cards > 0 then
             SMODS.destroy_cards(destroyed_cards)
         end
+        if G.GAME and (G.GAME.potion_mirror_active or G.GAME.potion_espejo_active) then
+            G.GAME.potion_mirror_active = nil
+            G.GAME.potion_espejo_active = nil
+        end
         orig_draw_from_play_to_discard(e)
     end
 end
 
-local orig_calculate_joker = Card.calculate_joker
-function Card:calculate_joker(context, ...)
-    local ret, post = orig_calculate_joker(self, context, ...)
-    if G.GAME and (G.GAME.potion_mirror_active or G.GAME.potion_espejo_active) and not context.potion_mirror_retrigger and not context.potion_espejo_retrigger and not context.retrigger_joker_check then
-        if G.jokers and G.jokers.cards and #G.jokers.cards > 0 then
-            local rightmost = G.jokers.cards[#G.jokers.cards]
-            if self == rightmost and not self.debuff then
-                local ctx_copy = {}
-                for k, v in pairs(context) do ctx_copy[k] = v end
-                ctx_copy.potion_mirror_retrigger = true
-                ctx_copy.potion_espejo_retrigger = true
-                local ret2 = orig_calculate_joker(self, ctx_copy, ...)
-                if ret2 then
-                    card_eval_status_text(self, 'extra', nil, nil, nil, { message = 'Mirror!', colour = G.C.PURPLE })
-                    if type(ret) == 'table' and type(ret2) == 'table' then
-                        if ret2.chips then ret.chips = (ret.chips or 0) + ret2.chips end
-                        if ret2.mult then ret.mult = (ret.mult or 0) + ret2.mult end
-                        if ret2.x_mult or ret2.Xmult then
-                            local xm1 = ret.x_mult or ret.Xmult or 1
-                            local xm2 = ret2.x_mult or ret2.Xmult or 1
-                            ret.x_mult = xm1 * xm2
-                        end
-                        if ret2.dollars then ret.dollars = (ret.dollars or 0) + ret2.dollars end
-                    elseif not ret then
-                        ret = ret2
-                    end
-                end
+if SMODS and SMODS.calculate_repetitions then
+    local orig_smods_calc_reps = SMODS.calculate_repetitions
+    SMODS.calculate_repetitions = function(card, context, reps)
+        reps = orig_smods_calc_reps(card, context, reps)
+        if G.GAME and (G.GAME.potion_mirror_active or G.GAME.potion_espejo_active) and context and (context.cardarea == G.play) then
+            local effect = { repetitions = 1, message = 'Mirror!', colour = G.C.PURPLE }
+            if SMODS.insert_repetitions then
+                SMODS.insert_repetitions(reps, effect, card)
+            else
+                reps = reps or {}
+                table.insert(reps, effect)
             end
         end
+        return reps
     end
-    return ret, post
 end
 
 if new_round then

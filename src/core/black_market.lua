@@ -26,12 +26,21 @@ local kyra_reroll_quotes = {
     "Here, fresh goods. Try to find something you actually like this time."
 }
 
+local kyra_bribe_quotes = {
+    "Five coins? Well... I suppose I can pull some strings in the back room.",
+    "Bribing me? I like your style. Look what just 'fell' into my stock.",
+    "Deal. Don't go telling the other patrons I take special orders.",
+    "A custom request, huh? Consider it arranged. Pleasure doing dirty business."
+}
+
 local function get_random_kyra_quote(category)
     local pool = kyra_enter_quotes
     if category == 'buy' then
         pool = kyra_buy_quotes
     elseif category == 'reroll' then
         pool = kyra_reroll_quotes
+    elseif category == 'bribe' then
+        pool = kyra_bribe_quotes
     end
     if pseudorandom_element and pseudoseed then
         return pseudorandom_element(pool, pseudoseed('kyra_' .. tostring(category) .. '_' .. tostring(math.random(1, 100000))))
@@ -628,6 +637,201 @@ G.FUNCS.reroll_black_market = function(e)
     G.FUNCS.refresh_black_market_ui()
 end
 
+local orig_card_click = Card.click
+function Card:click(...)
+    if G.GAME and G.GAME.in_bribe_selection and self.bribe_choice then
+        G.FUNCS.choose_bribe_joker(self.bribe_choice)
+        return
+    end
+    if orig_card_click then
+        return orig_card_click(self, ...)
+    end
+end
+
+G.FUNCS.can_bribe_black_market = function(e)
+    if (G.GAME.dark_coins or 0) < 5 then
+        e.config.colour = G.C.UI.BACKGROUND_INACTIVE
+        e.config.button = nil
+    else
+        e.config.colour = HEX('7e22ce')
+        e.config.button = 'bribe_black_market'
+    end
+end
+
+local function create_UIBox_bribe_jokers()
+    local joker_pool = {}
+    if G.P_CENTER_POOLS and G.P_CENTER_POOLS.Joker then
+        for _, center in ipairs(G.P_CENTER_POOLS.Joker) do
+            if not center.no_collection then
+                table.insert(joker_pool, center)
+            end
+        end
+    end
+    if #joker_pool == 0 and G.P_CENTER_POOLS and G.P_CENTER_POOLS.Joker then
+        joker_pool = G.P_CENTER_POOLS.Joker
+    end
+
+    return SMODS.card_collection_UIBox(joker_pool, { 5, 5, 5 }, {
+        no_materialize = true,
+        snap_back = true,
+        h_mod = 0.95,
+        infotip = "Choose a Joker to replace a random item in Black Market stock (Cost: $5 Dark Coins)",
+        back_func = 'exit_bribe_selection',
+        modify_card = function(card, center, i, j)
+            card.bribe_choice = center.key
+            card.states.hover.can = true
+            card.states.click.can = true
+            card.states.collide.can = true
+
+            if not card.discovered then
+                card.discovered = true
+                card.facing = 'front'
+                card:set_ability(center)
+            end
+
+            local t_select = {
+                n = G.UIT.ROOT,
+                config = {
+                    ref_table = card,
+                    minw = 0.7,
+                    maxw = 1.1,
+                    padding = 0.04,
+                    align = 'bm',
+                    colour = HEX('7e22ce'),
+                    shadow = true,
+                    r = 0.08,
+                    minh = 0.28,
+                    one_press = true,
+                    button = 'select_bribe_joker',
+                    hover = true
+                },
+                nodes = {
+                    { n = G.UIT.T, config = { text = "Select", colour = G.C.WHITE, scale = 0.38, shadow = true } }
+                }
+            }
+            card.children.select_button = UIBox{
+                definition = t_select,
+                config = {
+                    align = "bm",
+                    offset = { x = 0, y = -0.1 },
+                    major = card,
+                    bond = 'Weak',
+                    parent = card
+                }
+            }
+        end
+    })
+end
+
+G.FUNCS.bribe_black_market = function(e)
+    if (G.GAME.dark_coins or 0) < 5 then
+        play_sound('cancel')
+        return
+    end
+
+    G.GAME.in_bribe_selection = true
+    play_sound('tarot2', 0.9, 0.7)
+
+    G.FUNCS.overlay_menu{
+        definition = create_UIBox_bribe_jokers()
+    }
+end
+
+G.FUNCS.exit_bribe_selection = function(e)
+    G.GAME.in_bribe_selection = false
+    G.FUNCS.exit_overlay_menu(e)
+end
+
+G.FUNCS.select_bribe_joker = function(e)
+    local card = e.config and e.config.ref_table
+    local key = (card and card.bribe_choice) or (card and card.config and card.config.center and card.config.center.key)
+    if key then
+        G.FUNCS.choose_bribe_joker(key)
+    end
+end
+
+G.FUNCS.choose_bribe_joker = function(joker_key)
+    if not G.GAME or not G.GAME.in_black_market then return end
+    if not G.GAME.in_bribe_selection then return end
+    if (G.GAME.dark_coins or 0) < 5 then
+        play_sound('cancel')
+        return
+    end
+
+    G.GAME.in_bribe_selection = false
+    ease_dark_coins(-5)
+
+    if not G.GAME.black_market_stock then
+        generate_black_market_stock()
+    end
+
+    local candidate_slots = {}
+    for i = 1, 4 do
+        if G.GAME.black_market_stock[i] and not G.GAME.black_market_stock[i].sold then
+            table.insert(candidate_slots, i)
+        end
+    end
+    if #candidate_slots == 0 then
+        for i = 1, 4 do
+            table.insert(candidate_slots, i)
+        end
+    end
+
+    local target_slot = (#candidate_slots > 0) and pseudorandom_element(candidate_slots, pseudoseed('bm_bribe_' .. tostring(G.GAME.round or 1) .. '_' .. tostring(math.random(1, 100000)))) or 1
+
+    local center = G.P_CENTERS[joker_key]
+    local cost = 3
+    if center then
+        if center.rarity == 4 or center.rarity == 'Legendary' or center.legendary then
+            cost = 15
+        elseif center.rarity == 'Secret' or center.secret or string.find(joker_key, 'secret') then
+            cost = 20
+        elseif center.rarity == 3 or center.rarity == 'Rare' then
+            cost = 4
+        elseif center.rarity == 2 or center.rarity == 'Uncommon' then
+            cost = 3
+        else
+            cost = 2
+        end
+    end
+
+    local name = (center and center.loc_txt and center.loc_txt.name)
+        or (joker_key and localize{type = 'name_text', key = joker_key, set = 'Joker'})
+        or (center and center.name)
+        or "Contraband Joker"
+
+    G.GAME.black_market_stock[target_slot] = {
+        slot = target_slot,
+        key = joker_key,
+        set = 'Joker',
+        cost = cost,
+        name = name,
+        sold = false
+    }
+
+    G.FUNCS.exit_overlay_menu()
+
+    play_sound('coin3', 1.0, 0.8)
+    play_sound('tarot1', 1.0, 0.8)
+    play_sound('other1', 1.0, 0.7)
+
+    local quote = get_random_kyra_quote('bribe')
+    update_kyra_dialogue(quote)
+
+    G.FUNCS.refresh_black_market_ui()
+
+    G.E_MANAGER:add_event(Event({
+        trigger = 'after',
+        delay = 0.15,
+        func = function()
+            if G.bm_slot_areas and G.bm_slot_areas[target_slot] and G.bm_slot_areas[target_slot].cards and G.bm_slot_areas[target_slot].cards[1] then
+                G.bm_slot_areas[target_slot].cards[1]:juice_up(0.6, 0.6)
+            end
+            return true
+        end
+    }))
+end
+
 function G.UIDEF.black_market()
     if G.bm_slot_areas then
         for _, area in ipairs(G.bm_slot_areas) do
@@ -917,38 +1121,31 @@ function G.UIDEF.black_market()
                                     {
                                         n = G.UIT.R,
                                         config = {
+                                            id = 'bribe_black_market_button',
                                             align = "cm",
-                                            padding = 0.05,
+                                            minw = 1.9,
+                                            minh = 0.82,
                                             r = 0.10,
-                                            colour = G.C.BLACK,
-                                            emboss = 0.06,
-                                            outline = 1.2,
-                                            outline_colour = G.C.PURPLE,
-                                            minw = 1.95,
-                                            minh = 0.62,
+                                            colour = ((G.GAME.dark_coins or 0) >= 5) and HEX('7e22ce') or G.C.UI.BACKGROUND_INACTIVE,
+                                            emboss = 0.08,
+                                            button = ((G.GAME.dark_coins or 0) >= 5) and 'bribe_black_market' or nil,
+                                            func = 'can_bribe_black_market',
+                                            hover = true,
                                             shadow = true
                                         },
                                         nodes = {
                                             {
-                                                n = G.UIT.C,
+                                                n = G.UIT.R,
                                                 config = { align = "cm" },
                                                 nodes = {
-                                                    {
-                                                        n = G.UIT.R,
-                                                        config = { align = "cm" },
-                                                        nodes = {
-                                                            { n = G.UIT.T, config = { text = "DARK MONEY", scale = 0.22, colour = G.C.PURPLE, shadow = true } }
-                                                        }
-                                                    },
-                                                    {
-                                                        n = G.UIT.R,
-                                                        config = { align = "cm" },
-                                                        nodes = {
-                                                            { n = G.UIT.T, config = { text = "$", scale = 0.44, colour = G.C.PURPLE, shadow = true } },
-                                                            { n = G.UIT.T, config = { text = " ", scale = 0.20 } },
-                                                            { n = G.UIT.T, config = { ref_table = G.GAME, ref_value = 'dark_coins', scale = 0.44, colour = G.C.WHITE, shadow = true } }
-                                                        }
-                                                    }
+                                                    { n = G.UIT.T, config = { text = "Bribe", scale = 0.32, colour = G.C.WHITE, shadow = true } }
+                                                }
+                                            },
+                                            {
+                                                n = G.UIT.R,
+                                                config = { align = "cm" },
+                                                nodes = {
+                                                    { n = G.UIT.T, config = { text = "$5", scale = 0.38, colour = G.C.WHITE, shadow = true } }
                                                 }
                                             }
                                         }
@@ -1223,6 +1420,7 @@ end
 G.FUNCS.exit_black_market = function(e)
     stop_use()
     G.GAME.in_black_market = false
+    G.GAME.in_bribe_selection = false
 
     ease_background_colour_blind(G.STATES.SHOP)
 
@@ -1261,6 +1459,7 @@ if G and G.FUNCS and G.FUNCS.toggle_shop then
     G.FUNCS.toggle_shop = function(e)
         if G.GAME then
             G.GAME.in_black_market = false
+            G.GAME.in_bribe_selection = false
             G.GAME.black_market_stock_round = nil
             G.GAME.black_market_stock = nil
         end
