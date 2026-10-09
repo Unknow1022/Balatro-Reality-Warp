@@ -255,6 +255,7 @@ SMODS.Challenge {
         custom = {},
         modifiers = {
             { id = 'joker_slots', value = 1 },
+            { id = 'hands', value = 1 },
         },
     },
     jokers = {
@@ -265,6 +266,9 @@ SMODS.Challenge {
     },
     restrictions = {
         banned_cards = {
+            { id = 'v_grabber' },
+            { id = 'v_nacho_tong' },
+            { id = 'j_burglar' },
             { id = 'c_fool' }, { id = 'c_magician' }, { id = 'c_high_priestess' },
             { id = 'c_empress' }, { id = 'c_emperor' }, { id = 'c_hierophant' },
             { id = 'c_lovers' }, { id = 'c_chariot' }, { id = 'c_justice' },
@@ -379,14 +383,14 @@ local OUTSIDER_TRIALS_DATA = {
         rules = {
             "Win Condition: Ante 8",
             "Hands locked to exactly 1 every round",
-            "Discards set to 5 every round",
-            "Only Planet cards appear and function",
+            "Discards locked to 5 every round",
+            "Shop sells ONLY Planet cards",
         },
         deck_rules = {
             "Starting Joker: Paco (Eternal)",
             "Hands: 1 per round (Grabber & Nacho Tong banned)",
             "Discards: 5 per round (Wasteful & Recycler enabled!)",
-            "Consumables: 100% Celestial & Planet cards",
+            "Consumables: 100% Planet cards",
         },
         challenge_id = 'c_reality_warp_paco_trial',
     },
@@ -402,14 +406,14 @@ local OUTSIDER_TRIALS_DATA = {
         rules = {
             "Goal: Convert 100% of deck to Spades or Clubs",
             "Deck starts with ONLY Hearts & Diamonds (0 Spades/Clubs)",
-            "Vertical gauge tracks your conversion progress",
-            "Banned: The Sun and The Star Tarots",
+            "Ante 8 limit disabled: play until conversion is complete!",
+            "Transmute 100% of deck into Spades & Clubs to WIN!",
         },
         deck_rules = {
             "Starting Joker: Esteban (Eternal)",
             "Deck: Red Suits only at the beginning",
             "Target: 52/52 Spades & Clubs",
-            "Vertical Progress Gauge on the right",
+            "Claim victory directly via the 'WIN!' button",
         },
         challenge_id = 'c_reality_warp_esteban_trial',
     },
@@ -447,15 +451,15 @@ local OUTSIDER_TRIALS_DATA = {
         quote = "\"Life is in turmoil! Remake every card in your deck into 6s and 7s.\"",
         rules = {
             "Goal: Convert 100% of deck into ranks 6 and 7",
-            "Vertical progress bar monitors transformed cards",
+            "Horizontal progress bar monitors transformed cards",
             "Use Tarots, Spectrals and Strengths wisely",
-            "Complete the transmutation across Ante 8",
+            "Transmute 100% of deck into ranks 6 & 7 to WIN!",
         },
         deck_rules = {
             "Starting Joker: Yairo (Eternal)",
             "Deck: Standard 52 starting cards",
             "Target: Entire deck composed of 6s & 7s",
-            "Vertical Progress Gauge on the right",
+            "Horizontal Progress Bar below consumables",
         },
         challenge_id = 'c_reality_warp_yairo_trial',
     },
@@ -470,13 +474,15 @@ local OUTSIDER_TRIALS_DATA = {
         quote = "\"The cosmos need no interference. Just you, me, and the stars above.\"",
         rules = {
             "Complete the run with ONLY Helin",
+            "Hands locked to exactly 1 every round",
+            "Grabber & Nacho Tong vouchers are banned",
             "Joker slots locked to 1 (No extra Jokers)",
-            "Tarots and other consumables are banned",
-            "ONLY Planet cards appear in shop & Celestial packs",
+            "Shop sells ONLY Planet cards (no Jokers or other consumables)",
         },
         deck_rules = {
             "Starting Joker: Helin (Eternal)",
-            "Joker Slots: 1 maximum",
+            "Hands: 1 per round (Extra hand vouchers banned)",
+            "Joker Slots: 1 maximum (no other Jokers appear)",
             "Consumables: 100% Planet cards",
             "Packs: Celestial Booster Packs only",
         },
@@ -517,7 +523,7 @@ local OUTSIDER_TRIALS_DATA = {
         rules = {
             "Goal: Complete at least 10 Sally Quests",
             "Ante 8 limit disabled: keep playing until quests are done!",
-            "Vertical gauge increments upon each finished quest",
+            "Horizontal progress bar increments upon each finished quest",
             "Reach 10 completed quests to reveal the 'WIN!' button",
         },
         deck_rules = {
@@ -570,7 +576,7 @@ local OUTSIDER_TRIALS_DATA = {
             "Starting Joker: Mew mew! (Eternal)",
             "Doki Target: 30 / 30",
             "Claim victory directly via the 'WIN!' button",
-            "Vertical Progress Gauge on the right",
+            "Horizontal Progress Bar below consumables",
         },
         challenge_id = 'c_reality_warp_mew_mew_trial',
     },
@@ -632,14 +638,14 @@ local OUTSIDER_TRIALS_DATA = {
         rules = {
             "Goal: Convert 100% of your deck to Hearts",
             "Banned: Tarots converting to other suits",
-            "Vertical gauge on the right tracks your progress",
-            "Starts with Charles",
+            "Ante 8 limit disabled: play until conversion is complete!",
+            "Transmute 100% of deck into Hearts to WIN!",
         },
         deck_rules = {
             "Starting Joker: Charles (Eternal)",
             "Target: 52/52 Hearts in playing deck",
-            "Banned: Spades, Diamonds, Clubs conversions",
-            "Vertical Progress Gauge on the right",
+            "Claim victory directly via the 'WIN!' button",
+            "Horizontal Progress Bar below consumables",
         },
         challenge_id = 'c_reality_warp_charles_trial',
     },
@@ -655,14 +661,14 @@ local OUTSIDER_TRIALS_DATA = {
         rules = {
             "Goal: Convert 100% of deck to Wild Cards",
             "Banned: All Tarot cards & Arcana packs",
-            "Vertical gauge on the right tracks your progress",
-            "Starts with Mochi",
+            "Ante 8 limit disabled: play until conversion is complete!",
+            "Transmute 100% of deck into Wild Cards to WIN!",
         },
         deck_rules = {
             "Starting Joker: Mochi (Eternal)",
             "Target: 52/52 Wild Cards in playing deck",
-            "Banned: Tarot Cards & Arcana Booster Packs",
-            "Vertical Progress Gauge on the right",
+            "Claim victory directly via the 'WIN!' button",
+            "Horizontal Progress Bar below consumables",
         },
         challenge_id = 'c_reality_warp_mochi_trial',
     },
@@ -1386,23 +1392,40 @@ if Game and Game.start_run then
                 }))
             end
 
-            -- Paco: Discards strictly 0
+            -- Paco: 1 hand, 5 discards
             if ch == 'c_reality_warp_paco_trial' then
-                G.GAME.round_resets.discards = 0
-                G.GAME.current_round.discards_left = 0
+                G.GAME.round_resets.hands = 1
+                G.GAME.current_round.hands_left = 1
+                G.GAME.round_resets.discards = 5
+                G.GAME.current_round.discards_left = 5
             end
 
-            -- Helin: 1 Joker slot max
+            -- Helin: 1 Joker slot max & 1 hand strictly
             if ch == 'c_reality_warp_helin_trial' then
                 if G.jokers and G.jokers.config then
                     G.jokers.config.card_limit = 1
                 end
+                G.GAME.round_resets.hands = 1
+                G.GAME.current_round.hands_left = 1
             end
 
             -- Calamari / Cefalopop: 2 Joker slots max
             if ch == 'c_reality_warp_calamari_trial' or ch == 'c_reality_warp_cefalopop_trial' then
                 if G.jokers and G.jokers.config then
                     G.jokers.config.card_limit = 2
+                end
+            end
+
+            -- Prevent starting challenge jokers from appearing again in shop/packs
+            if G.jokers and G.jokers.cards and G.GAME and G.GAME.used_jokers then
+                local has_showman = (reality_warp_player_has_showman and reality_warp_player_has_showman()) or (player_has_showman and player_has_showman())
+                if not has_showman then
+                    for _, j in ipairs(G.jokers.cards) do
+                        local jk = (j.config and j.config.center and j.config.center.key) or (j.config and j.config.center_key)
+                        if jk then
+                            G.GAME.used_jokers[jk] = true
+                        end
+                    end
                 end
             end
         end
@@ -1457,14 +1480,31 @@ if ease_discard then
     end
 end
 
+-- Hand Lock Prevention for Paco and Helin
+if ease_hands_played then
+    local orig_ease_hands_played = ease_hands_played
+    function ease_hands_played(mod, instant)
+        local ch = G.GAME and G.GAME.challenge
+        if (ch == 'c_reality_warp_paco_trial' or ch == 'c_reality_warp_helin_trial') and (mod or 0) > 0 then
+            return
+        end
+        orig_ease_hands_played(mod, instant)
+    end
+end
+
 if Blind and Blind.set_blind then
     local orig_blind_set_blind_paco = Blind.set_blind
     function Blind:set_blind(blind, reset, silent)
         orig_blind_set_blind_paco(self, blind, reset, silent)
         if G.GAME and G.GAME.challenge == 'c_reality_warp_paco_trial' then
+            G.GAME.round_resets.hands = 1
+            G.GAME.current_round.hands_left = 1
             G.GAME.round_resets.discards = 5
             G.GAME.current_round.discards_left = 5
-            if G.GAME.round_resets then G.GAME.round_resets.discards = 5 end
+        end
+        if G.GAME and G.GAME.challenge == 'c_reality_warp_helin_trial' then
+            G.GAME.round_resets.hands = 1
+            G.GAME.current_round.hands_left = 1
         end
     end
 end
@@ -1497,6 +1537,7 @@ if create_card then
     local orig_create_card_trials = create_card
     function create_card(_type, area, legendary, _rarity, skip_materialize, soulable, forced_key, key_append)
         local ch = G.GAME and G.GAME.challenge
+        local has_showman = (reality_warp_player_has_showman and reality_warp_player_has_showman()) or (player_has_showman and player_has_showman())
 
         if ch == 'c_reality_warp_kyra_trial' then
             if _type == 'Consumeables' or _type == 'Tarot' or _type == 'Planet' or _type == 'Spectral' then
@@ -1506,7 +1547,46 @@ if create_card then
             end
             if _type == 'Joker' and key_append ~= 'start' then
                 local potion_jokers = { 'j_reality_warp_kyra', 'j_reality_warp_potion_brewer', 'j_reality_warp_philosopher' }
-                forced_key = pseudorandom_element(potion_jokers, pseudoseed('kyra_trial_jokers'))
+                local available = {}
+                for _, pj in ipairs(potion_jokers) do
+                    local is_used = false
+                    if not has_showman then
+                        if G.GAME and G.GAME.used_jokers and G.GAME.used_jokers[pj] then
+                            is_used = true
+                        end
+                        if G.jokers and G.jokers.cards then
+                            for _, j in ipairs(G.jokers.cards) do
+                                local jk = (j.config and j.config.center and j.config.center.key) or j.config.center_key
+                                if jk == pj then is_used = true; break end
+                            end
+                        end
+                        if G.shop_jokers and G.shop_jokers.cards then
+                            for _, j in ipairs(G.shop_jokers.cards) do
+                                local jk = (j.config and j.config.center and j.config.center.key) or j.config.center_key
+                                if jk == pj then is_used = true; break end
+                            end
+                        end
+                        if G.pack_cards and G.pack_cards.cards then
+                            for _, j in ipairs(G.pack_cards.cards) do
+                                local jk = (j.config and j.config.center and j.config.center.key) or j.config.center_key
+                                if jk == pj then is_used = true; break end
+                            end
+                        end
+                    end
+                    if not is_used then
+                        table.insert(available, pj)
+                    end
+                end
+                if #available > 0 then
+                    forced_key = pseudorandom_element(available, pseudoseed('kyra_trial_jokers'))
+                else
+                    if create_potion_card_safe then
+                        return create_potion_card_safe(area, key_append or 'kyra_trial')
+                    else
+                        _type = 'Potion'
+                        forced_key = nil
+                    end
+                end
             end
         end
 
@@ -1519,10 +1599,13 @@ if create_card then
             end
         end
 
-        if (ch == 'c_reality_warp_helin_trial' or ch == 'c_reality_warp_paco_trial') then
-            if _type == 'Joker' and key_append ~= 'start' and ch == 'c_reality_warp_helin_trial' then
-                forced_key = 'j_reality_warp_helin'
+        if ch == 'c_reality_warp_helin_trial' then
+            -- Helin: No Jokers appear in shop/packs (Lone Celestial); replace all with Planet cards
+            if (_type == 'Joker' and key_append ~= 'start') or _type == 'Consumeables' or _type == 'Tarot' or _type == 'Spectral' or _type == 'Potion' then
+                _type = 'Planet'
+                forced_key = nil
             end
+        elseif ch == 'c_reality_warp_paco_trial' then
             if _type == 'Consumeables' or _type == 'Tarot' or _type == 'Spectral' or _type == 'Potion' then
                 _type = 'Planet'
             end
@@ -1534,7 +1617,41 @@ if create_card then
                 'j_stone', 'j_runner', 'j_hiker', 'j_wee', 'j_arrowhead',
                 'j_scary_face', 'j_sly', 'j_wily', 'j_clever', 'j_devious', 'j_crafty'
             }
-            forced_key = pseudorandom_element(chip_jokers, pseudoseed('thiago_trial_chips'))
+            local available = {}
+            for _, cj in ipairs(chip_jokers) do
+                local is_used = false
+                if not has_showman then
+                    if G.GAME and G.GAME.used_jokers and G.GAME.used_jokers[cj] then
+                        is_used = true
+                    end
+                    if G.jokers and G.jokers.cards then
+                        for _, j in ipairs(G.jokers.cards) do
+                            local jk = (j.config and j.config.center and j.config.center.key) or j.config.center_key
+                            if jk == cj then is_used = true; break end
+                        end
+                    end
+                    if G.shop_jokers and G.shop_jokers.cards then
+                        for _, j in ipairs(G.shop_jokers.cards) do
+                            local jk = (j.config and j.config.center and j.config.center.key) or j.config.center_key
+                            if jk == cj then is_used = true; break end
+                        end
+                    end
+                    if G.pack_cards and G.pack_cards.cards then
+                        for _, j in ipairs(G.pack_cards.cards) do
+                            local jk = (j.config and j.config.center and j.config.center.key) or j.config.center_key
+                            if jk == cj then is_used = true; break end
+                        end
+                    end
+                end
+                if not is_used then
+                    table.insert(available, cj)
+                end
+            end
+            if #available > 0 then
+                forced_key = pseudorandom_element(available, pseudoseed('thiago_trial_chips'))
+            else
+                forced_key = nil
+            end
         end
 
         if (ch == 'c_reality_warp_calamari_trial' or ch == 'c_reality_warp_cefalopop_trial') and _type == 'Joker' and key_append ~= 'start' then
@@ -1603,4 +1720,8 @@ if Card and Card.calculate_joker then
 
         return ret
     end
+end
+
+if reality_warp_purge_trials_from_challenges then
+    reality_warp_purge_trials_from_challenges()
 end

@@ -371,15 +371,11 @@ end
 local function build_reality_warp_config_tab()
     local cfg = get_reality_warp_config()
 
-    local title_sub = "Control Panel & Customization"
-    local quote_text = "Reading is recommended... and if you dislike reading, too bad XD"
-    local saved_text = "● Settings saved in real-time"
-
     return {
         n = G.UIT.ROOT,
         config = {
             align = "cm",
-            padding = 0.05,
+            padding = 0.06,
             colour = G.C.CLEAR
         },
         nodes = {
@@ -387,12 +383,15 @@ local function build_reality_warp_config_tab()
                 n = G.UIT.R,
                 config = {
                     align = "cm",
-                    padding = 0.1,
-                    r = 0.12,
-                    colour = {0.05, 0.05, 0.08, 0.65},
+                    padding = 0.12,
+                    r = 0.16,
+                    colour = {0.05, 0.05, 0.09, 0.92},
+                    outline = 1.2,
+                    outline_colour = {0.35, 0.22, 0.6, 0.8},
                     emboss = 0.05
                 },
                 nodes = {
+                    -- Top Header
                     {
                         n = G.UIT.R,
                         config = { align = "cm", padding = 0.02 },
@@ -400,103 +399,121 @@ local function build_reality_warp_config_tab()
                             {
                                 n = G.UIT.T,
                                 config = {
-                                    text = "Witch Brew Expansion",
-                                    scale = 0.44,
+                                    text = "BALATRO: REALITY WARP",
+                                    scale = 0.50,
                                     colour = G.C.GOLD,
                                     shadow = true
                                 }
                             }
                         }
                     },
-                    {
-                        n = G.UIT.R,
-                        config = { align = "cm", padding = 0.02 },
-                        nodes = {
-                            {
-                                n = G.UIT.C,
-                                config = { align = "cm", padding = 0.04, r = 0.08, colour = {0.45, 0.08, 0.72, 0.6} },
-                                nodes = {
-                                    {
-                                        n = G.UIT.T,
-                                        config = {
-                                            text = "v4.1.2",
-                                            scale = 0.22,
-                                            colour = G.C.WHITE
-                                        }
-                                    }
-                                }
-                            },
-                            {
-                                n = G.UIT.C,
-                                config = { align = "cm", padding = 0.04, r = 0.08, colour = {0.15, 0.15, 0.2, 0.6} },
-                                nodes = {
-                                    {
-                                        n = G.UIT.T,
-                                        config = {
-                                            text = "By Unknow102",
-                                            scale = 0.22,
-                                            colour = G.C.UI.TEXT_LIGHT
-                                        }
-                                    }
-                                }
-                            }
-                        }
-                    },
-                    {
-                        n = G.UIT.R,
-                        config = { align = "cm", padding = 0.01 },
-                        nodes = {
-                            {
-                                n = G.UIT.T,
-                                config = {
-                                    text = title_sub,
-                                    scale = 0.26,
-                                    colour = G.C.UI.TEXT_LIGHT
-                                }
-                            }
-                        }
-                    },
-                    {
-                        n = G.UIT.R,
-                        config = { align = "cm", padding = 0.02 },
-                        nodes = {
-                            {
-                                n = G.UIT.T,
-                                config = {
-                                    text = "\"" .. quote_text .. "\"",
-                                    scale = 0.21,
-                                    colour = G.C.GOLD
-                                }
-                            }
-                        }
-                    },
+                    -- Sub-capsules / Badges
                     {
                         n = G.UIT.R,
                         config = { align = "cm", padding = 0.04 },
                         nodes = {
                             {
                                 n = G.UIT.C,
-                                config = { align = "tm", padding = 0.06 },
+                                config = { align = "cm", padding = 0.04, r = 0.08, colour = {0.50, 0.15, 0.80, 0.85} },
+                                nodes = {
+                                    {
+                                        n = G.UIT.T,
+                                        config = {
+                                            text = "v1.0.0",
+                                            scale = 0.22,
+                                            colour = G.C.WHITE,
+                                            shadow = true
+                                        }
+                                    }
+                                }
+                            },
+                            {
+                                n = G.UIT.C,
+                                config = { align = "cm", padding = 0.04, r = 0.08, colour = {0.16, 0.16, 0.24, 0.85} },
+                                nodes = {
+                                    {
+                                        n = G.UIT.T,
+                                        config = {
+                                            text = "BY UNKNOW102",
+                                            scale = 0.22,
+                                            colour = G.C.UI.TEXT_LIGHT
+                                        }
+                                    }
+                                }
+                            },
+                            {
+                                n = G.UIT.C,
+                                config = { align = "cm", padding = 0.04, r = 0.08, colour = {0.14, 0.28, 0.58, 0.85} },
+                                nodes = {
+                                    {
+                                        n = G.UIT.T,
+                                        config = {
+                                            text = "STEAMODDED API",
+                                            scale = 0.22,
+                                            colour = G.C.GOLD
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    },
+                    -- Flavor Quote
+                    {
+                        n = G.UIT.R,
+                        config = { align = "cm", padding = 0.02 },
+                        nodes = {
+                            {
+                                n = G.UIT.T,
+                                config = {
+                                    text = "\"Reality bends at your fingertips. Toggle expansion modules below.\"",
+                                    scale = 0.22,
+                                    colour = G.C.UI.TEXT_LIGHT
+                                }
+                            }
+                        }
+                    },
+                    -- Main Dual Panels (Gameplay & Aesthetics)
+                    {
+                        n = G.UIT.R,
+                        config = { align = "cm", padding = 0.05 },
+                        nodes = {
+                            -- Left Panel: Gameplay Modules
+                            {
+                                n = G.UIT.C,
+                                config = {
+                                    align = "tm",
+                                    padding = 0.08,
+                                    r = 0.12,
+                                    colour = {0.08, 0.09, 0.16, 0.90},
+                                    outline = 1.0,
+                                    outline_colour = {0.20, 0.35, 0.65, 0.70}
+                                },
                                 nodes = {
                                     {
                                         n = G.UIT.R,
-                                        config = { align = "cm", padding = 0.02 },
+                                        config = {
+                                            align = "cm",
+                                            padding = 0.05,
+                                            r = 0.08,
+                                            colour = {0.15, 0.28, 0.58, 0.80}
+                                        },
                                         nodes = {
                                             {
                                                 n = G.UIT.T,
                                                 config = {
-                                                    text = "— GAMEPLAY —",
-                                                    scale = 0.25,
-                                                    colour = G.C.BLUE
+                                                    text = "✦ GAMEPLAY MODULES ✦",
+                                                    scale = 0.27,
+                                                    colour = G.C.WHITE,
+                                                    shadow = true
                                                 }
                                             }
                                         }
                                     },
                                     create_toggle({
                                         label = "New Runs",
-                                        w = 2.4,
-                                        scale = 0.75,
-                                        label_scale = 0.30,
+                                        w = 2.6,
+                                        scale = 0.72,
+                                        label_scale = 0.28,
                                         ref_table = cfg,
                                         ref_value = "new_runs",
                                         callback = function(val)
@@ -509,9 +526,9 @@ local function build_reality_warp_config_tab()
                                     }),
                                     create_toggle({
                                         label = "New Challenges",
-                                        w = 2.4,
-                                        scale = 0.75,
-                                        label_scale = 0.30,
+                                        w = 2.6,
+                                        scale = 0.72,
+                                        label_scale = 0.28,
                                         ref_table = cfg,
                                         ref_value = "new_challenges",
                                         callback = function(val)
@@ -527,9 +544,9 @@ local function build_reality_warp_config_tab()
                                     }),
                                     create_toggle({
                                         label = "New Spectrals & Jobs",
-                                        w = 2.4,
-                                        scale = 0.75,
-                                        label_scale = 0.30,
+                                        w = 2.6,
+                                        scale = 0.72,
+                                        label_scale = 0.28,
                                         ref_table = cfg,
                                         ref_value = "new_spectrals_and_jobs",
                                         callback = function(val)
@@ -542,23 +559,23 @@ local function build_reality_warp_config_tab()
                                     }),
                                     create_toggle({
                                         label = "New Boss Blinds",
-                                        w = 2.4,
-                                        scale = 0.75,
-                                        label_scale = 0.30,
+                                        w = 2.6,
+                                        scale = 0.72,
+                                        label_scale = 0.28,
                                         ref_table = cfg,
                                         ref_value = "new_boss_blinds",
                                         callback = function(val)
                                             save_reality_warp_config()
                                         end,
                                         info = {
-                                            "Enables Witch Brew Expansion's 11 Boss Blinds",
+                                            "Enables Reality Warp's 11 Boss Blinds",
                                             "(The Pole, The Rod, The Door, etc)."
                                         }
                                     }),
                                     create_toggle({
                                         label = "Battle of Gods",
-                                        w = 2.4,
-                                        scale = 0.75,
+                                        w = 2.6,
+                                        scale = 0.72,
                                         label_scale = 0.28,
                                         ref_table = cfg,
                                         ref_value = "battle_of_gods",
@@ -571,28 +588,42 @@ local function build_reality_warp_config_tab()
                                     })
                                 }
                             },
+                            -- Right Panel: Aesthetics & Audio
                             {
                                 n = G.UIT.C,
-                                config = { align = "tm", padding = 0.06 },
+                                config = {
+                                    align = "tm",
+                                    padding = 0.08,
+                                    r = 0.12,
+                                    colour = {0.12, 0.08, 0.18, 0.90},
+                                    outline = 1.0,
+                                    outline_colour = {0.55, 0.22, 0.75, 0.70}
+                                },
                                 nodes = {
                                     {
                                         n = G.UIT.R,
-                                        config = { align = "cm", padding = 0.02 },
+                                        config = {
+                                            align = "cm",
+                                            padding = 0.05,
+                                            r = 0.08,
+                                            colour = {0.45, 0.16, 0.62, 0.80}
+                                        },
                                         nodes = {
                                             {
                                                 n = G.UIT.T,
                                                 config = {
-                                                    text = "— VISUALS & SETTINGS —",
-                                                    scale = 0.25,
-                                                    colour = G.C.PURPLE
+                                                    text = "✦ AESTHETICS & AUDIO ✦",
+                                                    scale = 0.27,
+                                                    colour = G.C.WHITE,
+                                                    shadow = true
                                                 }
                                             }
                                         }
                                     },
                                     create_toggle({
                                         label = "Purple/Red Menu BG",
-                                        w = 2.4,
-                                        scale = 0.75,
+                                        w = 2.6,
+                                        scale = 0.72,
                                         label_scale = 0.28,
                                         ref_table = cfg,
                                         ref_value = "custom_menu_bg",
@@ -609,9 +640,9 @@ local function build_reality_warp_config_tab()
                                     }),
                                     create_toggle({
                                         label = "Fast Animations",
-                                        w = 2.4,
-                                        scale = 0.75,
-                                        label_scale = 0.30,
+                                        w = 2.6,
+                                        scale = 0.72,
+                                        label_scale = 0.28,
                                         ref_table = cfg,
                                         ref_value = "fast_animations",
                                         callback = function(val)
@@ -624,8 +655,8 @@ local function build_reality_warp_config_tab()
                                     }),
                                     create_toggle({
                                         label = "BotG Soundtrack",
-                                        w = 2.4,
-                                        scale = 0.75,
+                                        w = 2.6,
+                                        scale = 0.72,
                                         label_scale = 0.28,
                                         ref_table = cfg,
                                         ref_value = "botg_music",
@@ -644,14 +675,22 @@ local function build_reality_warp_config_tab()
                             }
                         }
                     },
+                    -- Bottom Status Pill
                     {
                         n = G.UIT.R,
-                        config = { align = "cm", padding = 0.02 },
+                        config = {
+                            align = "cm",
+                            padding = 0.05,
+                            r = 0.08,
+                            colour = {0.05, 0.14, 0.08, 0.85},
+                            outline = 1.0,
+                            outline_colour = {0.15, 0.45, 0.20, 0.60}
+                        },
                         nodes = {
                             {
                                 n = G.UIT.T,
                                 config = {
-                                    text = saved_text,
+                                    text = "● Settings are automatically saved in real-time",
                                     scale = 0.22,
                                     colour = G.C.GREEN
                                 }

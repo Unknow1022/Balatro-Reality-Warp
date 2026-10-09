@@ -518,6 +518,19 @@ function Game:start_run(args)
         if ch_id == 'c_reality_warp_kyra_trial' or ch_id == 'kyra_trial' or (G.GAME.challenge_tab and G.GAME.challenge_tab.id == 'c_reality_warp_kyra_trial') then
             G.GAME.win_ante = 6
         end
+
+        -- Prevent duplicate starting jokers from appearing in challenge shops/packs
+        if G.GAME.challenge and G.jokers and G.jokers.cards and G.GAME.used_jokers then
+            local has_showman = (reality_warp_player_has_showman and reality_warp_player_has_showman())
+            if not has_showman then
+                for _, j in ipairs(G.jokers.cards) do
+                    local jk = (j.config and j.config.center and j.config.center.key) or (j.config and j.config.center_key)
+                    if jk then
+                        G.GAME.used_jokers[jk] = true
+                    end
+                end
+            end
+        end
     end
     return ret
 end
@@ -547,20 +560,19 @@ local reality_warp_challenge_keys = {
     'c_reality_warp_edition_tycoon',
     'c_reality_warp_code_red_er',
     'c_reality_warp_singular_saturation',
-    'c_reality_warp_kyra_trial',
-    'c_reality_warp_ray_trial',
-    'c_reality_warp_charles_trial',
-    'c_reality_warp_mochi_trial',
-    'c_reality_warp_paco_trial',
-    'c_reality_warp_esteban_trial',
-    'c_reality_warp_thiago_trial',
-    'c_reality_warp_yairo_trial',
-    'c_reality_warp_helin_trial',
-    'c_reality_warp_calamari_trial',
-    'c_reality_warp_sally_trial',
-    'c_reality_warp_cefalopop_trial',
-    'c_reality_warp_mew_mew_trial',
 }
+
+function reality_warp_purge_trials_from_challenges()
+    if not G.CHALLENGES then return end
+    for i = #G.CHALLENGES, 1, -1 do
+        local ch = G.CHALLENGES[i]
+        local cid = (ch and (ch.id or ch.key)) or ""
+        if string.find(cid, '_trial') then
+            G.CHALLENGES[cid] = ch
+            table.remove(G.CHALLENGES, i)
+        end
+    end
+end
 
 function reality_warp_sync_challenges(enable)
     if not G.CHALLENGES then return end
@@ -580,6 +592,32 @@ function reality_warp_sync_challenges(enable)
             end
         end
     end
+
+    reality_warp_purge_trials_from_challenges()
+end
+
+if G.UIDEF and G.UIDEF.challenges then
+    local orig_uidef_challenges = G.UIDEF.challenges
+    function G.UIDEF.challenges(...)
+        reality_warp_purge_trials_from_challenges()
+        return orig_uidef_challenges(...)
+    end
+end
+
+if get_challenge_int then
+    local orig_get_challenge_int = get_challenge_int
+    function get_challenge_int(challenge_id)
+        local ret = orig_get_challenge_int(challenge_id)
+        if not ret and challenge_id then
+            if G.CHALLENGES and G.CHALLENGES[challenge_id] then
+                return challenge_id
+            end
+            if SMODS and SMODS.Challenges and SMODS.Challenges[challenge_id] then
+                return challenge_id
+            end
+        end
+        return ret
+    end
 end
 
 local cfg = (get_reality_warp_config and get_reality_warp_config())
@@ -588,4 +626,6 @@ local cfg = (get_reality_warp_config and get_reality_warp_config())
     or {}
 if cfg.new_challenges == false then
     reality_warp_sync_challenges(false)
+else
+    reality_warp_purge_trials_from_challenges()
 end

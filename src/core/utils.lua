@@ -1515,10 +1515,12 @@ if SMODS and SMODS.poll_rarity then
     end
 end
 
-local function player_has_showman()
+function reality_warp_player_has_showman()
     if SMODS and SMODS.find_card then
         local smods_showman = SMODS.find_card('j_ring_master')
         if smods_showman and #smods_showman > 0 then return true end
+        local smods_showman2 = SMODS.find_card('j_showman')
+        if smods_showman2 and #smods_showman2 > 0 then return true end
     end
     if find_joker then
         local vanilla_showman = find_joker('Showman')
@@ -1529,9 +1531,9 @@ local function player_has_showman()
     if G and G.jokers and G.jokers.cards then
         for _, j in ipairs(G.jokers.cards) do
             if not j.debuff and j.config and j.config.center then
-                local k = j.config.center.key or ''
+                local k = j.config.center.key or j.config.center_key or ''
                 local n = (j.ability and j.ability.name) or (j.config.center.name) or ''
-                if k == 'j_ring_master' or n == 'Showman' then
+                if k == 'j_ring_master' or k == 'j_showman' or n == 'Showman' or n == 'Ring Master' then
                     return true
                 end
             end
@@ -1539,42 +1541,84 @@ local function player_has_showman()
     end
     return false
 end
+local player_has_showman = reality_warp_player_has_showman
 
-local function is_joker_owned_by_player(j_card)
-    if not (G and G.jokers and G.jokers.cards and j_card and j_card.config and j_card.config.center) then
+function reality_warp_is_joker_duplicate(j_card)
+    if not (G and j_card and j_card.config and j_card.config.center) then
         return false
     end
-    local j_key = j_card.config.center.key
+    local j_key = j_card.config.center.key or j_card.config.center_key
     local j_name = (j_card.ability and j_card.ability.name) or j_card.config.center.name
-    for _, owned in ipairs(G.jokers.cards) do
-        if owned ~= j_card then
-            if j_key and owned.config and owned.config.center and owned.config.center.key == j_key then
-                return true
-            end
-            if j_name and ((owned.ability and owned.ability.name == j_name) or (owned.config and owned.config.center and owned.config.center.name == j_name)) then
-                return true
+
+    -- 1. Check owned jokers
+    if G.jokers and G.jokers.cards then
+        for _, owned in ipairs(G.jokers.cards) do
+            if owned ~= j_card then
+                if j_key and owned.config and owned.config.center and (owned.config.center.key == j_key or owned.config.center_key == j_key) then
+                    return true
+                end
+                if j_name and ((owned.ability and owned.ability.name == j_name) or (owned.config and owned.config.center and owned.config.center.name == j_name)) then
+                    return true
+                end
             end
         end
     end
+
+    -- 2. Check other shop slots (avoid duplicate offers in same shop)
+    if G.shop_jokers and G.shop_jokers.cards then
+        for _, shop_c in ipairs(G.shop_jokers.cards) do
+            if shop_c ~= j_card then
+                if j_key and shop_c.config and shop_c.config.center and (shop_c.config.center.key == j_key or shop_c.config.center_key == j_key) then
+                    return true
+                end
+                if j_name and ((shop_c.ability and shop_c.ability.name == j_name) or (shop_c.config and shop_c.config.center and shop_c.config.center.name == j_name)) then
+                    return true
+                end
+            end
+        end
+    end
+
+    -- 3. Check other booster pack cards (avoid duplicate offers in same pack)
+    if G.pack_cards and G.pack_cards.cards then
+        for _, pack_c in ipairs(G.pack_cards.cards) do
+            if pack_c ~= j_card then
+                if j_key and pack_c.config and pack_c.config.center and (pack_c.config.center.key == j_key or pack_c.config.center_key == j_key) then
+                    return true
+                end
+                if j_name and ((pack_c.ability and pack_c.ability.name == j_name) or (pack_c.config and pack_c.config.center and pack_c.config.center.name == j_name)) then
+                    return true
+                end
+            end
+        end
+    end
+
     return false
 end
+local is_joker_owned_by_player = reality_warp_is_joker_duplicate
 
-local function sync_owned_jokers_to_used()
-    if not (G and G.GAME and G.GAME.used_jokers and G.jokers and G.jokers.cards) then return end
-    if player_has_showman() then return end
-    for _, j in ipairs(G.jokers.cards) do
-        if j.config and j.config.center and j.config.center.key then
-            G.GAME.used_jokers[j.config.center.key] = true
-        end
-        if j.ability and j.ability.name and G.P_CENTERS then
-            for k, v in pairs(G.P_CENTERS) do
-                if v.name == j.ability.name then
+function reality_warp_sync_owned_jokers()
+    if not (G and G.GAME and G.GAME.used_jokers) then return end
+    if reality_warp_player_has_showman() then return end
+    local areas = { G.jokers, G.shop_jokers, G.pack_cards }
+    for _, ar in ipairs(areas) do
+        if ar and ar.cards then
+            for _, j in ipairs(ar.cards) do
+                local k = (j.config and j.config.center and j.config.center.key) or (j.config and j.config.center_key)
+                if k then
                     G.GAME.used_jokers[k] = true
+                end
+                if j.ability and j.ability.name and G.P_CENTERS then
+                    for pk, v in pairs(G.P_CENTERS) do
+                        if v.name == j.ability.name then
+                            G.GAME.used_jokers[pk] = true
+                        end
+                    end
                 end
             end
         end
     end
 end
+local sync_owned_jokers_to_used = reality_warp_sync_owned_jokers
 
 local function clean_leaked_duplicate_flags()
     if not player_has_showman() then
@@ -1623,21 +1667,23 @@ function create_card(type, area, legendary, _rarity, skip_materialize, soulable,
     end
 
     local card = create_card_ref(type, area, legendary, _rarity, skip_materialize, soulable, forced_key, key_append)
-    if type == 'Joker' and card and not forced_key and card.ability and card.ability.set == 'Joker' then
-        local c_rarity = (card.config and card.config.center and card.config.center.rarity) or card.ability.rarity
-        if is_common_rarity(c_rarity) then
-            local should_replace = false
-            if has_critic_voucher() then
-                should_replace = true
-            elseif has_taster_voucher() and pseudorandom('catador_create_check') < 0.75 then
-                should_replace = true
-            end
-            if should_replace then
-                local replacement_rarity = (pseudorandom('voucher_create_rarity') < 0.75) and 2 or 3
-                local new_card = create_card_ref('Joker', area, legendary, replacement_rarity, skip_materialize, soulable, nil, (key_append or '') .. '_vup')
-                if new_card then
-                    card:remove()
-                    card = new_card
+    if type == 'Joker' and card and card.ability and card.ability.set == 'Joker' then
+        if not forced_key then
+            local c_rarity = (card.config and card.config.center and card.config.center.rarity) or card.ability.rarity
+            if is_common_rarity(c_rarity) then
+                local should_replace = false
+                if has_critic_voucher() then
+                    should_replace = true
+                elseif has_taster_voucher() and pseudorandom('catador_create_check') < 0.75 then
+                    should_replace = true
+                end
+                if should_replace then
+                    local replacement_rarity = (pseudorandom('voucher_create_rarity') < 0.75) and 2 or 3
+                    local new_card = create_card_ref('Joker', area, legendary, replacement_rarity, skip_materialize, soulable, nil, (key_append or '') .. '_vup')
+                    if new_card then
+                        card:remove()
+                        card = new_card
+                    end
                 end
             end
         end
@@ -1653,6 +1699,12 @@ function create_card(type, area, legendary, _rarity, skip_materialize, soulable,
                     card = rep_card
                 else
                     break
+                end
+            end
+            if card and card.config and card.config.center and G.GAME and G.GAME.used_jokers then
+                local ck = card.config.center.key or card.config.center_key
+                if ck then
+                    G.GAME.used_jokers[ck] = true
                 end
             end
         end
@@ -7206,6 +7258,9 @@ if create_tabs then
                 end
             end
             if is_run_setup then
+                if reality_warp_purge_trials_from_challenges then
+                    reality_warp_purge_trials_from_challenges()
+                end
                 local exists = false
                 for _, tab in ipairs(args.tabs) do
                     if tab and tab.label == "Nursery" then exists = true; break end

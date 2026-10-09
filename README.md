@@ -17,7 +17,7 @@ A reality-bending expansion mod for **Balatro** powered by **Steamodded** and **
 ## Notes & Disclaimer
 
 * **Origins & Evolution:** The earliest prototype versions of this mod were originally titled **"Cracklatro"** and later **"Wichter Brew Expansion"**.
-* **Experimental Spirit:** This mod is designed fundamentally as an **experiment and creative playground** rather than a strictly competitive, vanilla-balanced expansion.
+* **Experimental Spirit:** This mod is designed fundamentally as an **experiment and creative playground** rather than a strictly competitive, vanilla-balanced expansion, This was Vibe Coded in certain parts of the proyect.
 
 ---
 
