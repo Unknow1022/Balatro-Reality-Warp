@@ -656,7 +656,7 @@ if eval_card then
             return {}, {}
         end
         local ret, post_trig = eval_card_ref(card, context)
-        if context and context.cardarea == G.play and context.scoring_hand and not (card.destroyed or card.shattered) and not card.debuff then
+        if context and not context.repetition and not context.repetition_only and context.cardarea == G.play and context.scoring_hand and not (card.destroyed or card.shattered) and not card.debuff then
             local oil_count = 0
             for _, other in ipairs(context.scoring_hand) do
                 if other ~= card and is_oil_card(other) and not other.debuff then
@@ -1277,6 +1277,12 @@ end
 
 local card_update_ref = Card.update
 function Card:update(dt)
+    if not self.ability then
+        if self.config and self.config.center then
+            pcall(function() self:set_ability(self.config.center, true) end)
+        end
+        self.ability = self.ability or { name = 'Default', set = 'Default', mult = 0, chips = 0, x_mult = 1 }
+    end
     card_update_ref(self, dt)
     if self.config and self.config.center and self.config.center.update and type(self.config.center.update) == 'function' then
         self.config.center:update(self, dt)

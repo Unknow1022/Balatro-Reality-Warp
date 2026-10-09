@@ -1484,6 +1484,12 @@ end
 
     local orig_card_update = Card.update
     function Card:update(dt)
+        if not self.ability then
+            if self.config and self.config.center then
+                pcall(function() self:set_ability(self.config.center, true) end)
+            end
+            self.ability = self.ability or { name = 'Default', set = 'Default', mult = 0, chips = 0, x_mult = 1 }
+        end
         orig_card_update(self, dt)
         if self.debuff and (is_blessed_card(self) or (is_wild_card(self) and G.GAME and G.GAME.blind and is_suit_debuff_blind(G.GAME.blind))) then
             self.debuff = false

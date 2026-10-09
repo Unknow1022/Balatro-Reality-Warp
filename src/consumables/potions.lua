@@ -83,6 +83,12 @@ end
 
 local card_update_potion_ref = Card.update
 function Card:update(dt)
+    if not self.ability then
+        if self.config and self.config.center then
+            pcall(function() self:set_ability(self.config.center, true) end)
+        end
+        self.ability = self.ability or { name = 'Default', set = 'Default', mult = 0, chips = 0, x_mult = 1 }
+    end
     card_update_potion_ref(self, dt)
     if self.ability and self.ability.set == 'Potion' then
         local is_active = self.states.visible and self.facing ~= 'back' and not (self.dissolve and self.dissolve > 0) and not self.shattered and (not self.area or self.area ~= G.deck)

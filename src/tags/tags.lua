@@ -251,8 +251,13 @@ SMODS.Tag {
         }
     },
     apply = function(self, tag, context)
-        if context.type == 'eval' then
-            if G.GAME and G.GAME.current_round and G.GAME.current_round.hands_played == 1 then
+        if context.type == 'eval' or context.type == 'round_eval' then
+            local hands_played = (G.GAME and G.GAME.current_round and G.GAME.current_round.hands_played) or 0
+            if hands_played == 1 and not tag.triggered then
+                tag:yep('+$10', G.C.MONEY, function()
+                    ease_dollars(10)
+                    return true
+                end)
                 tag.triggered = true
                 return {
                     dollars = 10,
@@ -260,12 +265,31 @@ SMODS.Tag {
                     pos = tag.pos,
                     tag = tag
                 }
-            else
+            elseif hands_played > 1 then
                 tag.triggered = true
             end
         end
     end
 }
+
+if G.FUNCS and G.FUNCS.evaluate_round then
+    local orig_eval_round_bounty = G.FUNCS.evaluate_round
+    G.FUNCS.evaluate_round = function(...)
+        if G.GAME and G.GAME.tags and G.GAME.current_round and G.GAME.current_round.hands_played == 1 then
+            for i = #G.GAME.tags, 1, -1 do
+                local tag = G.GAME.tags[i]
+                if tag and (tag.key == 'tag_reality_warp_bounty' or tag.key == 'tag_bounty' or tag.key == 'bounty' or tag.name == 'Bounty Tag') and not tag.triggered then
+                    tag:yep('+$10', G.C.MONEY, function()
+                        ease_dollars(10)
+                        return true
+                    end)
+                    tag.triggered = true
+                end
+            end
+        end
+        return orig_eval_round_bounty(...)
+    end
+end
 
 SMODS.Tag {
     key = 'amalgam',

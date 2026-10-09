@@ -122,12 +122,13 @@ SMODS.Challenge {
 SMODS.Challenge {
     key = 'paco_trial',
     loc_txt = {
-        name = "Paco's Wish: Zero Discards",
+        name = "Paco's Wish: One Hand Wonder",
     },
     rules = {
         custom = {},
         modifiers = {
-            { id = 'discards', value = 0 },
+            { id = 'hands', value = 1 },
+            { id = 'discards', value = 5 },
         },
     },
     jokers = {
@@ -138,17 +139,23 @@ SMODS.Challenge {
     },
     restrictions = {
         banned_cards = {
-            { id = 'j_delayed_grat' }, { id = 'j_burglar' }, { id = 'j_merry_andy' },
-            { id = 'j_drunkard' }, { id = 'j_trading' }, { id = 'j_castle' },
-            { id = 'j_ramen' }, { id = 'j_faceless' }, { id = 'j_hit_the_road' },
-            { id = 'j_banner' }, { id = 'j_yorick' }, { id = 'j_mail' },
-            { id = 'j_reality_warp_discard_accumulator' }, { id = 'j_reality_warp_beat_it' },
-            { id = 'v_wasteful' }, { id = 'v_recycler' },
+            { id = 'v_grabber' },
+            { id = 'v_nacho_tong' },
+            { id = 'c_fool' }, { id = 'c_magician' }, { id = 'c_high_priestess' },
+            { id = 'c_empress' }, { id = 'c_emperor' }, { id = 'c_hierophant' },
+            { id = 'c_lovers' }, { id = 'c_chariot' }, { id = 'c_justice' },
+            { id = 'c_hermit' }, { id = 'c_wheel_of_fortune' }, { id = 'c_strength' },
+            { id = 'c_hanged_man' }, { id = 'c_death' }, { id = 'c_temperance' },
+            { id = 'c_devil' }, { id = 'c_tower' }, { id = 'c_star' },
+            { id = 'c_moon' }, { id = 'c_sun' }, { id = 'c_judgement' }, { id = 'c_world' },
+            { id = 'c_familiar' }, { id = 'c_grim' }, { id = 'c_incantation' },
+            { id = 'c_talisman' }, { id = 'c_aura' }, { id = 'c_wraith' },
+            { id = 'c_sigil' }, { id = 'c_ouija' }, { id = 'c_ectoplasm' },
+            { id = 'c_immolate' }, { id = 'c_ankh' }, { id = 'c_deja_vu' },
+            { id = 'c_hex' }, { id = 'c_trance' }, { id = 'c_medium' },
+            { id = 'c_cryptid' }, { id = 'c_soul' }, { id = 'c_black_hole' },
         },
-        banned_other = {
-            { id = 'bl_hook', type = 'blind' },
-            { id = 'bl_water', type = 'blind' },
-        },
+        banned_other = {},
     },
 }
 
@@ -351,21 +358,23 @@ local OUTSIDER_TRIALS_DATA = {
     {
         id = 'paco',
         name = "PACO",
-        title = "PACO'S WISH: ZERO DISCARDS",
+        title = "PACO'S WISH: ONE HAND STAND",
+        dominant_color = HEX('eab308'),
         accent = HEX('ebb746'),
         bg_color = HEX('2e1a05'),
-        quote = "\"No mulligans in my domain! You play the exact hand fate dealt you.\"",
+        jokers = { 'j_reality_warp_paco' },
+        quote = "\"One shot, that's all you get! Burn through your 5 discards and make that single hand count.\"",
         rules = {
             "Win Condition: Ante 8",
-            "Discards permanently locked to 0",
-            "Discarding cards is strictly disabled",
-            "Banned: Blinds that discard cards (Hook, Water)",
+            "Hands locked to exactly 1 every round",
+            "Discards set to 5 every round",
+            "Only Planet cards appear and function",
         },
         deck_rules = {
             "Starting Joker: Paco (Eternal)",
-            "Discards: 0 every single round",
-            "Banned: All discard-granting Jokers",
-            "Banned Vouchers: Wasteful & Recycler",
+            "Hands: 1 per round (Grabber & Nacho Tong banned)",
+            "Discards: 5 per round (Wasteful & Recycler enabled!)",
+            "Consumables: 100% Celestial & Planet cards",
         },
         challenge_id = 'c_reality_warp_paco_trial',
     },
@@ -373,8 +382,10 @@ local OUTSIDER_TRIALS_DATA = {
         id = 'esteban',
         name = "ESTEBAN",
         title = "ESTEBAN'S WISH: DARK ASCENSION",
+        dominant_color = HEX('475569'),
         accent = HEX('d6d3d1'),
         bg_color = HEX('1c1917'),
+        jokers = { 'j_reality_warp_esteban' },
         quote = "\"Purge the red hues from our court. Turn every soul into Spades or Clubs!\"",
         rules = {
             "Goal: Convert 100% of deck to Spades or Clubs",
@@ -394,8 +405,10 @@ local OUTSIDER_TRIALS_DATA = {
         id = 'thiago',
         name = "THIAGO",
         title = "THIAGO'S WISH: CHIPS DOMINION",
+        dominant_color = HEX('6366f1'),
         accent = HEX('a1a0ff'),
         bg_color = HEX('17153b'),
+        jokers = { 'j_reality_warp_thiago' },
         quote = "\"Multipliers are a distraction! Only pure, unadulterated Chips determine victory.\"",
         rules = {
             "Win Condition: Ante 8",
@@ -415,8 +428,10 @@ local OUTSIDER_TRIALS_DATA = {
         id = 'yairo',
         name = "YAIRO",
         title = "YAIRO'S WISH: SIXES & SEVENS",
+        dominant_color = HEX('2563eb'),
         accent = HEX('8fb6e8'),
         bg_color = HEX('161f38'),
+        jokers = { 'j_reality_warp_yairo' },
         quote = "\"Life is in turmoil! Remake every card in your deck into 6s and 7s.\"",
         rules = {
             "Goal: Convert 100% of deck into ranks 6 and 7",
@@ -436,8 +451,10 @@ local OUTSIDER_TRIALS_DATA = {
         id = 'helin',
         name = "HELIN",
         title = "HELIN'S WISH: LONE CELESTIAL",
+        dominant_color = HEX('9333ea'),
         accent = HEX('8d60b5'),
         bg_color = HEX('25103a'),
+        jokers = { 'j_reality_warp_helin' },
         quote = "\"The cosmos need no interference. Just you, me, and the stars above.\"",
         rules = {
             "Complete the run with ONLY Helin",
@@ -457,8 +474,10 @@ local OUTSIDER_TRIALS_DATA = {
         id = 'calamari',
         name = "CALAMARI",
         title = "CALAMARI WISH: SQUID SISTERS",
+        dominant_color = HEX('16a34a'),
         accent = HEX('3afb41'),
         bg_color = HEX('07331e'),
+        jokers = { 'j_reality_warp_marie', 'j_reality_warp_callie' },
         quote = "\"Stay Fresh! Only Callie & Marie on stage, no backup dancers allowed!\"",
         rules = {
             "Win Condition: Ante 8",
@@ -478,8 +497,10 @@ local OUTSIDER_TRIALS_DATA = {
         id = 'sally',
         name = "SALLY",
         title = "SALLY'S WISH: QUEST MASTER",
+        dominant_color = HEX('dc2626'),
         accent = HEX('e8413e'),
         bg_color = HEX('380b0b'),
+        jokers = { 'j_reality_warp_sally' },
         quote = "\"Step right up! Complete 10 of my dynamic quests before you hit Ante 8!\"",
         rules = {
             "Goal: Complete at least 10 Sally Quests before Ante 8",
@@ -499,8 +520,10 @@ local OUTSIDER_TRIALS_DATA = {
         id = 'cefalopop',
         name = "CEFALOPOP",
         title = "OFF THE HOOK: CEPHALOPOP HARMONY",
+        dominant_color = HEX('0891b2'),
         accent = HEX('28d2dc'),
         bg_color = HEX('082730'),
+        jokers = { 'j_reality_warp_marina', 'j_reality_warp_perla' },
         quote = "\"Don't get cooked, stay Off the Hook! Marina and Pearl run the entire show!\"",
         rules = {
             "Win Condition: Ante 8",
@@ -520,8 +543,10 @@ local OUTSIDER_TRIALS_DATA = {
         id = 'mew_mew',
         name = "MEW MEW",
         title = "MEW MEW'S WISH: DOKI DOKI RUSH",
+        dominant_color = HEX('db2777'),
         accent = HEX('ec4899'),
         bg_color = HEX('3b0820'),
+        jokers = { 'j_reality_warp_mew_mew' },
         quote = "\"Play the hand my heart desires! Fill my Doki Meter to 30 for an instant WIN!\"",
         rules = {
             "Goal: Fill the Doki Meter to 30",
@@ -541,8 +566,10 @@ local OUTSIDER_TRIALS_DATA = {
         id = 'kyra',
         name = "KYRA",
         title = "KYRA'S WISH: POTION MASTERY",
+        dominant_color = HEX('00b4d8'),
         accent = HEX('00e5ff'),
         bg_color = HEX('082530'),
+        jokers = { 'j_reality_warp_kyra', 'j_reality_warp_potion_brewer' },
         quote = "\"Show me your mastery of the brewing arts! Only potions can pave your path to Ante 6.\"",
         rules = {
             "Win Condition: Ante 6",
@@ -562,8 +589,10 @@ local OUTSIDER_TRIALS_DATA = {
         id = 'ray',
         name = "RAY",
         title = "RAY'S WISH: SPECTRAL RIFT",
+        dominant_color = HEX('4338ca'),
         accent = HEX('818cf8'),
         bg_color = HEX('1e1b4b'),
+        jokers = { 'j_reality_warp_raytracing' },
         quote = "\"The rift is unstable... only pure Spectral energies may be harnessed across the rifts!\"",
         rules = {
             "Consumables: Spectral cards ONLY",
@@ -583,8 +612,10 @@ local OUTSIDER_TRIALS_DATA = {
         id = 'charles',
         name = "CHARLES",
         title = "CHARLES' WISH: HEART OF GOLD",
+        dominant_color = HEX('b91c1c'),
         accent = HEX('ef4444'),
         bg_color = HEX('3a0909'),
+        jokers = { 'j_reality_warp_charles' },
         quote = "\"Every royal court must beat in unison. Turn every single card in your deck into a Heart!\"",
         rules = {
             "Goal: Convert 100% of your deck to Hearts",
@@ -604,8 +635,10 @@ local OUTSIDER_TRIALS_DATA = {
         id = 'mochi',
         name = "MOCHI",
         title = "MOCHI'S WISH: WILD WONDERLAND",
+        dominant_color = HEX('c026d3'),
         accent = HEX('e879f9'),
         bg_color = HEX('330638'),
+        jokers = { 'j_reality_warp_mochi' },
         quote = "\"Why be confined to one suit? Let adaptability run wild across your entire deck!\"",
         rules = {
             "Goal: Convert 100% of deck to Wild Cards",
@@ -636,7 +669,14 @@ G.UIDEF.outsider_trials_tab = function(args)
         end
     end
 
-    -- 1. Horizontal row of Secret Jokers with color palette backgrounds
+    -- Clean up previous trial card area if any
+    if G.trials_joker_area then
+        G.trials_joker_area:remove()
+        G.trials_joker_area = nil
+    end
+
+    -- 1. Horizontal row of Outsider buttons:
+    -- Main color equals the dominant color of the joker, text is white like Balatro normal button
     local joker_chips = {}
     for _, t in ipairs(OUTSIDER_TRIALS_DATA) do
         local is_sel = (t.id == selected_trial.id)
@@ -644,17 +684,17 @@ G.UIDEF.outsider_trials_tab = function(args)
             n = G.UIT.C,
             config = {
                 align = "cm",
-                padding = 0.03,
+                padding = 0.04,
                 r = 0.08,
-                colour = is_sel and t.accent or t.bg_color,
-                outline = is_sel and 0.04 or 0.02,
-                outline_colour = is_sel and G.C.GOLD or t.accent,
+                colour = t.dominant_color,
+                outline = is_sel and 0.04 or 0.015,
+                outline_colour = is_sel and G.C.GOLD or G.C.WHITE,
                 hover = true,
                 shadow = true,
                 button = 'select_outsider_trial',
                 trial_id = t.id,
-                minw = 0.74,
-                minh = 0.70,
+                minw = 0.72,
+                minh = 0.58,
             },
             nodes = {
                 {
@@ -665,8 +705,8 @@ G.UIDEF.outsider_trials_tab = function(args)
                             n = G.UIT.T,
                             config = {
                                 text = t.name,
-                                scale = 0.16,
-                                colour = is_sel and G.C.WHITE or t.accent,
+                                scale = 0.17,
+                                colour = G.C.WHITE,
                                 shadow = true
                             }
                         }
@@ -676,139 +716,198 @@ G.UIDEF.outsider_trials_tab = function(args)
         })
     end
 
-    -- 2. Left Box: Challenge Objectives & Start Button
+    -- 2. Challenge Joker Card Area (Left Side)
+    local joker_keys = selected_trial.jokers or { 'j_reality_warp_' .. selected_trial.id }
+    local num_jokers = #joker_keys
+    local card_scale = (num_jokers > 1) and 0.85 or 0.95
+    local area_w = (num_jokers > 1) and (G.CARD_W * card_scale * 2.15) or (G.CARD_W * card_scale * 1.15)
+    local area_h = G.CARD_H * card_scale * 1.15
+
+    G.trials_joker_area = CardArea(
+        0, 0,
+        area_w,
+        area_h,
+        { card_limit = num_jokers, type = 'title', highlight_limit = 0, collection = true }
+    )
+
+    for _, j_key in ipairs(joker_keys) do
+        local center = G.P_CENTERS[j_key] or G.P_CENTERS['j_reality_warp_' .. j_key] or G.P_CENTERS['j_' .. j_key]
+        if center then
+            local card = Card(
+                G.trials_joker_area.T.x + G.trials_joker_area.T.w/2,
+                G.trials_joker_area.T.y + G.trials_joker_area.T.h/2,
+                G.CARD_W * card_scale,
+                G.CARD_H * card_scale,
+                G.P_CARDS.empty,
+                center,
+                { bypass_discovery_center = true, bypass_discovery_ui = true, bypass_back = true }
+            )
+            card.ability = card.ability or { name = center.name or 'Default', set = center.set or 'Joker', mult = 0, chips = 0, x_mult = 1 }
+            card.sprite_facing = 'front'
+            card.facing = 'front'
+            if card.children and card.children.front then
+                card.children.front.facing = 'front'
+            end
+            card.states.hover.can = true
+            G.trials_joker_area:emplace(card)
+        end
+    end
+
+    local joker_box = {
+        n = G.UIT.C,
+        config = {
+            align = "cm",
+            padding = 0.08,
+            r = 0.16,
+            colour = HEX('0f172a'),
+            outline = 0.03,
+            outline_colour = selected_trial.dominant_color,
+            shadow = true,
+            minw = (num_jokers > 1) and 2.5 or 1.6,
+            minh = 4.4,
+        },
+        nodes = {
+            {
+                n = G.UIT.R,
+                config = { align = "cm", minh = 0.28 },
+                nodes = {
+                    { n = G.UIT.T, config = { text = (num_jokers > 1) and "TRIAL JOKERS" or "TRIAL JOKER", scale = 0.20, colour = selected_trial.dominant_color, shadow = true } }
+                }
+            },
+            {
+                n = G.UIT.R,
+                config = { align = "cm", minh = 3.7 },
+                nodes = {
+                    { n = G.UIT.O, config = { object = G.trials_joker_area } }
+                }
+            }
+        }
+    }
+
+    -- 3. Box with description of the challenge (in color white and rules in list)
     local challenge_rules_nodes = {}
     for _, r in ipairs(selected_trial.rules) do
         table.insert(challenge_rules_nodes, {
             n = G.UIT.R,
             config = { align = "cl", minh = 0.22 },
             nodes = {
-                { n = G.UIT.T, config = { text = "• " .. r, scale = 0.20, colour = G.C.UI.TEXT_LIGHT } }
+                { n = G.UIT.T, config = { text = "• " .. r, scale = 0.19, colour = HEX('1e293b'), shadow = false } }
             }
         })
     end
 
-    local left_box = {
-        n = G.UIT.C,
-        config = {
-            align = "cm",
-            padding = 0.08,
-            r = 0.12,
-            colour = HEX('0f172a'),
-            outline = 0.03,
-            outline_colour = selected_trial.accent,
-            shadow = true,
-            minw = 5.2,
-            minh = 3.6
-        },
-        nodes = {
-            {
-                n = G.UIT.R,
-                config = { align = "cm", minh = 0.35 },
-                nodes = {
-                    { n = G.UIT.T, config = { text = selected_trial.title, scale = 0.28, colour = selected_trial.accent, shadow = true } }
-                }
-            },
-            {
-                n = G.UIT.R,
-                config = { align = "cm", minh = 0.40, maxw = 4.8 },
-                nodes = {
-                    { n = G.UIT.T, config = { text = selected_trial.quote, scale = 0.20, colour = G.C.WHITE, shadow = false } }
-                }
-            },
-            {
-                n = G.UIT.R,
-                config = { align = "cl", minh = 0.25 },
-                nodes = {
-                    { n = G.UIT.T, config = { text = "CHALLENGE OBJECTIVES:", scale = 0.21, colour = G.C.GOLD, shadow = true } }
-                }
-            },
-            {
-                n = G.UIT.C,
-                config = { align = "cl", padding = 0.02, minw = 4.8 },
-                nodes = challenge_rules_nodes
-            },
-            {
-                n = G.UIT.R,
-                config = { align = "cm", minh = 0.10 },
-                nodes = {}
-            },
-            {
-                n = G.UIT.R,
-                config = {
-                    align = "cm",
-                    padding = 0.04,
-                    r = 0.08,
-                    colour = G.C.GREEN,
-                    hover = true,
-                    shadow = true,
-                    button = 'start_outsider_trial',
-                    trial_id = selected_trial.id,
-                    minw = 2.6,
-                    minh = 0.38
-                },
-                nodes = {
-                    { n = G.UIT.T, config = { text = "START TRIAL", scale = 0.26, colour = G.C.WHITE, shadow = true } }
-                }
-            }
-        }
-    }
-
-    -- 3. Right Box: Deck Challenge & Restrictions ("el reto de dicha baraja")
     local deck_rules_nodes = {}
     for _, dr in ipairs(selected_trial.deck_rules) do
         table.insert(deck_rules_nodes, {
             n = G.UIT.R,
             config = { align = "cl", minh = 0.22 },
             nodes = {
-                { n = G.UIT.T, config = { text = "✦ " .. dr, scale = 0.20, colour = G.C.UI.TEXT_LIGHT } }
+                { n = G.UIT.T, config = { text = "✦ " .. dr, scale = 0.19, colour = HEX('334155'), shadow = false } }
             }
         })
     end
 
-    local right_box = {
+    local white_box = {
         n = G.UIT.C,
         config = {
             align = "cm",
-            padding = 0.08,
-            r = 0.12,
-            colour = HEX('0f172a'),
+            padding = 0.10,
+            r = 0.16,
+            colour = G.C.WHITE,
             outline = 0.03,
-            outline_colour = selected_trial.accent,
+            outline_colour = selected_trial.dominant_color,
             shadow = true,
-            minw = 5.2,
-            minh = 3.6
+            minw = (num_jokers > 1) and 8.0 or 8.8,
+            minh = 4.4
         },
         nodes = {
             {
                 n = G.UIT.R,
                 config = { align = "cm", minh = 0.35 },
                 nodes = {
-                    { n = G.UIT.T, config = { text = "DECK RULES & RESTRICTIONS", scale = 0.28, colour = G.C.GOLD, shadow = true } }
+                    { n = G.UIT.T, config = { text = selected_trial.title, scale = 0.29, colour = selected_trial.dominant_color, shadow = false } }
                 }
             },
             {
                 n = G.UIT.R,
-                config = { align = "cm", minh = 0.30 },
+                config = { align = "cm", minh = 0.32, maxw = (num_jokers > 1) and 7.6 or 8.4 },
                 nodes = {
-                    { n = G.UIT.T, config = { text = "Unique deck conditions & parameters", scale = 0.20, colour = G.C.UI.TEXT_INACTIVE } }
+                    { n = G.UIT.T, config = { text = selected_trial.quote, scale = 0.20, colour = HEX('475569'), shadow = false } }
                 }
             },
             {
-                n = G.UIT.C,
-                config = { align = "cl", padding = 0.02, minw = 4.8 },
-                nodes = deck_rules_nodes
-            },
-            {
                 n = G.UIT.R,
-                config = { align = "cm", minh = 0.15 },
+                config = { align = "cm", minh = 0.06 },
                 nodes = {}
             },
             {
                 n = G.UIT.R,
-                config = { align = "cm", minh = 0.35, padding = 0.04, r = 0.08, colour = HEX('1e293b') },
+                config = { align = "cm", padding = 0.02 },
                 nodes = {
-                    { n = G.UIT.T, config = { text = "VERTICAL PROGRESS GAUGE ACTIVE", scale = 0.18, colour = selected_trial.accent, shadow = true } }
+                    {
+                        n = G.UIT.C,
+                        config = { align = "tl", padding = 0.06, minw = (num_jokers > 1) and 3.8 or 4.2 },
+                        nodes = {
+                            {
+                                n = G.UIT.R,
+                                config = { align = "cl", minh = 0.25 },
+                                nodes = {
+                                    { n = G.UIT.T, config = { text = "CHALLENGE OBJECTIVES:", scale = 0.21, colour = HEX('0f172a'), shadow = false } }
+                                }
+                            },
+                            {
+                                n = G.UIT.C,
+                                config = { align = "cl", padding = 0.02 },
+                                nodes = challenge_rules_nodes
+                            }
+                        }
+                    },
+                    {
+                        n = G.UIT.C,
+                        config = { minw = 0.02, minh = 2.0, colour = HEX('cbd5e1'), r = 0.01 },
+                        nodes = {}
+                    },
+                    {
+                        n = G.UIT.C,
+                        config = { align = "tl", padding = 0.06, minw = (num_jokers > 1) and 3.8 or 4.2 },
+                        nodes = {
+                            {
+                                n = G.UIT.R,
+                                config = { align = "cl", minh = 0.25 },
+                                nodes = {
+                                    { n = G.UIT.T, config = { text = "DECK RESTRICTIONS:", scale = 0.21, colour = HEX('0f172a'), shadow = false } }
+                                }
+                            },
+                            {
+                                n = G.UIT.C,
+                                config = { align = "cl", padding = 0.02 },
+                                nodes = deck_rules_nodes
+                            }
+                        }
+                    }
+                }
+            },
+            {
+                n = G.UIT.R,
+                config = { align = "cm", minh = 0.08 },
+                nodes = {}
+            },
+            {
+                n = G.UIT.R,
+                config = {
+                    align = "cm",
+                    padding = 0.05,
+                    r = 0.10,
+                    colour = G.C.GREEN,
+                    hover = true,
+                    shadow = true,
+                    button = 'start_outsider_trial',
+                    trial_id = selected_trial.id,
+                    minw = 2.8,
+                    minh = 0.40
+                },
+                nodes = {
+                    { n = G.UIT.T, config = { text = "START TRIAL", scale = 0.26, colour = G.C.WHITE, shadow = true } }
                 }
             }
         }
@@ -820,37 +919,37 @@ G.UIDEF.outsider_trials_tab = function(args)
         nodes = {
             {
                 n = G.UIT.R,
-                config = { align = "cm", minh = 0.40 },
+                config = { align = "cm", minh = 0.38 },
                 nodes = {
-                    { n = G.UIT.T, config = { text = "OUTSIDER JOKER TRIALS", scale = 0.45, colour = G.C.GOLD, shadow = true } }
+                    { n = G.UIT.T, config = { text = "OUTSIDER JOKER TRIALS", scale = 0.44, colour = G.C.GOLD, shadow = true } }
                 }
             },
             {
                 n = G.UIT.R,
-                config = { align = "cm", minh = 0.25 },
+                config = { align = "cm", minh = 0.24 },
                 nodes = {
-                    { n = G.UIT.T, config = { text = "Select an Outsider to inspect their trials and deck restrictions", scale = 0.22, colour = G.C.UI.TEXT_LIGHT } }
+                    { n = G.UIT.T, config = { text = "Select an Outsider to inspect their trials and deck restrictions", scale = 0.21, colour = G.C.UI.TEXT_LIGHT } }
                 }
             },
-            -- Horizontal row of Outsider Jokers
+            -- Horizontal row of Outsider buttons
             {
                 n = G.UIT.R,
-                config = { align = "cm", padding = 0.04 },
+                config = { align = "cm", padding = 0.03 },
                 nodes = joker_chips
             },
             {
                 n = G.UIT.R,
-                config = { align = "cm", minh = 0.06 },
+                config = { align = "cm", minh = 0.05 },
                 nodes = {}
             },
-            -- Two boxes side-by-side: Challenges & Deck Rules
+            -- Order: Joker area on left, then White Box with challenge rules & description on right
             {
                 n = G.UIT.R,
                 config = { align = "cm", padding = 0.04 },
                 nodes = {
-                    left_box,
+                    joker_box,
                     { n = G.UIT.C, config = { minw = 0.15 }, nodes = {} },
-                    right_box
+                    white_box
                 }
             }
         }
@@ -864,6 +963,11 @@ G.FUNCS.select_outsider_trial = function(e)
     local tid = (e and e.config and e.config.trial_id) or 'paco'
     G.SELECTED_OUTSIDER_TRIAL = tid
     play_sound('cardSlide1', 1.0, 0.7)
+
+    if G.trials_joker_area then
+        G.trials_joker_area:remove()
+        G.trials_joker_area = nil
+    end
 
     local tab_contents = nil
     if G.OVERLAY_MENU then
@@ -895,6 +999,11 @@ G.FUNCS.start_outsider_trial = function(e)
     local tid = (e and e.config and e.config.trial_id) or G.SELECTED_OUTSIDER_TRIAL or 'paco'
     local challenge_id = 'c_reality_warp_' .. tid .. '_trial'
 
+    if G.trials_joker_area then
+        G.trials_joker_area:remove()
+        G.trials_joker_area = nil
+    end
+
     if G.OVERLAY_MENU then
         G.FUNCS.exit_overlay_menu()
     end
@@ -917,6 +1026,19 @@ G.FUNCS.start_outsider_trial = function(e)
     end
 end
 
+if not G.FUNCS.orig_exit_overlay_menu_trials then
+    G.FUNCS.orig_exit_overlay_menu_trials = G.FUNCS.exit_overlay_menu
+    G.FUNCS.exit_overlay_menu = function(...)
+        if G.trials_joker_area then
+            G.trials_joker_area:remove()
+            G.trials_joker_area = nil
+        end
+        if G.FUNCS.orig_exit_overlay_menu_trials then
+            return G.FUNCS.orig_exit_overlay_menu_trials(...)
+        end
+    end
+end
+
 -- ============================================================================
 -- VERTICAL PROGRESS HUD (Appears on the right side above G.deck)
 -- ============================================================================
@@ -925,8 +1047,9 @@ function create_outsider_trial_hud(text_title, count, total, percent, is_complet
     local deck_y = (G.deck and G.deck.T.y) or 6.8
     local deck_w = (G.deck and G.deck.T.w) or 1.5
 
-    local cur_pos_x = (G.HUD_outsider_trial and G.HUD_outsider_trial.T and G.HUD_outsider_trial.T.x) or (deck_x + deck_w - 0.70)
-    local cur_pos_y = (G.HUD_outsider_trial and G.HUD_outsider_trial.T and G.HUD_outsider_trial.T.y) or (deck_y - 2.85)
+    local box_w = 0.94
+    local cur_pos_x = deck_x + (deck_w * 0.5) - (box_w * 0.5)
+    local cur_pos_y = deck_y - 3.42
 
     if G.HUD_outsider_trial and not G.HUD_outsider_trial.REMOVED then
         G.HUD_outsider_trial:remove()
@@ -936,7 +1059,7 @@ function create_outsider_trial_hud(text_title, count, total, percent, is_complet
     local clamped_pct = math.max(0, math.min(100, percent or 0))
     local total_gauge_h = 2.10
     local fill_h = math.max(0.04, total_gauge_h * (clamped_pct / 100))
-    local empty_h = math.max(0.02, total_gauge_h - fill_h)
+    local empty_h = math.max(0.01, total_gauge_h - fill_h)
 
     local status_display = tostring(count) .. "/" .. tostring(total)
     if is_complete then
@@ -952,14 +1075,14 @@ function create_outsider_trial_hud(text_title, count, total, percent, is_complet
                 config = {
                     id = 'outsider_trial_hud_box',
                     align = "cm",
-                    padding = 0.05,
+                    padding = 0.04,
                     r = 0.12,
                     colour = HEX('0a0f1d'),
-                    outline = 0.03,
-                    outline_colour = is_complete and G.C.GOLD or col,
+                    outline = 0.035,
+                    outline_colour = is_complete and G.C.GOLD or HEX('94a3b8'),
                     shadow = true,
-                    minw = 0.88,
-                    minh = 3.35
+                    minw = box_w,
+                    minh = 3.30
                 },
                 nodes = {
                     {
@@ -976,24 +1099,24 @@ function create_outsider_trial_hud(text_title, count, total, percent, is_complet
                             { n = G.UIT.T, config = { text = string.format("%.0f%%", clamped_pct), scale = 0.23, colour = is_complete and G.C.GOLD or G.C.WHITE, shadow = true } }
                         }
                     },
-                    -- Vertical gauge container (fills upwards from bottom)
+                    -- Thermometer tube spanning the same width of the box
                     {
                         n = G.UIT.C,
                         config = {
                             align = "bm",
-                            padding = 0.02,
+                            padding = 0.015,
                             r = 0.08,
                             colour = HEX('020617'),
                             outline = 0.02,
-                            outline_colour = col,
-                            minw = 0.52,
+                            outline_colour = HEX('64748b'),
+                            minw = 0.84,
                             minh = total_gauge_h + 0.04,
-                            emboss = 0.04
+                            emboss = 0.03
                         },
                         nodes = {
                             {
                                 n = G.UIT.R,
-                                config = { align = "cm", minh = empty_h, minw = 0.44, colour = G.C.CLEAR },
+                                config = { align = "cm", minh = empty_h, minw = 0.80, colour = G.C.CLEAR },
                                 nodes = {}
                             },
                             {
@@ -1001,8 +1124,8 @@ function create_outsider_trial_hud(text_title, count, total, percent, is_complet
                                 config = {
                                     align = "cm",
                                     minh = fill_h,
-                                    minw = 0.44,
-                                    r = 0.06,
+                                    minw = 0.80,
+                                    r = 0.04,
                                     colour = is_complete and G.C.GOLD or col,
                                     shadow = false
                                 },
@@ -1015,13 +1138,6 @@ function create_outsider_trial_hud(text_title, count, total, percent, is_complet
                         config = { align = "cm", padding = 0.02 },
                         nodes = {
                             { n = G.UIT.T, config = { text = status_display, scale = 0.19, colour = G.C.WHITE, shadow = true } }
-                        }
-                    },
-                    {
-                        n = G.UIT.R,
-                        config = { align = "cm" },
-                        nodes = {
-                            { n = G.UIT.T, config = { text = "[DRAG]", scale = 0.13, colour = G.C.GREY } }
                         }
                     }
                 }
@@ -1040,26 +1156,7 @@ function create_outsider_trial_hud(text_title, count, total, percent, is_complet
     hud.T.y = cur_pos_y
     hud.VT.x = cur_pos_x
     hud.VT.y = cur_pos_y
-    hud.states.drag.can = true
-
-    function hud:drag()
-        self.states.drag.is = true
-        if G.CONTROLLER and G.CONTROLLER.cursor_position then
-            local cx = G.CONTROLLER.cursor_position.x / (G.TILESCALE * G.TILESIZE)
-            local cy = G.CONTROLLER.cursor_position.y / (G.TILESCALE * G.TILESIZE)
-            local ox = (self.click_offset and self.click_offset.x) or (self.T.w * 0.5)
-            local oy = (self.click_offset and self.click_offset.y) or (self.T.h * 0.5)
-            self.T.x = cx - ox
-            self.T.y = cy - oy
-            self.VT.x = self.T.x
-            self.VT.y = self.T.y
-        end
-    end
-
-    function hud:stop_drag()
-        Node.stop_drag(self)
-        self.states.drag.is = false
-    end
+    hud.states.drag.can = false
 
     G.HUD_outsider_trial = hud
     G.HUD_outsider_trial._last_val = count
@@ -1250,7 +1347,7 @@ if Card and Card.can_use_consumeable then
                 return false
             end
         end
-        if ch == 'c_reality_warp_helin_trial' and set ~= 'Planet' then
+        if (ch == 'c_reality_warp_helin_trial' or ch == 'c_reality_warp_paco_trial') and set ~= 'Planet' then
             return false
         end
         return orig_can_use_consumeable(self, any_state, skip_check)
@@ -1284,11 +1381,11 @@ if create_card then
             end
         end
 
-        if ch == 'c_reality_warp_helin_trial' then
-            if _type == 'Joker' and key_append ~= 'start' then
+        if (ch == 'c_reality_warp_helin_trial' or ch == 'c_reality_warp_paco_trial') then
+            if _type == 'Joker' and key_append ~= 'start' and ch == 'c_reality_warp_helin_trial' then
                 forced_key = 'j_reality_warp_helin'
             end
-            if _type == 'Consumeables' or _type == 'Tarot' or _type == 'Spectral' then
+            if _type == 'Consumeables' or _type == 'Tarot' or _type == 'Spectral' or _type == 'Potion' then
                 _type = 'Planet'
             end
         end
