@@ -191,14 +191,32 @@ local function draw_mad_ghost_companion(self, is_front)
 
     local prev_overlay = G.BRUTE_OVERLAY
     G.BRUTE_OVERLAY = { 1, 1, 1, 0.25 }
+    local sh = G.SHADERS and (G.SHADERS['reality_warp_neon_grid'] or G.SHADERS['neon_grid'])
+    local sh_name = sh and (G.SHADERS['reality_warp_neon_grid'] and 'reality_warp_neon_grid' or 'neon_grid')
+    if sh and not G.SHADERS['neon_grid'] then G.SHADERS['neon_grid'] = sh end
+    if sh then
+        pcall(function()
+            if sh:hasUniform('time') then
+                sh:send('time', (G.TIMERS and G.TIMERS.REAL) or (love.timer and love.timer.getTime()) or 0)
+            end
+        end)
+    end
     if self.children.mad_ghost_card then
         pcall(function()
-            self.children.mad_ghost_card:draw_shader('dissolve', nil, nil, nil, self.children.center, scale_mod, rotate_mod, float_x, float_y)
+            if sh_name then
+                self.children.mad_ghost_card:draw_shader(sh_name, nil, self.ARGS and self.ARGS.send_to_shader or { 0, 0 }, nil, self.children.center, scale_mod, rotate_mod, float_x, float_y)
+            else
+                self.children.mad_ghost_card:draw_shader('dissolve', nil, nil, nil, self.children.center, scale_mod, rotate_mod, float_x, float_y)
+            end
         end)
     end
     if self.children.mad_ghost_soul then
         pcall(function()
-            self.children.mad_ghost_soul:draw_shader('dissolve', nil, nil, nil, self.children.center, scale_mod, rotate_mod, float_x, float_y)
+            if sh_name then
+                self.children.mad_ghost_soul:draw_shader(sh_name, nil, self.ARGS and self.ARGS.send_to_shader or { 0, 0 }, nil, self.children.center, scale_mod, rotate_mod, float_x, float_y)
+            else
+                self.children.mad_ghost_soul:draw_shader('dissolve', nil, nil, nil, self.children.center, scale_mod, rotate_mod, float_x, float_y)
+            end
         end)
     end
     G.BRUTE_OVERLAY = prev_overlay
@@ -221,6 +239,62 @@ SMODS.DrawStep {
     end,
     conditions = { vortex = false, facing = 'front' },
 }
+
+if SMODS and SMODS.Shader and not (SMODS.Shaders and (SMODS.Shaders['neon_grid'] or SMODS.Shaders['reality_warp_neon_grid'])) then
+    SMODS.Shader {
+        key = 'neon_grid',
+        path = 'neon_grid.fs'
+    }
+end
+
+SMODS.DrawStep {
+    key = 'mew_mew_mad_ghost_shader',
+    order = 21,
+    func = function(self)
+        local c = self.config and self.config.center
+        if not c then return end
+        local k = c.key
+        if k == 'j_reality_warp_mew_mew' or k == 'mew_mew'
+        or k == 'j_reality_warp_mad_ghost' or k == 'mad_ghost' then
+            local sh = G.SHADERS and (G.SHADERS['reality_warp_neon_grid'] or G.SHADERS['neon_grid'])
+            if sh then
+                if not G.SHADERS['neon_grid'] then G.SHADERS['neon_grid'] = sh end
+                local t = (G.TIMERS and G.TIMERS.REAL) or (love.timer and love.timer.getTime()) or 0
+                pcall(function()
+                    if sh:hasUniform('time') then
+                        sh:send('time', t)
+                    end
+                end)
+                local sh_name = G.SHADERS['reality_warp_neon_grid'] and 'reality_warp_neon_grid' or 'neon_grid'
+                if self.children and self.children.center then
+                    self.children.center:draw_shader(sh_name, nil, self.ARGS.send_to_shader)
+                end
+                if self.children and self.children.floating_sprite then
+                    local scale_mod = 0.05 + 0.03 * math.sin(1.8 * t)
+                    local rotate_mod = 0.02 * math.cos(1.2 * t)
+                    self.children.floating_sprite:draw_shader(sh_name, nil, self.ARGS.send_to_shader, nil, self.children.center, scale_mod, rotate_mod)
+                end
+            end
+        end
+    end,
+    conditions = { vortex = false, facing = 'front' },
+}
+
+if Game and Game.update then
+    local orig_game_update_neon = Game.update
+    function Game:update(dt)
+        orig_game_update_neon(self, dt)
+        local sh = G.SHADERS and (G.SHADERS['reality_warp_neon_grid'] or G.SHADERS['neon_grid'])
+        if sh then
+            if not G.SHADERS['neon_grid'] then G.SHADERS['neon_grid'] = sh end
+            pcall(function()
+                if sh:hasUniform('time') then
+                    sh:send('time', (G.TIMERS and G.TIMERS.REAL) or (love.timer and love.timer.getTime()) or 0)
+                end
+            end)
+        end
+    end
+end
 
 if SMODS.draw_ignore_keys then
     SMODS.draw_ignore_keys.secret_particles = true
@@ -2877,6 +2951,9 @@ if Game and Game.update then
     local orig_game_update = Game.update
     function Game:update(dt)
         orig_game_update(self, dt)
+        if G.mew_mew_dummy_jump_time and G.mew_mew_dummy_jump_time > 0 then
+            G.mew_mew_dummy_jump_time = math.max(0, G.mew_mew_dummy_jump_time - dt)
+        end
         if G.reality_warp_mega_flirt_hearts and #G.reality_warp_mega_flirt_hearts > 0 then
             local t = (love and love.timer and love.timer.getTime and love.timer.getTime()) or ((G.TIMERS and G.TIMERS.REAL) or 0)
             for i = #G.reality_warp_mega_flirt_hearts, 1, -1 do
@@ -2901,15 +2978,181 @@ if Game and Game.update then
     end
 end
 
+local function has_mew_mew_active()
+    if G.jokers and G.jokers.cards then
+        for _, j in ipairs(G.jokers.cards) do
+            local k = j.config and j.config.center and j.config.center.key
+            if k == 'j_reality_warp_mew_mew' or k == 'mew_mew' then
+                return true
+            end
+        end
+    end
+    if G.hand and G.hand.cards then
+        for _, c in ipairs(G.hand.cards) do
+            local k = c.config and c.config.center and c.config.center.key
+            if k == 'j_reality_warp_mew_mew' or k == 'mew_mew' then
+                return true
+            end
+        end
+    end
+    return false
+end
+
+local function get_mew_mew_asset(name)
+    G.mew_mew_asset_cache = G.mew_mew_asset_cache or {}
+    if G.mew_mew_asset_cache[name] then return G.mew_mew_asset_cache[name] end
+    local raw_path = (reality_warp_MOD and reality_warp_MOD.path) or (SMODS and SMODS.current_mod and SMODS.current_mod.path) or "Mods/Balatro Reality Warp/"
+    local mod_path = (string.sub(raw_path, -1) == '/' or string.sub(raw_path, -1) == '\\') and raw_path or (raw_path .. '/')
+    local scale = (G.SETTINGS and G.SETTINGS.GRAPHICS and G.SETTINGS.GRAPHICS.texture_scaling) or 2
+    local candidates = {
+        mod_path .. "assets/" .. scale .. "x/" .. name .. ".png",
+        mod_path .. "assets/2x/" .. name .. ".png",
+        mod_path .. "assets/1x/" .. name .. ".png"
+    }
+    for _, full_path in ipairs(candidates) do
+        if nfs and nfs.getInfo and nfs.getInfo(full_path) then
+            local file_data = nfs.newFileData(full_path)
+            if file_data then
+                local img_data = love.image.newImageData(file_data)
+                G.mew_mew_asset_cache[name] = love.graphics.newImage(img_data)
+                return G.mew_mew_asset_cache[name]
+            end
+        elseif love.filesystem and love.filesystem.getInfo and love.filesystem.getInfo(full_path) then
+            G.mew_mew_asset_cache[name] = love.graphics.newImage(full_path)
+            return G.mew_mew_asset_cache[name]
+        end
+    end
+    return nil
+end
+
+local function trigger_mew_mew_dummies_celebration()
+    G.mew_mew_dummy_jump_time = 0.65
+    G.reality_warp_mega_flirt_hearts = G.reality_warp_mega_flirt_hearts or {}
+    local sw = (love and love.graphics and love.graphics.getWidth and love.graphics.getWidth()) or 1920
+    local sh = (love and love.graphics and love.graphics.getHeight and love.graphics.getHeight()) or 1080
+    local scale = math.max(1.5, math.min(3.0, sh / 440))
+    local heart_palette = {
+        { 0.98, 0.42, 0.65, 0.95 },
+        { 0.96, 0.28, 0.55, 0.90 },
+        { 1.00, 0.65, 0.82, 0.95 },
+        { 0.95, 0.15, 0.45, 0.85 },
+        { 1.00, 0.80, 0.90, 0.95 },
+        { 1.00, 1.00, 1.00, 0.95 }
+    }
+    for i = 0, 4 do
+        local rx = 0.88 - i * 0.19
+        local dw = 61 * scale
+        local dh = 38 * scale
+        local dx = sw * rx - (dw * 0.5)
+        local dy = sh - dh + (8 * scale)
+        for _ = 1, 5 do
+            local max_l = 1.8 + math.random() * 1.2
+            table.insert(G.reality_warp_mega_flirt_hearts, {
+                x = dx + (dw * 0.5) + (math.random() - 0.5) * (dw * 0.7),
+                y = dy - (math.random() * 25),
+                speed = 130 + math.random() * 150,
+                sway = 28 + math.random() * 35,
+                phase = math.random() * 6.28,
+                size = 18 + math.random() * 18,
+                rot = (math.random() - 0.5) * 0.4,
+                life = max_l,
+                max_life = max_l,
+                alpha = 0,
+                color = heart_palette[math.random(1, #heart_palette)]
+            })
+        end
+    end
+    play_sound('tarot1', 1.35, 0.5)
+end
+
+local function draw_mew_mew_dummies()
+    if not love or not love.graphics then return end
+    local is_active = has_mew_mew_active()
+    local dt = (G.TIMERS and G.TIMERS.REAL_DELTA) or 0.016
+    G.mew_mew_dummy_alpha = G.mew_mew_dummy_alpha or 0
+    if is_active then
+        G.mew_mew_dummy_alpha = math.min(1, G.mew_mew_dummy_alpha + dt * 2.5)
+    else
+        G.mew_mew_dummy_alpha = math.max(0, G.mew_mew_dummy_alpha - dt * 2.5)
+    end
+    if G.mew_mew_dummy_alpha <= 0.005 then return end
+
+    local sw = love.graphics.getWidth()
+    local sh = love.graphics.getHeight()
+    local t = (G.TIMERS and G.TIMERS.REAL) or (love.timer and love.timer.getTime()) or 0
+    local scale = math.max(1.5, math.min(3.0, sh / 440))
+
+    -- Reset transformations and active shaders to guarantee superimposition above all UI
+    love.graphics.push('all')
+    love.graphics.origin()
+    love.graphics.setShader()
+
+    -- 5 dummies ordered from 0 (right) to 4 (left) across the bottom of the UI
+    for i = 0, 4 do
+        local rx = 0.88 - i * 0.19
+        local dummy_img = get_mew_mew_asset('spr_pink_fg_dummy_' .. i)
+
+        -- Glowstick loop shaking animation: 0 -> 1 -> 2 -> 1 -> 0
+        local stick_cycle = math.floor(t * 9 + i * 0.45) % 4
+        local stick_idx = (stick_cycle == 3) and 1 or stick_cycle
+        local stick_img = get_mew_mew_asset('spr_pink_fg_dummy_hlowstick_' .. stick_idx)
+
+        -- Cheering wave travelling from right to left (i = 0 to 4)
+        local wave_phase = t * 3.4 - i * 0.85
+        local wave_bounce = math.max(0, math.sin(wave_phase)) * (16 * (scale / 2))
+
+        -- Celebration jump when Mew Mew gains +X1 total mult
+        local dummy_jump = 0
+        if G.mew_mew_dummy_jump_time and G.mew_mew_dummy_jump_time > 0 then
+            local progress = 1 - (G.mew_mew_dummy_jump_time / 0.65)
+            local staggered_prog = math.min(1, math.max(0, progress * 1.35 - i * 0.06))
+            dummy_jump = math.sin(staggered_prog * math.pi)
+        end
+        local jump_offset = dummy_jump * (36 * (scale / 2))
+
+        local sx = scale * (1.0 - 0.12 * dummy_jump)
+        local sy = scale * (1.0 + 0.20 * dummy_jump)
+
+        local dw = (dummy_img and dummy_img:getWidth() or 61) * scale
+        local dh = (dummy_img and dummy_img:getHeight() or 38) * scale
+        local dx = sw * rx - (dw * 0.5)
+        local dy = sh - dh + (8 * scale) - wave_bounce - jump_offset
+
+        if dummy_img then
+            love.graphics.setColor(1, 1, 1, G.mew_mew_dummy_alpha)
+            love.graphics.draw(dummy_img, dx + dw * 0.5, dy + dh, 0, sx, sy, (dummy_img:getWidth() * 0.5), dummy_img:getHeight())
+        end
+
+        if stick_img then
+            local sw_w = stick_img:getWidth() * scale
+            local sw_h = stick_img:getHeight() * scale
+            local shake_x = math.sin(t * 14 + i * 2) * (2.5 * (scale / 2))
+            local shake_rot = math.sin(t * 12 + i) * 0.14
+            local gx = dx + dw * (i < 2 and 0.28 or 0.72) + shake_x
+            local gy = dy - sw_h * 0.42 - wave_bounce * 0.35 - jump_offset * 0.5
+
+            love.graphics.setColor(1.0, 0.4, 0.75, 0.22 * G.mew_mew_dummy_alpha)
+            love.graphics.circle('fill', gx, gy + sw_h * 0.25, 22 * (scale / 2))
+
+            love.graphics.setColor(1, 1, 1, G.mew_mew_dummy_alpha)
+            love.graphics.draw(stick_img, gx, gy, shake_rot, scale, scale, (sw_w / scale) * 0.5, (sw_h / scale) * 0.7)
+        end
+    end
+
+    love.graphics.pop()
+end
+
 if not G.reality_warp_mega_flirt_draw_hooked and love and love.draw then
     G.reality_warp_mega_flirt_draw_hooked = true
     local orig_love_draw = love.draw
     love.draw = function(...)
         orig_love_draw(...)
+        pcall(draw_mew_mew_dummies)
         local hearts = G.reality_warp_mega_flirt_hearts
         if hearts and #hearts > 0 and love and love.graphics then
             love.graphics.push('all')
             love.graphics.origin()
+            love.graphics.setShader()
             for i = 1, #hearts do
                 local h = hearts[i]
                 local alpha = h.alpha or 1
@@ -3079,7 +3322,7 @@ register_secret_joker {
             "Played cards each give {X:mult,C:white}X#1#{} Mult.",
             "Increases by {X:mult,C:white}+X#2#{} Mult when",
             "{C:attention}#3#{} is played",
-            "{C:inactive}(Poker hand changes when scored){}"
+            "{C:inactive}(Poker hand changes each played hand){}"
         }
     },
     loc_vars = function(self, info_queue, card)
@@ -3117,9 +3360,16 @@ register_secret_joker {
                 ex.target_hand = pick_mew_mew_hand(card)
             end
             if context.scoring_name == ex.target_hand then
+                local old_xmult = ex.xmult or 1.5
                 ex.xmult = (ex.xmult or 1.5) + (ex.xmult_gain or 0.25)
-                ex.target_hand = pick_mew_mew_hand(card)
                 play_mew_sound('pink_gasp')
+
+                ex.last_celebration_mult = ex.last_celebration_mult or math.floor(old_xmult)
+                if math.floor(ex.xmult) > ex.last_celebration_mult then
+                    ex.last_celebration_mult = math.floor(ex.xmult)
+                    pcall(trigger_mew_mew_dummies_celebration)
+                end
+
                 return {
                     message = 'Upgrade! X' .. string.format('%.2f', ex.xmult),
                     colour = HEX('ec4899'),
@@ -3133,6 +3383,10 @@ register_secret_joker {
                 x_mult = ex.xmult or 1.5,
                 card = card
             }
+        end
+
+        if context.after and not context.blueprint then
+            ex.target_hand = pick_mew_mew_hand(card)
         end
     end
 }

@@ -787,6 +787,10 @@ if SMODS and SMODS.Shader then
         key = 'glitch',
         path = 'glitch.fs'
     }
+    SMODS.Shader {
+        key = 'neon_grid',
+        path = 'neon_grid.fs'
+    }
 end
 
 if SMODS and SMODS.Edition then

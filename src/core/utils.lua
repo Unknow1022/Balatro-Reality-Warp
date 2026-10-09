@@ -489,6 +489,7 @@ end
 if CardArea and CardArea.emplace then
     local orig_cardarea_emplace = CardArea.emplace
     function CardArea:emplace(card, ...)
+        if not card then return end
         local ret = orig_cardarea_emplace(self, card, ...)
         if self == G.jokers and check_witcher_joker_achievements then
             check_witcher_joker_achievements()
@@ -1371,6 +1372,7 @@ end
 
 local cardarea_emplace_ref = CardArea.emplace
 function CardArea:emplace(card, location, stay_flipped)
+    if not card then return end
     cardarea_emplace_ref(self, card, location, stay_flipped)
     if G.GAME and G.GAME.bluxdir_free_boosters and (self == G.shop_booster) then
         if card then
@@ -5414,7 +5416,9 @@ end
 if Game and Game.main_menu then
     local orig_game_main_menu = Game.main_menu
     function Game:main_menu(change_context)
+        if botg_purge_orphan_familiars then botg_purge_orphan_familiars() end
         orig_game_main_menu(self, change_context)
+        if botg_purge_orphan_familiars then botg_purge_orphan_familiars() end
         apply_reality_warp_menu_bg(nil, change_context)
         spawn_main_menu_secret_joker()
     end
@@ -8038,15 +8042,20 @@ if AnimatedSprite then
         )
         if is_witch_blind or is_witch_fam then
             if not self.states.visible then return end
+            if is_witch_fam and self.role and self.role.draw_major and (self.role.draw_major.removed or (self.role.draw_major.area and self.role.draw_major.area ~= G.botg_familiars)) then
+                return
+            end
             prep_draw(self, 1)
-            local s = math.max(self.scale.x / self.VT.w, self.scale.y / self.VT.h)
+            local vw = (self.VT and self.VT.w and self.VT.w > 0) and self.VT.w or 1
+            local vh = (self.VT and self.VT.h and self.VT.h > 0) and self.VT.h or 1
+            local s = math.max(self.scale.x / vw, self.scale.y / vh)
             if is_witch_fam and G.BOTG_FAMILIAR_CARD_SCALE then
                 s = s / G.BOTG_FAMILIAR_CARD_SCALE
             end
             love.graphics.scale(1 / s, 1 / s)
             love.graphics.setColor(G.C.WHITE)
-            local draw_x = (self.VT.w * s - self.scale.x) / 2
-            local draw_y = (self.VT.h * s - self.scale.y) / 2
+            local draw_x = (vw * s - self.scale.x) / 2
+            local draw_y = (vh * s - self.scale.y) / 2
             love.graphics.draw(
                 self.atlas.image,
                 self.sprite,
@@ -8078,18 +8087,23 @@ if Sprite then
         )
         if is_witch_blind or is_witch_fam then
             if not self.states.visible then return end
+            if is_witch_fam and self.role and self.role.draw_major and (self.role.draw_major.removed or (self.role.draw_major.area and self.role.draw_major.area ~= G.botg_familiars)) then
+                return
+            end
             if self.sprite_pos.x ~= self.sprite_pos_copy.x or self.sprite_pos.y ~= self.sprite_pos_copy.y then
                 self:set_sprite_pos(self.sprite_pos)
             end
             prep_draw(self, 1)
-            local s = math.max(self.scale.x / self.VT.w, self.scale.y / self.VT.h)
+            local vw = (self.VT and self.VT.w and self.VT.w > 0) and self.VT.w or 1
+            local vh = (self.VT and self.VT.h and self.VT.h > 0) and self.VT.h or 1
+            local s = math.max(self.scale.x / vw, self.scale.y / vh)
             if is_witch_fam and G.BOTG_FAMILIAR_CARD_SCALE then
                 s = s / G.BOTG_FAMILIAR_CARD_SCALE
             end
             love.graphics.scale(1 / s, 1 / s)
             love.graphics.setColor(overlay or G.BRUTE_OVERLAY or G.C.WHITE)
-            local draw_x = (self.VT.w * s - self.scale.x) / 2
-            local draw_y = (self.VT.h * s - self.scale.y) / 2
+            local draw_x = (vw * s - self.scale.x) / 2
+            local draw_y = (vh * s - self.scale.y) / 2
             love.graphics.draw(
                 self.atlas.image,
                 self.sprite,

@@ -73,7 +73,9 @@ SMODS.Challenge {
     },
     rules = {
         custom = {},
-        modifiers = {},
+        modifiers = {
+            { id = 'win_ante', value = 999999 },
+        },
     },
     jokers = {
         { id = 'j_reality_warp_charles', eternal = true },
@@ -98,7 +100,9 @@ SMODS.Challenge {
     },
     rules = {
         custom = {},
-        modifiers = {},
+        modifiers = {
+            { id = 'win_ante', value = 999999 },
+        },
     },
     jokers = {
         { id = 'j_reality_warp_mochi', eternal = true },
@@ -166,7 +170,9 @@ SMODS.Challenge {
     },
     rules = {
         custom = {},
-        modifiers = {},
+        modifiers = {
+            { id = 'win_ante', value = 999999 },
+        },
     },
     jokers = {
         { id = 'j_reality_warp_esteban', eternal = true },
@@ -225,7 +231,9 @@ SMODS.Challenge {
     },
     rules = {
         custom = {},
-        modifiers = {},
+        modifiers = {
+            { id = 'win_ante', value = 999999 },
+        },
     },
     jokers = {
         { id = 'j_reality_warp_yairo', eternal = true },
@@ -298,7 +306,9 @@ SMODS.Challenge {
     },
     rules = {
         custom = {},
-        modifiers = {},
+        modifiers = {
+            { id = 'win_ante', value = 999999 },
+        },
     },
     jokers = {
         { id = 'j_reality_warp_sally', eternal = true },
@@ -341,7 +351,9 @@ SMODS.Challenge {
     },
     rules = {
         custom = {},
-        modifiers = {},
+        modifiers = {
+            { id = 'win_ante', value = 999999 },
+        },
     },
     jokers = {
         { id = 'j_reality_warp_mew_mew', eternal = true },
@@ -503,16 +515,16 @@ local OUTSIDER_TRIALS_DATA = {
         jokers = { 'j_reality_warp_sally' },
         quote = "\"Step right up! Complete 10 of my dynamic quests before you hit Ante 8!\"",
         rules = {
-            "Goal: Complete at least 10 Sally Quests before Ante 8",
+            "Goal: Complete at least 10 Sally Quests",
+            "Ante 8 limit disabled: keep playing until quests are done!",
             "Vertical gauge increments upon each finished quest",
-            "Each completed quest rewards $40 & Negative Tarot",
-            "Reach Ante 8 with 10+ completed quests to win",
+            "Reach 10 completed quests to reveal the 'WIN!' button",
         },
         deck_rules = {
             "Starting Joker: Sally (Eternal)",
             "Target: 10 Completed Quests",
             "Quests reset and update on every Blind",
-            "Vertical Progress Gauge on the right",
+            "Claim victory directly via the 'WIN!' button",
         },
         challenge_id = 'c_reality_warp_sally_trial',
     },
@@ -551,13 +563,13 @@ local OUTSIDER_TRIALS_DATA = {
         rules = {
             "Goal: Fill the Doki Meter to 30",
             "Every time you play the requested Poker Hand: +1 Doki",
-            "Reach 30 Doki points to AUTOMATICALLY WIN the run!",
-            "Vertical Doki gauge tracks your real-time progress",
+            "Ante 8 limit disabled: play until you hit 30 Doki!",
+            "Reach 30 Doki points to reveal the 'WIN!' button",
         },
         deck_rules = {
             "Starting Joker: Mew mew! (Eternal)",
             "Doki Target: 30 / 30",
-            "Victory condition triggers instantly upon reaching 30",
+            "Claim victory directly via the 'WIN!' button",
             "Vertical Progress Gauge on the right",
         },
         challenge_id = 'c_reality_warp_mew_mew_trial',
@@ -658,7 +670,7 @@ local OUTSIDER_TRIALS_DATA = {
 
 G.UIDEF = G.UIDEF or {}
 
-G.UIDEF.outsider_trials_tab = function(args)
+local function build_outsider_trials_tab_layout(args)
     G.SELECTED_OUTSIDER_TRIAL = G.SELECTED_OUTSIDER_TRIAL or 'paco'
 
     local selected_trial = OUTSIDER_TRIALS_DATA[1]
@@ -740,7 +752,7 @@ G.UIDEF.outsider_trials_tab = function(args)
                 G.CARD_H * card_scale,
                 G.P_CARDS.empty,
                 center,
-                { bypass_discovery_center = true, bypass_discovery_ui = true, bypass_back = true }
+                { bypass_discovery_center = true, bypass_discovery_ui = true }
             )
             card.ability = card.ability or { name = center.name or 'Default', set = center.set or 'Joker', mult = 0, chips = 0, x_mult = 1 }
             card.sprite_facing = 'front'
@@ -791,7 +803,7 @@ G.UIDEF.outsider_trials_tab = function(args)
             n = G.UIT.R,
             config = { align = "cl", minh = 0.22 },
             nodes = {
-                { n = G.UIT.T, config = { text = "• " .. r, scale = 0.19, colour = HEX('1e293b'), shadow = false } }
+                { n = G.UIT.T, config = { text = "- " .. r, scale = 0.19, colour = HEX('1e293b'), shadow = false } }
             }
         })
     end
@@ -802,7 +814,7 @@ G.UIDEF.outsider_trials_tab = function(args)
             n = G.UIT.R,
             config = { align = "cl", minh = 0.22 },
             nodes = {
-                { n = G.UIT.T, config = { text = "✦ " .. dr, scale = 0.19, colour = HEX('334155'), shadow = false } }
+                { n = G.UIT.T, config = { text = "- " .. dr, scale = 0.19, colour = HEX('334155'), shadow = false } }
             }
         })
     end
@@ -957,6 +969,25 @@ G.UIDEF.outsider_trials_tab = function(args)
     return layout
 end
 
+G.UIDEF.outsider_trials_tab = function(args)
+    local ok, res = pcall(build_outsider_trials_tab_layout, args)
+    if not ok then
+        return {
+            n = G.UIT.ROOT,
+            config = { align = "cm", padding = 0.2, colour = G.C.CLEAR },
+            nodes = {
+                { n = G.UIT.R, config = { align = "cm" }, nodes = {
+                    { n = G.UIT.T, config = { text = "TRIALS TAB ERROR", scale = 0.4, colour = G.C.RED } }
+                }},
+                { n = G.UIT.R, config = { align = "cm" }, nodes = {
+                    { n = G.UIT.T, config = { text = tostring(res), scale = 0.22, colour = G.C.WHITE } }
+                }}
+            }
+        }
+    end
+    return res
+end
+
 G.FUNCS = G.FUNCS or {}
 
 G.FUNCS.select_outsider_trial = function(e)
@@ -1042,6 +1073,46 @@ end
 -- ============================================================================
 -- VERTICAL PROGRESS HUD (Appears on the right side above G.deck)
 -- ============================================================================
+local SPECIFIC_GOAL_TRIALS = {
+    ['c_reality_warp_mew_mew_trial'] = true,
+    ['mew_mew_trial'] = true,
+    ['c_reality_warp_sally_trial'] = true,
+    ['sally_trial'] = true,
+    ['c_reality_warp_charles_trial'] = true,
+    ['charles_trial'] = true,
+    ['c_reality_warp_mochi_trial'] = true,
+    ['mochi_trial'] = true,
+    ['c_reality_warp_esteban_trial'] = true,
+    ['esteban_trial'] = true,
+    ['c_reality_warp_yairo_trial'] = true,
+    ['yairo_trial'] = true,
+}
+
+G.FUNCS = G.FUNCS or {}
+G.FUNCS.claim_outsider_trial_win = function(e)
+    if not G.GAME.won then
+        G.GAME.won = true
+        if G.GAME.challenge and G.PROFILES and G.PROFILES[G.SETTINGS.profile] and G.PROFILES[G.SETTINGS.profile].challenge_progress then
+            G.PROFILES[G.SETTINGS.profile].challenge_progress.completed[G.GAME.challenge] = true
+            if G.save_settings then G:save_settings() end
+        end
+        if check_for_unlock then
+            check_for_unlock({type = 'win_challenge'})
+            check_for_unlock({type = 'win'})
+        end
+        G.E_MANAGER:add_event(Event({
+            trigger = 'after',
+            delay = 0.2,
+            func = function()
+                if G.FUNCS and G.FUNCS.overlay_menu and create_UIBox_win then
+                    G.FUNCS.overlay_menu{ definition = create_UIBox_win(), config = { no_esc = true } }
+                end
+                return true
+            end
+        }))
+    end
+end
+
 function create_outsider_trial_hud(text_title, count, total, percent, is_complete, col)
     local deck_x = (G.deck and G.deck.T.x) or 10.5
     local deck_y = (G.deck and G.deck.T.y) or 6.8
@@ -1049,7 +1120,7 @@ function create_outsider_trial_hud(text_title, count, total, percent, is_complet
 
     local box_w = 0.94
     local cur_pos_x = deck_x + (deck_w * 0.5) - (box_w * 0.5)
-    local cur_pos_y = deck_y - 3.42
+    local cur_pos_y = deck_y - 3.10
 
     if G.HUD_outsider_trial and not G.HUD_outsider_trial.REMOVED then
         G.HUD_outsider_trial:remove()
@@ -1057,13 +1128,30 @@ function create_outsider_trial_hud(text_title, count, total, percent, is_complet
     end
 
     local clamped_pct = math.max(0, math.min(100, percent or 0))
-    local total_gauge_h = 2.10
+    local total_gauge_h = 1.25
     local fill_h = math.max(0.04, total_gauge_h * (clamped_pct / 100))
     local empty_h = math.max(0.01, total_gauge_h - fill_h)
 
     local status_display = tostring(count) .. "/" .. tostring(total)
+    local bottom_nodes = {}
     if is_complete then
-        status_display = "DONE!"
+        bottom_nodes = {
+            UIBox_button({
+                id = 'trial_win_claim_btn',
+                label = {"WIN!"},
+                button = 'claim_outsider_trial_win',
+                colour = G.C.GOLD,
+                minw = 0.84,
+                minh = 0.38,
+                scale = 0.28,
+                emboss = 0.08,
+                col = true
+            })
+        }
+    else
+        bottom_nodes = {
+            { n = G.UIT.T, config = { text = status_display, scale = 0.19, colour = G.C.WHITE, shadow = true } }
+        }
     end
 
     local t = {
@@ -1082,7 +1170,7 @@ function create_outsider_trial_hud(text_title, count, total, percent, is_complet
                     outline_colour = is_complete and G.C.GOLD or HEX('94a3b8'),
                     shadow = true,
                     minw = box_w,
-                    minh = 3.30
+                    minh = 2.05
                 },
                 nodes = {
                     {
@@ -1136,9 +1224,7 @@ function create_outsider_trial_hud(text_title, count, total, percent, is_complet
                     {
                         n = G.UIT.R,
                         config = { align = "cm", padding = 0.02 },
-                        nodes = {
-                            { n = G.UIT.T, config = { text = status_display, scale = 0.19, colour = G.C.WHITE, shadow = true } }
-                        }
+                        nodes = bottom_nodes
                     }
                 }
             }
@@ -1157,10 +1243,23 @@ function create_outsider_trial_hud(text_title, count, total, percent, is_complet
     hud.VT.x = cur_pos_x
     hud.VT.y = cur_pos_y
     hud.states.drag.can = false
+    hud.states.collide.can = is_complete and true or false
+    hud.draw_layer = 2
+
+    if G.ROOM and G.ROOM.children then
+        for i = #G.ROOM.children, 1, -1 do
+            if G.ROOM.children[i] == hud then
+                table.remove(G.ROOM.children, i)
+                break
+            end
+        end
+        table.insert(G.ROOM.children, hud)
+    end
 
     G.HUD_outsider_trial = hud
     G.HUD_outsider_trial._last_val = count
     G.HUD_outsider_trial._last_total = total
+    G.HUD_outsider_trial._last_comp = is_complete
 end
 
 -- ============================================================================
@@ -1173,6 +1272,10 @@ if Game and Game.update then
         if G.STAGE == G.STAGES.RUN and G.playing_cards and #G.playing_cards > 0 then
             local ch = G.GAME and G.GAME.challenge
 
+            if ch and SPECIFIC_GOAL_TRIALS[ch] and G.GAME.win_ante ~= 999999 then
+                G.GAME.win_ante = 999999
+            end
+
             if ch == 'c_reality_warp_charles_trial' then
                 local hearts_count = 0
                 local total_cards = #G.playing_cards
@@ -1183,7 +1286,7 @@ if Game and Game.update then
                 end
                 local pct = (total_cards > 0) and (hearts_count / total_cards * 100) or 0
                 local is_comp = (hearts_count == total_cards and total_cards > 0)
-                if not G.HUD_outsider_trial or G.HUD_outsider_trial.REMOVED or G.HUD_outsider_trial._last_val ~= hearts_count or G.HUD_outsider_trial._last_total ~= total_cards then
+                if not G.HUD_outsider_trial or G.HUD_outsider_trial.REMOVED or G.HUD_outsider_trial._last_val ~= hearts_count or G.HUD_outsider_trial._last_total ~= total_cards or G.HUD_outsider_trial._last_comp ~= is_comp then
                     create_outsider_trial_hud("♥ HEARTS", hearts_count, total_cards, pct, is_comp, G.C.RED)
                 end
 
@@ -1197,7 +1300,7 @@ if Game and Game.update then
                 end
                 local pct = (total_cards > 0) and (wild_count / total_cards * 100) or 0
                 local is_comp = (wild_count == total_cards and total_cards > 0)
-                if not G.HUD_outsider_trial or G.HUD_outsider_trial.REMOVED or G.HUD_outsider_trial._last_val ~= wild_count or G.HUD_outsider_trial._last_total ~= total_cards then
+                if not G.HUD_outsider_trial or G.HUD_outsider_trial.REMOVED or G.HUD_outsider_trial._last_val ~= wild_count or G.HUD_outsider_trial._last_total ~= total_cards or G.HUD_outsider_trial._last_comp ~= is_comp then
                     create_outsider_trial_hud("★ WILD", wild_count, total_cards, pct, is_comp, HEX('e879f9'))
                 end
 
@@ -1211,7 +1314,7 @@ if Game and Game.update then
                 end
                 local pct = (total_cards > 0) and (dark_count / total_cards * 100) or 0
                 local is_comp = (dark_count == total_cards and total_cards > 0)
-                if not G.HUD_outsider_trial or G.HUD_outsider_trial.REMOVED or G.HUD_outsider_trial._last_val ~= dark_count or G.HUD_outsider_trial._last_total ~= total_cards then
+                if not G.HUD_outsider_trial or G.HUD_outsider_trial.REMOVED or G.HUD_outsider_trial._last_val ~= dark_count or G.HUD_outsider_trial._last_total ~= total_cards or G.HUD_outsider_trial._last_comp ~= is_comp then
                     create_outsider_trial_hud("♠♣ DARK", dark_count, total_cards, pct, is_comp, HEX('d6d3d1'))
                 end
 
@@ -1226,7 +1329,7 @@ if Game and Game.update then
                 end
                 local pct = (total_cards > 0) and (six_seven_count / total_cards * 100) or 0
                 local is_comp = (six_seven_count == total_cards and total_cards > 0)
-                if not G.HUD_outsider_trial or G.HUD_outsider_trial.REMOVED or G.HUD_outsider_trial._last_val ~= six_seven_count or G.HUD_outsider_trial._last_total ~= total_cards then
+                if not G.HUD_outsider_trial or G.HUD_outsider_trial.REMOVED or G.HUD_outsider_trial._last_val ~= six_seven_count or G.HUD_outsider_trial._last_total ~= total_cards or G.HUD_outsider_trial._last_comp ~= is_comp then
                     create_outsider_trial_hud("6 & 7", six_seven_count, total_cards, pct, is_comp, HEX('8fb6e8'))
                 end
 
@@ -1235,7 +1338,7 @@ if Game and Game.update then
                 local total_q = 10
                 local pct = math.min(100, (q_count / total_q) * 100)
                 local is_comp = (q_count >= total_q)
-                if not G.HUD_outsider_trial or G.HUD_outsider_trial.REMOVED or G.HUD_outsider_trial._last_val ~= q_count or G.HUD_outsider_trial._last_total ~= total_q then
+                if not G.HUD_outsider_trial or G.HUD_outsider_trial.REMOVED or G.HUD_outsider_trial._last_val ~= q_count or G.HUD_outsider_trial._last_total ~= total_q or G.HUD_outsider_trial._last_comp ~= is_comp then
                     create_outsider_trial_hud("QUESTS", q_count, total_q, pct, is_comp, HEX('e8413e'))
                 end
 
@@ -1244,7 +1347,7 @@ if Game and Game.update then
                 local total_doki = 30
                 local pct = math.min(100, (doki / total_doki) * 100)
                 local is_comp = (doki >= total_doki)
-                if not G.HUD_outsider_trial or G.HUD_outsider_trial.REMOVED or G.HUD_outsider_trial._last_val ~= doki or G.HUD_outsider_trial._last_total ~= total_doki then
+                if not G.HUD_outsider_trial or G.HUD_outsider_trial.REMOVED or G.HUD_outsider_trial._last_val ~= doki or G.HUD_outsider_trial._last_total ~= total_doki or G.HUD_outsider_trial._last_comp ~= is_comp then
                     create_outsider_trial_hud("DOKI", doki, total_doki, pct, is_comp, HEX('ec4899'))
                 end
 
@@ -1266,6 +1369,11 @@ if Game and Game.start_run then
         orig_game_start_run_trials(self, args)
         if G.GAME and G.GAME.challenge then
             local ch = G.GAME.challenge
+
+            -- Specific-goal trials disable Ante 8 win condition
+            if SPECIFIC_GOAL_TRIALS[ch] then
+                G.GAME.win_ante = 999999
+            end
 
             -- Esteban: Start with ONLY Hearts and Diamonds
             if ch == 'c_reality_warp_esteban_trial' and not args.savetag then
@@ -1308,6 +1416,41 @@ if Game and Game.start_run then
     end
 end
 
+-- Prevent Ante 8 auto-win for challenges with specific goals
+if end_round then
+    local orig_end_round_trials = end_round
+    function end_round()
+        local ch = G.GAME and G.GAME.challenge
+        if SPECIFIC_GOAL_TRIALS[ch] and G.GAME then
+            G.GAME.win_ante = 999999
+        end
+        orig_end_round_trials()
+    end
+end
+
+-- Ante HUD clean display for infinite ante trials
+if create_UIBox_HUD then
+    local orig_create_UIBox_HUD_trials = create_UIBox_HUD
+    function create_UIBox_HUD()
+        local hud = orig_create_UIBox_HUD_trials()
+        if G.GAME and G.GAME.challenge and SPECIFIC_GOAL_TRIALS[G.GAME.challenge] then
+            local function fix_hud_ante(node)
+                if not node or type(node) ~= 'table' then return end
+                if node.config and type(node.config.text) == 'string' and string.find(node.config.text, '999999') then
+                    node.config.text = '/∞'
+                end
+                if node.nodes then
+                    for _, child in ipairs(node.nodes) do
+                        fix_hud_ante(child)
+                    end
+                end
+            end
+            fix_hud_ante(hud)
+        end
+        return hud
+    end
+end
+
 -- Paco Discard Prevention
 if ease_discard then
     local orig_ease_discard_paco = ease_discard
@@ -1324,9 +1467,9 @@ if Blind and Blind.set_blind then
     function Blind:set_blind(blind, reset, silent)
         orig_blind_set_blind_paco(self, blind, reset, silent)
         if G.GAME and G.GAME.challenge == 'c_reality_warp_paco_trial' then
-            G.GAME.round_resets.discards = 0
-            G.GAME.current_round.discards_left = 0
-            if G.GAME.round_resets then G.GAME.round_resets.discards = 0 end
+            G.GAME.round_resets.discards = 5
+            G.GAME.current_round.discards_left = 5
+            if G.GAME.round_resets then G.GAME.round_resets.discards = 5 end
         end
     end
 end
@@ -1400,7 +1543,7 @@ if create_card then
         end
 
         if (ch == 'c_reality_warp_calamari_trial' or ch == 'c_reality_warp_cefalopop_trial') and _type == 'Joker' and key_append ~= 'start' then
-            return nil
+            _type = 'Tarot'
         end
 
         return orig_create_card_trials(_type, area, legendary, _rarity, skip_materialize, soulable, forced_key, key_append)
@@ -1411,38 +1554,35 @@ end
 if Card and Card.calculate_joker then
     local orig_calculate_joker_trials = Card.calculate_joker
     function Card:calculate_joker(context)
-        local ret = orig_calculate_joker_trials(self, context)
         local ch = G.GAME and G.GAME.challenge
+        local mew_target_matched = false
 
-        -- Mew Mew Doki Meter: +1 when requested poker hand is played
+        -- Mew Mew Doki Meter: check before target_hand changes in calculate
         if ch == 'c_reality_warp_mew_mew_trial' and context.before and not context.blueprint then
             local jk = self.config and self.config.center and self.config.center.key
-            if jk == 'j_reality_warp_mew_mew' and self.ability and self.ability.extra then
-                if context.scoring_name == self.ability.extra.target_hand then
-                    G.GAME.mew_mew_doki_meter = (G.GAME.mew_mew_doki_meter or 0) + 1
-                    attention_text({
-                        text = "DOKI! (" .. G.GAME.mew_mew_doki_meter .. "/30)",
-                        scale = 0.55,
-                        hold = 0.8,
-                        backdrop_colour = HEX('ec4899'),
-                        major = self,
-                        align = 'tm',
-                        offset = { x = 0, y = -0.5 }
-                    })
-                    if G.GAME.mew_mew_doki_meter >= 30 and not G.GAME.won then
-                        G.GAME.won = true
-                        G.E_MANAGER:add_event(Event({
-                            trigger = 'after',
-                            delay = 0.5,
-                            func = function()
-                                if G.FUNCS and G.FUNCS.overlay_menu and create_UIBox_win then
-                                    G.FUNCS.overlay_menu{ definition = create_UIBox_win(), config = { no_esc = true } }
-                                end
-                                return true
-                            end
-                        }))
-                    end
+            if (jk == 'j_reality_warp_mew_mew' or jk == 'mew_mew') and self.ability and self.ability.extra then
+                if context.scoring_name and self.ability.extra.target_hand and context.scoring_name == self.ability.extra.target_hand then
+                    mew_target_matched = true
                 end
+            end
+        end
+
+        local ret = orig_calculate_joker_trials(self, context)
+
+        -- Mew Mew Doki Meter: +1 when requested poker hand is played
+        if mew_target_matched then
+            G.GAME.mew_mew_doki_meter = (G.GAME.mew_mew_doki_meter or 0) + 1
+            attention_text({
+                text = "DOKI! (" .. G.GAME.mew_mew_doki_meter .. "/30)",
+                scale = 0.55,
+                hold = 0.8,
+                backdrop_colour = HEX('ec4899'),
+                major = self,
+                align = 'tm',
+                offset = { x = 0, y = -0.5 }
+            })
+            if G.GAME.mew_mew_doki_meter >= 30 then
+                G.GAME.trial_goal_complete = true
             end
         end
 

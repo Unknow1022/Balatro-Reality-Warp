@@ -44,7 +44,28 @@ function botg_get_familiar_level(fam_key)
     return 1
 end
 
+function botg_purge_orphan_familiars()
+    if G.I and G.I.CARD then
+        for i = #G.I.CARD, 1, -1 do
+            local c = G.I.CARD[i]
+            if c and (c.area ~= G.botg_familiars) and (
+                (c.config and c.config.center and c.config.center.set == 'Familiar') or
+                (c.ability and c.ability.set == 'Familiar')
+            ) then
+                c:remove()
+            end
+        end
+    end
+    if G.botg_familiars and G.botg_familiars.cards and #G.botg_familiars.cards > 1 then
+        for i = #G.botg_familiars.cards, 2, -1 do
+            local c = G.botg_familiars:remove_card(G.botg_familiars.cards[i])
+            if c then c:remove() end
+        end
+    end
+end
+
 function init_botg_familiars_area()
+    botg_purge_orphan_familiars()
     if not G.botg_familiars or G.botg_familiars.REMOVED then
         local w = G.BOTG_FAMILIAR_SLOT_SIZE or 1.35
         local h = G.BOTG_FAMILIAR_SLOT_SIZE or 1.35
@@ -56,6 +77,26 @@ function init_botg_familiars_area()
             w, h,
             { card_limit = 1, type = 'title', highlight_limit = 1, card_w = card_size }
         )
+
+        G.botg_familiars.save = function(self)
+            return nil
+        end
+
+        G.botg_familiars.load = function(self, cardAreaTable)
+            if self.cards then
+                for i = #self.cards, 1, -1 do
+                    local c = self.cards[i]
+                    self:remove_card(c)
+                    if c then c:remove() end
+                end
+            end
+            self.cards = {}
+            botg_purge_orphan_familiars()
+            if G.GAME and G.GAME.botg_current_familiar then
+                local clean_k = tostring(G.GAME.botg_current_familiar):gsub('^c_reality_warp_', ''):gsub('^c_', '')
+                botg_set_active_familiar('c_reality_warp_' .. clean_k)
+            end
+        end
 
         G.botg_familiars.align_cards = function(self)
             for k, card in ipairs(self.cards) do
@@ -142,6 +183,7 @@ function init_botg_familiars_area()
             botg_set_active_familiar('c_reality_warp_' .. clean_k)
         end
     end
+    botg_purge_orphan_familiars()
 end
 
 if set_screen_positions then
@@ -152,6 +194,7 @@ if set_screen_positions then
             if not G.botg_familiars or #G.botg_familiars.cards == 0 then
                 init_botg_familiars_area()
             end
+            botg_purge_orphan_familiars()
         end
         if G.botg_familiars and G.deck and G.STAGE == G.STAGES.RUN then
             G.botg_familiars.T.x = G.deck.T.x + (G.deck.T.w - G.botg_familiars.T.w) * 0.5
@@ -172,11 +215,14 @@ if Game and Game.start_run then
     local orig_game_start_run_fam = Game.start_run
     function Game:start_run(args)
         orig_game_start_run_fam(self, args)
+        botg_purge_orphan_familiars()
         G.E_MANAGER:add_event(Event({
             func = function()
+                botg_purge_orphan_familiars()
                 if G.STAGE == G.STAGES.RUN and G.GAME and G.GAME.botg_current_familiar then
                     init_botg_familiars_area()
                 end
+                botg_purge_orphan_familiars()
                 return true
             end
         }))
@@ -211,6 +257,7 @@ function botg_set_active_familiar(fam_key)
         local c = G.botg_familiars:remove_card(G.botg_familiars.cards[1])
         if c then c:remove() end
     end
+    botg_purge_orphan_familiars()
 
     local card = create_card('Familiar', G.botg_familiars, nil, nil, true, nil, fam_key)
     card.params.bypass_discovery_center = true
@@ -239,6 +286,7 @@ function botg_set_active_familiar(fam_key)
     card:hard_set_T(G.botg_familiars.T.x + (G.botg_familiars.T.w - size) * 0.5, G.botg_familiars.T.y + (G.botg_familiars.T.h - size) * 0.5, size, size)
     G.botg_familiars:emplace(card)
     G.botg_familiars:align_cards()
+    botg_purge_orphan_familiars()
     card:juice_up(0.6, 0.6)
     play_sound('tarot1', 1.2, 0.8)
 
