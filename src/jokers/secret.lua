@@ -2951,9 +2951,6 @@ if Game and Game.update then
     local orig_game_update = Game.update
     function Game:update(dt)
         orig_game_update(self, dt)
-        if G.mew_mew_dummy_jump_time and G.mew_mew_dummy_jump_time > 0 then
-            G.mew_mew_dummy_jump_time = math.max(0, G.mew_mew_dummy_jump_time - dt)
-        end
         if G.reality_warp_mega_flirt_hearts and #G.reality_warp_mega_flirt_hearts > 0 then
             local t = (love and love.timer and love.timer.getTime and love.timer.getTime()) or ((G.TIMERS and G.TIMERS.REAL) or 0)
             for i = #G.reality_warp_mega_flirt_hearts, 1, -1 do
@@ -3025,8 +3022,7 @@ local function get_mew_mew_asset(name)
     return nil
 end
 
-local function trigger_mew_mew_dummies_celebration()
-    G.mew_mew_dummy_jump_time = 0.65
+local function trigger_mew_mew_celebration()
     G.reality_warp_mega_flirt_hearts = G.reality_warp_mega_flirt_hearts or {}
     local sw = (love and love.graphics and love.graphics.getWidth and love.graphics.getWidth()) or 1920
     local sh = (love and love.graphics and love.graphics.getHeight and love.graphics.getHeight()) or 1080
@@ -3065,89 +3061,11 @@ local function trigger_mew_mew_dummies_celebration()
     play_sound('tarot1', 1.35, 0.5)
 end
 
-local function draw_mew_mew_dummies()
-    if not love or not love.graphics then return end
-    local is_active = has_mew_mew_active()
-    local dt = (G.TIMERS and G.TIMERS.REAL_DELTA) or 0.016
-    G.mew_mew_dummy_alpha = G.mew_mew_dummy_alpha or 0
-    if is_active then
-        G.mew_mew_dummy_alpha = math.min(1, G.mew_mew_dummy_alpha + dt * 2.5)
-    else
-        G.mew_mew_dummy_alpha = math.max(0, G.mew_mew_dummy_alpha - dt * 2.5)
-    end
-    if G.mew_mew_dummy_alpha <= 0.005 then return end
-
-    local sw = love.graphics.getWidth()
-    local sh = love.graphics.getHeight()
-    local t = (G.TIMERS and G.TIMERS.REAL) or (love.timer and love.timer.getTime()) or 0
-    local scale = math.max(1.5, math.min(3.0, sh / 440))
-
-    -- Reset transformations and active shaders to guarantee superimposition above all UI
-    love.graphics.push('all')
-    love.graphics.origin()
-    love.graphics.setShader()
-
-    -- 5 dummies ordered from 0 (right) to 4 (left) across the bottom of the UI
-    for i = 0, 4 do
-        local rx = 0.88 - i * 0.19
-        local dummy_img = get_mew_mew_asset('spr_pink_fg_dummy_' .. i)
-
-        -- Glowstick loop shaking animation: 0 -> 1 -> 2 -> 1 -> 0
-        local stick_cycle = math.floor(t * 9 + i * 0.45) % 4
-        local stick_idx = (stick_cycle == 3) and 1 or stick_cycle
-        local stick_img = get_mew_mew_asset('spr_pink_fg_dummy_hlowstick_' .. stick_idx)
-
-        -- Cheering wave travelling from right to left (i = 0 to 4)
-        local wave_phase = t * 3.4 - i * 0.85
-        local wave_bounce = math.max(0, math.sin(wave_phase)) * (16 * (scale / 2))
-
-        -- Celebration jump when Mew Mew gains +X1 total mult
-        local dummy_jump = 0
-        if G.mew_mew_dummy_jump_time and G.mew_mew_dummy_jump_time > 0 then
-            local progress = 1 - (G.mew_mew_dummy_jump_time / 0.65)
-            local staggered_prog = math.min(1, math.max(0, progress * 1.35 - i * 0.06))
-            dummy_jump = math.sin(staggered_prog * math.pi)
-        end
-        local jump_offset = dummy_jump * (36 * (scale / 2))
-
-        local sx = scale * (1.0 - 0.12 * dummy_jump)
-        local sy = scale * (1.0 + 0.20 * dummy_jump)
-
-        local dw = (dummy_img and dummy_img:getWidth() or 61) * scale
-        local dh = (dummy_img and dummy_img:getHeight() or 38) * scale
-        local dx = sw * rx - (dw * 0.5)
-        local dy = sh - dh + (8 * scale) - wave_bounce - jump_offset
-
-        if dummy_img then
-            love.graphics.setColor(1, 1, 1, G.mew_mew_dummy_alpha)
-            love.graphics.draw(dummy_img, dx + dw * 0.5, dy + dh, 0, sx, sy, (dummy_img:getWidth() * 0.5), dummy_img:getHeight())
-        end
-
-        if stick_img then
-            local sw_w = stick_img:getWidth() * scale
-            local sw_h = stick_img:getHeight() * scale
-            local shake_x = math.sin(t * 14 + i * 2) * (2.5 * (scale / 2))
-            local shake_rot = math.sin(t * 12 + i) * 0.14
-            local gx = dx + dw * (i < 2 and 0.28 or 0.72) + shake_x
-            local gy = dy - sw_h * 0.42 - wave_bounce * 0.35 - jump_offset * 0.5
-
-            love.graphics.setColor(1.0, 0.4, 0.75, 0.22 * G.mew_mew_dummy_alpha)
-            love.graphics.circle('fill', gx, gy + sw_h * 0.25, 22 * (scale / 2))
-
-            love.graphics.setColor(1, 1, 1, G.mew_mew_dummy_alpha)
-            love.graphics.draw(stick_img, gx, gy, shake_rot, scale, scale, (sw_w / scale) * 0.5, (sw_h / scale) * 0.7)
-        end
-    end
-
-    love.graphics.pop()
-end
-
 if not G.reality_warp_mega_flirt_draw_hooked and love and love.draw then
     G.reality_warp_mega_flirt_draw_hooked = true
     local orig_love_draw = love.draw
     love.draw = function(...)
         orig_love_draw(...)
-        pcall(draw_mew_mew_dummies)
         local hearts = G.reality_warp_mega_flirt_hearts
         if hearts and #hearts > 0 and love and love.graphics then
             love.graphics.push('all')
@@ -3367,7 +3285,7 @@ register_secret_joker {
                 ex.last_celebration_mult = ex.last_celebration_mult or math.floor(old_xmult)
                 if math.floor(ex.xmult) > ex.last_celebration_mult then
                     ex.last_celebration_mult = math.floor(ex.xmult)
-                    pcall(trigger_mew_mew_dummies_celebration)
+                    pcall(trigger_mew_mew_celebration)
                 end
 
                 return {

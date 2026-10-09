@@ -1114,44 +1114,79 @@ G.FUNCS.claim_outsider_trial_win = function(e)
 end
 
 function create_outsider_trial_hud(text_title, count, total, percent, is_complete, col)
-    local deck_x = (G.deck and G.deck.T.x) or 10.5
-    local deck_y = (G.deck and G.deck.T.y) or 6.8
-    local deck_w = (G.deck and G.deck.T.w) or 1.5
-
-    local box_w = 0.94
-    local cur_pos_x = deck_x + (deck_w * 0.5) - (box_w * 0.5)
-    local cur_pos_y = deck_y - 3.10
-
     if G.HUD_outsider_trial and not G.HUD_outsider_trial.REMOVED then
         G.HUD_outsider_trial:remove()
         G.HUD_outsider_trial = nil
     end
 
     local clamped_pct = math.max(0, math.min(100, percent or 0))
-    local total_gauge_h = 1.25
-    local fill_h = math.max(0.04, total_gauge_h * (clamped_pct / 100))
-    local empty_h = math.max(0.01, total_gauge_h - fill_h)
+    local bar_w = 2.00
+    local bar_h = 0.16
+    local fill_w = math.max(0.04, bar_w * (clamped_pct / 100))
+    local empty_w = math.max(0.0, bar_w - fill_w)
 
     local status_display = tostring(count) .. "/" .. tostring(total)
-    local bottom_nodes = {}
+    local pct_display = string.format("%.0f%%", clamped_pct)
+
+    local progress_bar_node = {
+        n = G.UIT.R,
+        config = {
+            align = "cm",
+            minw = bar_w,
+            minh = bar_h,
+            r = 0.08,
+            colour = HEX('000000'),
+            outline = 0.02,
+            outline_colour = HEX('3f3f46'),
+            padding = 0.015
+        },
+        nodes = {
+            {
+                n = G.UIT.C,
+                config = {
+                    align = "cl",
+                    minw = fill_w,
+                    minh = bar_h,
+                    r = 0.06,
+                    colour = is_complete and G.C.GOLD or col,
+                    shadow = false
+                },
+                nodes = {}
+            },
+            (empty_w > 0.01) and {
+                n = G.UIT.C,
+                config = {
+                    align = "cr",
+                    minw = empty_w,
+                    minh = bar_h,
+                    colour = G.C.CLEAR
+                },
+                nodes = {}
+            } or nil
+        }
+    }
+
+    local action_node
     if is_complete then
-        bottom_nodes = {
-            UIBox_button({
-                id = 'trial_win_claim_btn',
-                label = {"WIN!"},
-                button = 'claim_outsider_trial_win',
-                colour = G.C.GOLD,
-                minw = 0.84,
-                minh = 0.38,
-                scale = 0.28,
-                emboss = 0.08,
-                col = true
-            })
+        action_node = {
+            n = G.UIT.R,
+            config = { align = "cm", padding = 0.02 },
+            nodes = {
+                UIBox_button({
+                    id = 'trial_win_claim_btn',
+                    label = {"CLAIM WIN!"},
+                    button = 'claim_outsider_trial_win',
+                    colour = G.C.GOLD,
+                    minw = bar_w,
+                    minh = 0.32,
+                    scale = 0.26,
+                    emboss = 0.06,
+                    col = true
+                })
+            }
         }
     else
-        bottom_nodes = {
-            { n = G.UIT.T, config = { text = status_display, scale = 0.19, colour = G.C.WHITE, shadow = true } }
-        }
+        action_node = progress_bar_node
     end
 
     local t = {
@@ -1163,98 +1198,56 @@ function create_outsider_trial_hud(text_title, count, total, percent, is_complet
                 config = {
                     id = 'outsider_trial_hud_box',
                     align = "cm",
-                    padding = 0.04,
+                    padding = 0.06,
                     r = 0.12,
-                    colour = HEX('0a0f1d'),
-                    outline = 0.035,
-                    outline_colour = is_complete and G.C.GOLD or HEX('94a3b8'),
+                    colour = HEX('09090b'),
+                    outline = 0.03,
+                    outline_colour = is_complete and G.C.GOLD or HEX('3f3f46'),
                     shadow = true,
-                    minw = box_w,
-                    minh = 2.05
+                    minw = 2.15,
+                    emboss = 0.06
                 },
                 nodes = {
                     {
                         n = G.UIT.R,
-                        config = { align = "cm" },
-                        nodes = {
-                            { n = G.UIT.T, config = { text = text_title, scale = 0.19, colour = is_complete and G.C.GOLD or col, shadow = true } }
-                        }
-                    },
-                    {
-                        n = G.UIT.R,
-                        config = { align = "cm", padding = 0.01 },
-                        nodes = {
-                            { n = G.UIT.T, config = { text = string.format("%.0f%%", clamped_pct), scale = 0.23, colour = is_complete and G.C.GOLD or G.C.WHITE, shadow = true } }
-                        }
-                    },
-                    -- Thermometer tube spanning the same width of the box
-                    {
-                        n = G.UIT.C,
-                        config = {
-                            align = "bm",
-                            padding = 0.015,
-                            r = 0.08,
-                            colour = HEX('020617'),
-                            outline = 0.02,
-                            outline_colour = HEX('64748b'),
-                            minw = 0.84,
-                            minh = total_gauge_h + 0.04,
-                            emboss = 0.03
-                        },
+                        config = { align = "cm", padding = 0.02 },
                         nodes = {
                             {
-                                n = G.UIT.R,
-                                config = { align = "cm", minh = empty_h, minw = 0.80, colour = G.C.CLEAR },
-                                nodes = {}
+                                n = G.UIT.C,
+                                config = { align = "cl", minw = 1.05 },
+                                nodes = {
+                                    { n = G.UIT.T, config = { text = text_title, scale = 0.22, colour = is_complete and G.C.GOLD or col, shadow = true } }
+                                }
                             },
                             {
-                                n = G.UIT.R,
-                                config = {
-                                    align = "cm",
-                                    minh = fill_h,
-                                    minw = 0.80,
-                                    r = 0.04,
-                                    colour = is_complete and G.C.GOLD or col,
-                                    shadow = false
-                                },
-                                nodes = {}
+                                n = G.UIT.C,
+                                config = { align = "cr", minw = 1.05 },
+                                nodes = {
+                                    { n = G.UIT.T, config = { text = status_display .. " (" .. pct_display .. ")", scale = 0.20, colour = is_complete and G.C.GOLD or G.C.WHITE, shadow = true } }
+                                }
                             }
                         }
                     },
-                    {
-                        n = G.UIT.R,
-                        config = { align = "cm", padding = 0.02 },
-                        nodes = bottom_nodes
-                    }
+                    action_node
                 }
             }
         }
     }
 
+    local major_elem = (G.HUD_pouch and not G.HUD_pouch.REMOVED and G.HUD_pouch) or G.consumeables
+    local offset_y = (major_elem == G.HUD_pouch) and 0.12 or 0.20
+
     local hud = UIBox{
         definition = t,
         config = {
-            align = "cm",
-            offset = { x = 0, y = 0 }
+            align = "bm",
+            offset = { x = 0, y = offset_y },
+            major = major_elem,
+            bond = 'Weak'
         }
     }
-    hud.T.x = cur_pos_x
-    hud.T.y = cur_pos_y
-    hud.VT.x = cur_pos_x
-    hud.VT.y = cur_pos_y
     hud.states.drag.can = false
     hud.states.collide.can = is_complete and true or false
-    hud.draw_layer = 2
-
-    if G.ROOM and G.ROOM.children then
-        for i = #G.ROOM.children, 1, -1 do
-            if G.ROOM.children[i] == hud then
-                table.remove(G.ROOM.children, i)
-                break
-            end
-        end
-        table.insert(G.ROOM.children, hud)
-    end
 
     G.HUD_outsider_trial = hud
     G.HUD_outsider_trial._last_val = count
@@ -1428,16 +1421,18 @@ if end_round then
     end
 end
 
--- Ante HUD clean display for infinite ante trials
+-- Ante HUD clean display for infinite ante trials (shows only current ante number)
 if create_UIBox_HUD then
     local orig_create_UIBox_HUD_trials = create_UIBox_HUD
     function create_UIBox_HUD()
         local hud = orig_create_UIBox_HUD_trials()
-        if G.GAME and G.GAME.challenge and SPECIFIC_GOAL_TRIALS[G.GAME.challenge] then
+        if G.GAME and G.GAME.challenge and (SPECIFIC_GOAL_TRIALS[G.GAME.challenge] or (G.GAME.win_ante and G.GAME.win_ante >= 999999)) then
             local function fix_hud_ante(node)
                 if not node or type(node) ~= 'table' then return end
-                if node.config and type(node.config.text) == 'string' and string.find(node.config.text, '999999') then
-                    node.config.text = '/∞'
+                if node.config and type(node.config.text) == 'string' then
+                    if string.find(node.config.text, '999999') or node.config.text == '/∞' or (G.GAME.win_ante and G.GAME.win_ante >= 999999 and string.find(node.config.text, tostring(G.GAME.win_ante))) then
+                        node.config.text = ''
+                    end
                 end
                 if node.nodes then
                     for _, child in ipairs(node.nodes) do

@@ -62,6 +62,23 @@ function botg_purge_orphan_familiars()
             if c then c:remove() end
         end
     end
+    if G.I and G.I.UIBOX then
+        for i = #G.I.UIBOX, 1, -1 do
+            local ub = G.I.UIBOX[i]
+            if ub and (
+                (G.botg_familiars and G.botg_familiars.children and ub == G.botg_familiars.children.slot_uibox) or
+                (ub.definition and ub.definition.nodes and ub.definition.nodes[1] and ub.definition.nodes[1].nodes and ub.definition.nodes[1].nodes[1] and ub.definition.nodes[1].nodes[1].config and ub.definition.nodes[1].nodes[1].config.func == 'botg_empty_familiar_label')
+            ) then
+                ub:remove()
+            end
+        end
+    end
+    if G.botg_familiars and G.botg_familiars.children and G.botg_familiars.children.slot_uibox then
+        if G.botg_familiars.children.slot_uibox.remove then
+            G.botg_familiars.children.slot_uibox:remove()
+        end
+        G.botg_familiars.children.slot_uibox = nil
+    end
 end
 
 function init_botg_familiars_area()
@@ -116,48 +133,20 @@ function init_botg_familiars_area()
             if G.VIEWING_DECK then return end
             if G.STAGE ~= G.STAGES.RUN then return end
 
-            if not self.children.slot_uibox then
-                self.children.slot_uibox = UIBox{
-                    definition = {
-                        n = G.UIT.ROOT,
-                        config = { align = 'cm', colour = G.C.CLEAR },
-                        nodes = {
-                            {
-                                n = G.UIT.R,
-                                config = {
-                                    minw = self.T.w,
-                                    minh = self.T.h,
-                                    align = "cm",
-                                    r = 0.12,
-                                    colour = G.C.BLACK,
-                                    emboss = 0.08,
-                                    outline = 1.2,
-                                    outline_colour = G.C.L_BLACK
-                                },
-                                nodes = {
-                                    {
-                                        n = G.UIT.R,
-                                        config = { align = "cm", func = 'botg_empty_familiar_label' },
-                                        nodes = {
-                                            {
-                                                n = G.UIT.T,
-                                                config = {
-                                                    text = "COMPANION",
-                                                    scale = 0.18,
-                                                    colour = G.C.UI.TEXT_INACTIVE,
-                                                    shadow = true
-                                                }
-                                            }
-                                        }
-                                    }
-                                }
-                            }
-                        }
-                    },
-                    config = { align = 'cm', offset = { x = 0, y = 0 }, major = self, parent = self }
-                }
+            if self.children and self.children.slot_uibox then
+                if self.children.slot_uibox.remove then
+                    self.children.slot_uibox:remove()
+                end
+                self.children.slot_uibox = nil
             end
-            self.children.slot_uibox:draw()
+
+            prep_draw(self, 1)
+            love.graphics.setColor(0, 0, 0, 0.65)
+            love.graphics.rectangle('fill', 0, 0, self.T.w, self.T.h, 0.12, 0.12)
+            love.graphics.setColor(0.3, 0.3, 0.35, 0.8)
+            love.graphics.setLineWidth(1.2)
+            love.graphics.rectangle('line', 0, 0, self.T.w, self.T.h, 0.12, 0.12)
+            love.graphics.pop()
 
             self:draw_boundingrect()
             add_to_drawhash(self)
@@ -200,9 +189,6 @@ if set_screen_positions then
             G.botg_familiars.T.x = G.deck.T.x + (G.deck.T.w - G.botg_familiars.T.w) * 0.5
             G.botg_familiars.T.y = G.deck.T.y - G.botg_familiars.T.h - 0.2
             G.botg_familiars:hard_set_VT()
-            if G.botg_familiars.children and G.botg_familiars.children.slot_uibox then
-                G.botg_familiars.children.slot_uibox:set_role({ major = G.botg_familiars, parent = G.botg_familiars })
-            end
             G.botg_familiars:align_cards()
             for _, card in ipairs(G.botg_familiars.cards) do
                 card:hard_set_T(card.T.x, card.T.y, card.T.w, card.T.h)
