@@ -653,18 +653,22 @@ SMODS.Blind {
             SMODS.recalc_debuff(j)
         end
     end,
+    calculate = function(self, blind, context)
+        if self.disabled or (G.GAME and G.GAME.pinza_card_destroyed) then return end
+        if context.debuff_card and context.debuff_card.area == G.jokers and not (G.GAME and G.GAME.pinza_card_destroyed) then
+            local card = context.debuff_card
+            if card.has_attribute and (card:has_attribute("destroy_card") or card:has_attribute("boss_blind")) then
+                return
+            end
+            return { debuff = true }
+        end
+    end,
     recalc_debuff = function(self, card, from_blind)
         if self.disabled or (G.GAME and G.GAME.pinza_card_destroyed) then return false end
         if card and card.area == G.jokers and not (G.GAME and G.GAME.pinza_card_destroyed) then
-            local key = (card.config and card.config.center and card.config.center.key) or card.config.center_key or (card.ability and card.ability.name) or ''
-            local destroys_cards = {
-                ['j_chicot'] = true,
-                ['j_trading'] = true,
-                ['j_sixth_sense'] = true,
-                ['c_reality_warp_butcher_job'] = true,
-                ['j_c_butcher'] = true
-            }
-            if destroys_cards[key] then return false end
+            if card.has_attribute and (card:has_attribute("destroy_card") or card:has_attribute("boss_blind")) then
+                return false
+            end
             return true
         end
         return false
@@ -1051,7 +1055,11 @@ SMODS.Blind {
         if G.jokers and G.jokers.cards then
             for _, j in ipairs(G.jokers.cards) do
                 if not (j.edition and (j.edition.blessed or j.edition.bendecido or j.edition.key == 'e_reality_warp_blessed' or j.edition.key == 'e_blessed')) then
-                    j:set_debuff(not matches)
+                    if not matches and j.has_attribute and j:has_attribute("boss_blind") then
+                        j:set_debuff(false)
+                    else
+                        j:set_debuff(not matches)
+                    end
                 else
                     j:set_debuff(false)
                 end

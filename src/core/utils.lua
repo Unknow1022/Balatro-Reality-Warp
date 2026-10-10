@@ -2707,6 +2707,16 @@ if Blind and Blind.debuff_card then
                 end
             end
         end
+        if not self.disabled and is_reality_warp_blind(self, 'pinza') and not (G.GAME and G.GAME.pinza_card_destroyed) then
+            if card and card.area == G.jokers then
+                if card.has_attribute and (card:has_attribute("destroy_card") or card:has_attribute("boss_blind")) then
+                    card:set_debuff(false)
+                    return false
+                end
+                card:set_debuff(true)
+                return true
+            end
+        end
         return debuff_card_ref(self, card, from_blind)
     end
 end
