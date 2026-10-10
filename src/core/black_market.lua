@@ -413,7 +413,7 @@ G.FUNCS.buy_black_market_slot = function(e)
         return
     end
 
-    local is_consumeable = (item.set == 'Potion' or item.set == 'Tarot' or item.set == 'Spectral' or item.set == 'Consumeables')
+    local is_consumeable = (item.set == 'Potion' or item.set == 'Tarot' or item.set == 'Spectral' or item.set == 'Consumeables' or item.set == 'Planet')
     if is_consumeable then
         if #G.consumeables.cards >= G.consumeables.config.card_limit then
             card_eval_status_text(G.consumeables, 'extra', nil, nil, nil, { message = localize('k_no_space_ex'), colour = G.C.RED })
@@ -461,10 +461,64 @@ G.FUNCS.refresh_black_market_ui = function()
     end
 end
 
+local function is_black_market_joker_banned()
+    if is_joker_banned_challenge and is_joker_banned_challenge() then return true end
+    if not (G and G.GAME) then return false end
+    if G.GAME.modifiers and (G.GAME.modifiers.no_shop_jokers or G.GAME.modifiers.joker_slots == 0) then return true end
+    if G.GAME.challenge then
+        local ch = G.GAME.challenge
+        local ch_str = string.lower(tostring(ch))
+        if string.find(ch_str, 'jokerless') or ch == 'jokerless_1' or ch == 'c_jokerless' then return true end
+        if ch == 'c_reality_warp_helin_trial' or ch == 'helin_trial' or
+           ch == 'c_reality_warp_calamari_trial' or ch == 'calamari_trial' or
+           ch == 'c_reality_warp_cefalopop_trial' or ch == 'cefalopop_trial' or
+           ch == 'c_reality_warp_paco_trial' or ch == 'paco_trial' then
+            return true
+        end
+    end
+    return false
+end
+
+local function get_bm_planet_key(seed_name)
+    local planet_pool = {}
+    if G.P_CENTER_POOLS and G.P_CENTER_POOLS['Planet'] then
+        for _, c in ipairs(G.P_CENTER_POOLS['Planet']) do
+            if c.key and not (G.GAME and G.GAME.banned_keys and G.GAME.banned_keys[c.key]) then
+                table.insert(planet_pool, c.key)
+            end
+        end
+    end
+    if #planet_pool > 0 then
+        return pseudorandom_element(planet_pool, pseudoseed(seed_name))
+    end
+    return 'c_pluto'
+end
+
+local function get_bm_potion_key(seed_name)
+    local pot_pool = {}
+    if G.P_CENTER_POOLS and G.P_CENTER_POOLS['Potion'] then
+        for _, c in ipairs(G.P_CENTER_POOLS['Potion']) do
+            if c.key and not (G.GAME and G.GAME.banned_keys and G.GAME.banned_keys[c.key]) then
+                table.insert(pot_pool, c.key)
+            end
+        end
+    end
+    if #pot_pool > 0 then
+        return pseudorandom_element(pot_pool, pseudoseed(seed_name))
+    end
+    return 'c_reality_warp_potion_stretch'
+end
+
 local function generate_black_market_stock()
     G.GAME.black_market_stock = {}
     local ante = (G.GAME.round_resets and G.GAME.round_resets.ante) or 1
     local round = G.GAME.round or 1
+    local ch = G.GAME and G.GAME.challenge
+    local jokers_banned = is_black_market_joker_banned()
+    local is_helin = (ch == 'c_reality_warp_helin_trial' or ch == 'helin_trial')
+    local is_kyra = (ch == 'c_reality_warp_kyra_trial' or ch == 'kyra_trial')
+    local is_ray = (ch == 'c_reality_warp_ray_trial' or ch == 'ray_trial')
+    local is_thiago = (ch == 'c_reality_warp_thiago_trial' or ch == 'thiago_trial')
 
     local secret_keys = {
         'j_reality_warp_esteban', 'j_reality_warp_thiago', 'j_reality_warp_black_hole_joker',
@@ -473,9 +527,11 @@ local function generate_black_market_stock()
         'j_reality_warp_kyra'
     }
     local valid_secret_keys = {}
-    for _, k in ipairs(secret_keys) do
-        if G.P_CENTERS and G.P_CENTERS[k] then
-            table.insert(valid_secret_keys, k)
+    if not jokers_banned then
+        for _, k in ipairs(secret_keys) do
+            if G.P_CENTERS and G.P_CENTERS[k] and not (G.GAME and G.GAME.banned_keys and G.GAME.banned_keys[k]) then
+                table.insert(valid_secret_keys, k)
+            end
         end
     end
 
@@ -484,9 +540,11 @@ local function generate_black_market_stock()
         'j_reality_warp_world_devourer', 'j_reality_warp_living_paradox', 'j_reality_warp_star_chronicler'
     }
     local valid_legendary_keys = {}
-    for _, k in ipairs(legendary_keys) do
-        if G.P_CENTERS and G.P_CENTERS[k] then
-            table.insert(valid_legendary_keys, k)
+    if not jokers_banned then
+        for _, k in ipairs(legendary_keys) do
+            if G.P_CENTERS and G.P_CENTERS[k] and not (G.GAME and G.GAME.banned_keys and G.GAME.banned_keys[k]) then
+                table.insert(valid_legendary_keys, k)
+            end
         end
     end
 
@@ -501,67 +559,183 @@ local function generate_black_market_stock()
         local roll = pseudorandom('bm_gen_' .. tostring(round) .. '_' .. tostring(slot) .. '_' .. tostring(ante))
 
         if slot == 1 then
-            set = 'Potion'
-            cost = 2
-            if G.P_CENTER_POOLS and G.P_CENTER_POOLS['Potion'] and #G.P_CENTER_POOLS['Potion'] > 0 then
-                local chosen = pseudorandom_element(G.P_CENTER_POOLS['Potion'], pseudoseed('bm_pot_' .. tostring(round) .. '_' .. tostring(slot)))
-                key = chosen and chosen.key
-            end
-            if not key or not G.P_CENTERS[key] then
-                key = 'c_reality_warp_potion_stretch'
+            if is_helin then
+                set = 'Planet'
+                cost = 2
+                key = get_bm_planet_key('bm_plan1_' .. tostring(round))
+            else
+                set = 'Potion'
+                cost = 2
+                key = get_bm_potion_key('bm_pot_' .. tostring(round) .. '_' .. tostring(slot))
             end
         elseif slot == 2 then
-            if roll < 0.02 and (G.P_CENTERS['c_soul'] or G.P_CENTERS['c_black_hole'] or gang_key) then
-                local rare_pool = {}
-                if G.P_CENTERS['c_soul'] then table.insert(rare_pool, { key = 'c_soul', cost = 6 }) end
-                if G.P_CENTERS['c_black_hole'] then table.insert(rare_pool, { key = 'c_black_hole', cost = 5 }) end
-                if gang_key then table.insert(rare_pool, { key = gang_key, cost = 7 }) end
-                local chosen = pseudorandom_element(rare_pool, pseudoseed('bm_rare_spec_' .. tostring(round) .. '_' .. tostring(slot)))
-                key = chosen.key
+            if is_helin then
+                set = 'Planet'
+                cost = 2
+                key = get_bm_planet_key('bm_plan2_' .. tostring(round))
+            elseif is_kyra then
+                set = 'Potion'
+                cost = 2
+                key = get_bm_potion_key('bm_pot2_' .. tostring(round))
+            elseif is_ray then
                 set = 'Spectral'
-                cost = chosen.cost
+                cost = 2
+                local spec_pool = {}
+                if G.P_CENTER_POOLS and G.P_CENTER_POOLS['Spectral'] then
+                    for _, c in ipairs(G.P_CENTER_POOLS['Spectral']) do
+                        if c.key and c.key ~= 'c_soul' and c.key ~= 'c_reality_warp_warp_portal' and c.key ~= 'c_warp_portal' and not (G.GAME and G.GAME.banned_keys and G.GAME.banned_keys[c.key]) then
+                            table.insert(spec_pool, c.key)
+                        end
+                    end
+                end
+                key = (#spec_pool > 0) and pseudorandom_element(spec_pool, pseudoseed('bm_spec2_' .. tostring(round))) or 'c_ankh'
+            elseif roll < 0.02 and (G.P_CENTERS['c_soul'] or G.P_CENTERS['c_black_hole'] or gang_key) then
+                local rare_pool = {}
+                if G.P_CENTERS['c_soul'] and not (G.GAME and G.GAME.banned_keys and G.GAME.banned_keys['c_soul']) then table.insert(rare_pool, { key = 'c_soul', cost = 6 }) end
+                if G.P_CENTERS['c_black_hole'] and not (G.GAME and G.GAME.banned_keys and G.GAME.banned_keys['c_black_hole']) then table.insert(rare_pool, { key = 'c_black_hole', cost = 5 }) end
+                if gang_key and not (G.GAME and G.GAME.banned_keys and G.GAME.banned_keys[gang_key]) then table.insert(rare_pool, { key = gang_key, cost = 7 }) end
+                if #rare_pool > 0 then
+                    local chosen = pseudorandom_element(rare_pool, pseudoseed('bm_rare_spec_' .. tostring(round) .. '_' .. tostring(slot)))
+                    key = chosen.key
+                    set = 'Spectral'
+                    cost = chosen.cost
+                else
+                    set = 'Spectral'
+                    cost = 2
+                    key = 'c_ankh'
+                end
             elseif roll < 0.30 then
                 set = 'Spectral'
                 cost = 2
-                if G.P_CENTER_POOLS and G.P_CENTER_POOLS['Spectral'] and #G.P_CENTER_POOLS['Spectral'] > 0 then
-                    local chosen = pseudorandom_element(G.P_CENTER_POOLS['Spectral'], pseudoseed('bm_spec_' .. tostring(round) .. '_' .. tostring(slot)))
-                    key = chosen and chosen.key
+                local spec_pool = {}
+                if G.P_CENTER_POOLS and G.P_CENTER_POOLS['Spectral'] then
+                    for _, c in ipairs(G.P_CENTER_POOLS['Spectral']) do
+                        if c.key and not (G.GAME and G.GAME.banned_keys and G.GAME.banned_keys[c.key]) then
+                            table.insert(spec_pool, c.key)
+                        end
+                    end
                 end
-                if not key or not G.P_CENTERS[key] then key = 'c_ankh' end
+                key = (#spec_pool > 0) and pseudorandom_element(spec_pool, pseudoseed('bm_spec_' .. tostring(round) .. '_' .. tostring(slot))) or 'c_ankh'
             else
                 set = 'Tarot'
                 cost = 1
-                if G.P_CENTER_POOLS and G.P_CENTER_POOLS['Tarot'] and #G.P_CENTER_POOLS['Tarot'] > 0 then
-                    local chosen = pseudorandom_element(G.P_CENTER_POOLS['Tarot'], pseudoseed('bm_tar_' .. tostring(round) .. '_' .. tostring(slot)))
-                    key = chosen and chosen.key
+                local tar_pool = {}
+                if G.P_CENTER_POOLS and G.P_CENTER_POOLS['Tarot'] then
+                    for _, c in ipairs(G.P_CENTER_POOLS['Tarot']) do
+                        if c.key and not (G.GAME and G.GAME.banned_keys and G.GAME.banned_keys[c.key]) then
+                            table.insert(tar_pool, c.key)
+                        end
+                    end
                 end
-                if not key or not G.P_CENTERS[key] then key = 'c_fool' end
+                key = (#tar_pool > 0) and pseudorandom_element(tar_pool, pseudoseed('bm_tar_' .. tostring(round) .. '_' .. tostring(slot))) or 'c_fool'
             end
         elseif slot == 3 then
-            set = 'Joker'
-            if roll < 0.015 and #valid_legendary_keys > 0 then
-                key = pseudorandom_element(valid_legendary_keys, pseudoseed('bm_leg3_' .. tostring(round)))
-                cost = 15
-            elseif roll < 0.050 and #valid_secret_keys > 0 then
-                key = pseudorandom_element(valid_secret_keys, pseudoseed('bm_sec3_' .. tostring(round)))
-                cost = 20
-            elseif roll < 0.350 then
-                cost = 4
-                if G.P_JOKER_RARITY_POOLS and G.P_JOKER_RARITY_POOLS[3] and #G.P_JOKER_RARITY_POOLS[3] > 0 then
-                    local chosen = pseudorandom_element(G.P_JOKER_RARITY_POOLS[3], pseudoseed('bm_jok3r_' .. tostring(round)))
-                    key = chosen and chosen.key
+            if jokers_banned then
+                set = 'Planet'
+                cost = 2
+                key = get_bm_planet_key('bm_plan3_' .. tostring(round))
+            elseif is_kyra then
+                local potion_jokers = { 'j_reality_warp_kyra', 'j_reality_warp_potion_brewer', 'j_reality_warp_philosopher' }
+                local available = {}
+                for _, pj in ipairs(potion_jokers) do
+                    if G.P_CENTERS[pj] and not (G.GAME and G.GAME.banned_keys and G.GAME.banned_keys[pj]) then
+                        table.insert(available, pj)
+                    end
                 end
-                if not key or not G.P_CENTERS[key] then key = 'j_blueprint' end
-            else
+                if #available > 0 then
+                    key = pseudorandom_element(available, pseudoseed('bm_kyrajok3_' .. tostring(round)))
+                    set = 'Joker'
+                    cost = 4
+                else
+                    key = get_bm_potion_key('bm_pot3_' .. tostring(round))
+                    set = 'Potion'
+                    cost = 2
+                end
+            elseif is_thiago then
+                local chip_jokers = {
+                    'j_reality_warp_thiago', 'j_blue_joker', 'j_ice_cream', 'j_bull',
+                    'j_stone', 'j_runner', 'j_hiker', 'j_wee', 'j_arrowhead',
+                    'j_scary_face', 'j_sly', 'j_wily', 'j_clever', 'j_devious', 'j_crafty'
+                }
+                local available = {}
+                for _, cj in ipairs(chip_jokers) do
+                    if G.P_CENTERS[cj] and not (G.GAME and G.GAME.banned_keys and G.GAME.banned_keys[cj]) then
+                        table.insert(available, cj)
+                    end
+                end
+                key = (#available > 0) and pseudorandom_element(available, pseudoseed('bm_thijok3_' .. tostring(round))) or 'j_blue_joker'
+                set = 'Joker'
                 cost = 3
-                if G.P_JOKER_RARITY_POOLS and G.P_JOKER_RARITY_POOLS[2] and #G.P_JOKER_RARITY_POOLS[2] > 0 then
-                    local chosen = pseudorandom_element(G.P_JOKER_RARITY_POOLS[2], pseudoseed('bm_jok3u_' .. tostring(round)))
-                    key = chosen and chosen.key
+            else
+                set = 'Joker'
+                if roll < 0.015 and #valid_legendary_keys > 0 then
+                    key = pseudorandom_element(valid_legendary_keys, pseudoseed('bm_leg3_' .. tostring(round)))
+                    cost = 15
+                elseif roll < 0.050 and #valid_secret_keys > 0 then
+                    key = pseudorandom_element(valid_secret_keys, pseudoseed('bm_sec3_' .. tostring(round)))
+                    cost = 20
+                elseif roll < 0.350 then
+                    cost = 4
+                    local r_pool = {}
+                    if G.P_JOKER_RARITY_POOLS and G.P_JOKER_RARITY_POOLS[3] then
+                        for _, c in ipairs(G.P_JOKER_RARITY_POOLS[3]) do
+                            if c.key and not (G.GAME and G.GAME.banned_keys and G.GAME.banned_keys[c.key]) then
+                                table.insert(r_pool, c.key)
+                            end
+                        end
+                    end
+                    key = (#r_pool > 0) and pseudorandom_element(r_pool, pseudoseed('bm_jok3r_' .. tostring(round))) or 'j_blueprint'
+                else
+                    cost = 3
+                    local u_pool = {}
+                    if G.P_JOKER_RARITY_POOLS and G.P_JOKER_RARITY_POOLS[2] then
+                        for _, c in ipairs(G.P_JOKER_RARITY_POOLS[2]) do
+                            if c.key and not (G.GAME and G.GAME.banned_keys and G.GAME.banned_keys[c.key]) then
+                                table.insert(u_pool, c.key)
+                            end
+                        end
+                    end
+                    key = (#u_pool > 0) and pseudorandom_element(u_pool, pseudoseed('bm_jok3u_' .. tostring(round))) or 'j_half'
                 end
-                if not key or not G.P_CENTERS[key] then key = 'j_half' end
             end
         else
-            if roll < 0.020 and #valid_legendary_keys > 0 then
+            if jokers_banned then
+                set = 'Planet'
+                cost = 2
+                key = get_bm_planet_key('bm_plan4_' .. tostring(round))
+            elseif is_kyra then
+                local potion_jokers = { 'j_reality_warp_kyra', 'j_reality_warp_potion_brewer', 'j_reality_warp_philosopher' }
+                local available = {}
+                for _, pj in ipairs(potion_jokers) do
+                    if G.P_CENTERS[pj] and not (G.GAME and G.GAME.banned_keys and G.GAME.banned_keys[pj]) then
+                        table.insert(available, pj)
+                    end
+                end
+                if #available > 0 then
+                    key = pseudorandom_element(available, pseudoseed('bm_kyrajok4_' .. tostring(round)))
+                    set = 'Joker'
+                    cost = 4
+                else
+                    key = get_bm_potion_key('bm_pot4_' .. tostring(round))
+                    set = 'Potion'
+                    cost = 2
+                end
+            elseif is_thiago then
+                local chip_jokers = {
+                    'j_reality_warp_thiago', 'j_blue_joker', 'j_ice_cream', 'j_bull',
+                    'j_stone', 'j_runner', 'j_hiker', 'j_wee', 'j_arrowhead',
+                    'j_scary_face', 'j_sly', 'j_wily', 'j_clever', 'j_devious', 'j_crafty'
+                }
+                local available = {}
+                for _, cj in ipairs(chip_jokers) do
+                    if G.P_CENTERS[cj] and not (G.GAME and G.GAME.banned_keys and G.GAME.banned_keys[cj]) then
+                        table.insert(available, cj)
+                    end
+                end
+                key = (#available > 0) and pseudorandom_element(available, pseudoseed('bm_thijok4_' .. tostring(round))) or 'j_ice_cream'
+                set = 'Joker'
+                cost = 3
+            elseif roll < 0.020 and #valid_legendary_keys > 0 then
                 key = pseudorandom_element(valid_legendary_keys, pseudoseed('bm_leg4_' .. tostring(round)))
                 set = 'Joker'
                 cost = 15
@@ -571,29 +745,43 @@ local function generate_black_market_stock()
                 cost = 20
             elseif roll < 0.085 and (gang_key or G.P_CENTERS['c_soul'] or G.P_CENTERS['c_black_hole']) then
                 local rare_pool = {}
-                if G.P_CENTERS['c_soul'] then table.insert(rare_pool, { key = 'c_soul', cost = 6 }) end
-                if G.P_CENTERS['c_black_hole'] then table.insert(rare_pool, { key = 'c_black_hole', cost = 5 }) end
-                if gang_key then table.insert(rare_pool, { key = gang_key, cost = 7 }) end
-                local chosen = pseudorandom_element(rare_pool, pseudoseed('bm_rare4_' .. tostring(round)))
-                key = chosen.key
-                set = 'Spectral'
-                cost = chosen.cost
+                if G.P_CENTERS['c_soul'] and not (G.GAME and G.GAME.banned_keys and G.GAME.banned_keys['c_soul']) then table.insert(rare_pool, { key = 'c_soul', cost = 6 }) end
+                if G.P_CENTERS['c_black_hole'] and not (G.GAME and G.GAME.banned_keys and G.GAME.banned_keys['c_black_hole']) then table.insert(rare_pool, { key = 'c_black_hole', cost = 5 }) end
+                if gang_key and not (G.GAME and G.GAME.banned_keys and G.GAME.banned_keys[gang_key]) then table.insert(rare_pool, { key = gang_key, cost = 7 }) end
+                if #rare_pool > 0 then
+                    local chosen = pseudorandom_element(rare_pool, pseudoseed('bm_rare4_' .. tostring(round)))
+                    key = chosen.key
+                    set = 'Spectral'
+                    cost = chosen.cost
+                else
+                    set = 'Spectral'
+                    cost = 2
+                    key = 'c_ankh'
+                end
             elseif roll < 0.440 then
                 set = 'Joker'
                 cost = 4
-                if G.P_JOKER_RARITY_POOLS and G.P_JOKER_RARITY_POOLS[3] and #G.P_JOKER_RARITY_POOLS[3] > 0 then
-                    local chosen = pseudorandom_element(G.P_JOKER_RARITY_POOLS[3], pseudoseed('bm_jok4r_' .. tostring(round)))
-                    key = chosen and chosen.key
+                local r_pool = {}
+                if G.P_JOKER_RARITY_POOLS and G.P_JOKER_RARITY_POOLS[3] then
+                    for _, c in ipairs(G.P_JOKER_RARITY_POOLS[3]) do
+                        if c.key and not (G.GAME and G.GAME.banned_keys and G.GAME.banned_keys[c.key]) then
+                            table.insert(r_pool, c.key)
+                        end
+                    end
                 end
-                if not key or not G.P_CENTERS[key] then key = 'j_invisible' end
+                key = (#r_pool > 0) and pseudorandom_element(r_pool, pseudoseed('bm_jok4r_' .. tostring(round))) or 'j_invisible'
             else
                 set = 'Joker'
                 cost = 3
-                if G.P_JOKER_RARITY_POOLS and G.P_JOKER_RARITY_POOLS[2] and #G.P_JOKER_RARITY_POOLS[2] > 0 then
-                    local chosen = pseudorandom_element(G.P_JOKER_RARITY_POOLS[2], pseudoseed('bm_jok4u_' .. tostring(round)))
-                    key = chosen and chosen.key
+                local u_pool = {}
+                if G.P_JOKER_RARITY_POOLS and G.P_JOKER_RARITY_POOLS[2] then
+                    for _, c in ipairs(G.P_JOKER_RARITY_POOLS[2]) do
+                        if c.key and not (G.GAME and G.GAME.banned_keys and G.GAME.banned_keys[c.key]) then
+                            table.insert(u_pool, c.key)
+                        end
+                    end
                 end
-                if not key or not G.P_CENTERS[key] then key = 'j_joker' end
+                key = (#u_pool > 0) and pseudorandom_element(u_pool, pseudoseed('bm_jok4u_' .. tostring(round))) or 'j_joker'
             end
         end
 
@@ -1279,7 +1467,7 @@ function G.UIDEF.black_market()
                             {
                                 n = G.UIT.T,
                                 config = {
-                                    text = "Contraband Potions  |  Forbidden Spectrals  |  Borrowed Jokers  |  Contraband Goods",
+                                    text = (is_black_market_joker_banned and is_black_market_joker_banned()) and "Contraband Potions  |  Forbidden Spectrals  |  Celestial Goods  |  Contraband Goods" or "Contraband Potions  |  Forbidden Spectrals  |  Borrowed Jokers  |  Contraband Goods",
                                     scale = 0.28,
                                     colour = HEX('ffffff'),
                                     shadow = true

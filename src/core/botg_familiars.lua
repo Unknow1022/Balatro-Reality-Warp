@@ -141,11 +141,12 @@ function init_botg_familiars_area()
             -- Only draw subtle slot outline when slot is empty
             if #self.cards == 0 then
                 prep_draw(self, 1)
+                love.graphics.setShader()
+                local r = 0.12 * self.T.w
                 love.graphics.setColor(0, 0, 0, 0.4)
-                love.graphics.rectangle('fill', 0, 0, self.T.w, self.T.h, 0.08, 0.08)
-                love.graphics.setColor(0.3, 0.3, 0.35, 0.5)
-                love.graphics.setLineWidth(1)
-                love.graphics.rectangle('line', 0, 0, self.T.w, self.T.h, 0.08, 0.08)
+                love.graphics.rectangle('fill', 0, 0, self.T.w, self.T.h, r, r)
+                love.graphics.setColor(0.18, 0.20, 0.24, 0.6)
+                love.graphics.rectangle('fill', 0.02, 0.02, self.T.w - 0.04, self.T.h - 0.04, r * 0.85, r * 0.85)
                 love.graphics.pop()
             end
 
@@ -283,12 +284,13 @@ function botg_set_active_familiar(fam_key)
     card.draw = function(self, layer)
         if not self.states.visible then return end
         layer = layer or 'both'
-        local r = 0.12 * self.T.w
+        local r = 0.14 * self.T.w
 
         if layer == 'shadow' or layer == 'both' then
             prep_draw(self, 1)
-            local s_off_x = (self.shadow_parrallax and self.shadow_parrallax.x or 1) * 0.04 + 0.02
-            local s_off_y = (self.shadow_parrallax and self.shadow_parrallax.y or 1) * 0.04 + 0.04
+            love.graphics.setShader()
+            local s_off_x = (self.shadow_parrallax and self.shadow_parrallax.x or 1) * 0.03 + 0.02
+            local s_off_y = (self.shadow_parrallax and self.shadow_parrallax.y or 1) * 0.03 + 0.03
             love.graphics.setColor(0, 0, 0, 0.35)
             love.graphics.rectangle('fill', s_off_x, s_off_y, self.T.w, self.T.h, r, r)
             love.graphics.pop()
@@ -296,24 +298,23 @@ function botg_set_active_familiar(fam_key)
 
         if layer == 'card' or layer == 'both' then
             prep_draw(self, 1)
+            love.graphics.setShader()
 
-            -- White background (fondo blanco)
-            love.graphics.setColor(1, 1, 1, 1)
+            -- Outer border contour (subtle dark outline)
+            love.graphics.setColor(0.32, 0.35, 0.40, 0.9)
             love.graphics.rectangle('fill', 0, 0, self.T.w, self.T.h, r, r)
 
-            -- Soft inner fill
-            love.graphics.setColor(0.95, 0.96, 0.98, 1)
-            love.graphics.rectangle('fill', 0.02, 0.02, self.T.w - 0.04, self.T.h - 0.04, r * 0.85, r * 0.85)
+            -- Silver-grey bevel frame
+            love.graphics.setColor(0.78, 0.82, 0.88, 1)
+            love.graphics.rectangle('fill', 0.015, 0.015, self.T.w - 0.03, self.T.h - 0.03, r * 0.88, r * 0.88)
 
-            -- Silver-grey borders (bordes gris plateados)
-            love.graphics.setColor(0.72, 0.75, 0.80, 1)
-            love.graphics.setLineWidth(1.8)
-            love.graphics.rectangle('line', 0, 0, self.T.w, self.T.h, r, r)
+            -- Soft 3D bottom bevel shadow
+            love.graphics.setColor(0.64, 0.68, 0.75, 1)
+            love.graphics.rectangle('fill', 0.015, 0.03, self.T.w - 0.03, self.T.h - 0.045, r * 0.85, r * 0.85)
 
-            -- Subtle outer dark contour for tag bevel depth
-            love.graphics.setColor(0.52, 0.55, 0.60, 0.5)
-            love.graphics.setLineWidth(1)
-            love.graphics.rectangle('line', 0.01, 0.01, self.T.w - 0.02, self.T.h - 0.02, r, r)
+            -- Crisp clean white tag face
+            love.graphics.setColor(0.96, 0.97, 0.99, 1)
+            love.graphics.rectangle('fill', 0.03, 0.03, self.T.w - 0.06, self.T.h - 0.065, r * 0.78, r * 0.78)
 
             love.graphics.pop()
 

@@ -1449,13 +1449,23 @@ if create_UIBox_HUD then
     local orig_create_UIBox_HUD_trials = create_UIBox_HUD
     function create_UIBox_HUD()
         local hud = orig_create_UIBox_HUD_trials()
-        if G.GAME and G.GAME.challenge and (SPECIFIC_GOAL_TRIALS[G.GAME.challenge] or (G.GAME.win_ante and G.GAME.win_ante >= 999999)) then
+        if G.GAME and ((G.GAME.challenge and (SPECIFIC_GOAL_TRIALS[G.GAME.challenge] or not G.GAME.win_ante or G.GAME.win_ante >= 999)) or (G.GAME.win_ante and G.GAME.win_ante >= 999)) then
             local function fix_hud_ante(node)
                 if not node or type(node) ~= 'table' then return end
-                if node.config and type(node.config.text) == 'string' then
-                    if string.find(node.config.text, '999999') or node.config.text == '/∞' or (G.GAME.win_ante and G.GAME.win_ante >= 999999 and string.find(node.config.text, tostring(G.GAME.win_ante))) then
-                        node.config.text = ''
+                if node.config and node.config.id == 'hud_ante' then
+                    if node.nodes then
+                        for _, r_node in ipairs(node.nodes) do
+                            if r_node.nodes then
+                                for i = #r_node.nodes, 1, -1 do
+                                    local child = r_node.nodes[i]
+                                    if child.config and (child.config.ref_value == 'win_ante' or child.config.text == '/ ' or child.config.text == ' ' or (type(child.config.text) == 'string' and (string.find(child.config.text, '999999') or child.config.text == '/∞'))) then
+                                        table.remove(r_node.nodes, i)
+                                    end
+                                end
+                            end
+                        end
                     end
+                    return
                 end
                 if node.nodes then
                     for _, child in ipairs(node.nodes) do
@@ -1532,7 +1542,7 @@ if Card and Card.can_use_consumeable then
     end
 end
 
-local function is_joker_banned_challenge()
+function is_joker_banned_challenge()
     if not (G and G.GAME and G.GAME.challenge) then return false end
     local ch = G.GAME.challenge
     local ch_str = string.lower(tostring(ch))
@@ -1585,6 +1595,9 @@ end
 if create_card then
     local orig_create_card_trials = create_card
     function create_card(_type, area, legendary, _rarity, skip_materialize, soulable, forced_key, key_append)
+        if key_append == 'bm_buy' then
+            return orig_create_card_trials(_type, area, legendary, _rarity, skip_materialize, soulable, forced_key, key_append)
+        end
         local ch = G.GAME and G.GAME.challenge
         local has_showman = (reality_warp_player_has_showman and reality_warp_player_has_showman()) or (player_has_showman and player_has_showman())
 
