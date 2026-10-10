@@ -1091,6 +1091,60 @@ function G.UIDEF.use_and_sell_buttons(card)
         table.insert(t.nodes[1].nodes, hack_debuff_button)
     end
 
+    if card and card.area and card.area.config and card.area.config.type == 'joker' and card_has_key(card, 'sally') and not card.debuff then
+        local sally_quiz_button = {
+            n = G.UIT.R,
+            config = { align = 'cl' },
+            nodes = {
+                {
+                    n = G.UIT.C,
+                    config = { align = "cr" },
+                    nodes = {
+                        {
+                            n = G.UIT.C,
+                            config = {
+                                ref_table = card,
+                                align = "cr",
+                                padding = 0.1,
+                                r = 0.08,
+                                minw = 1.25,
+                                hover = true,
+                                shadow = true,
+                                colour = HEX('e8413e'),
+                                one_press = false,
+                                button = 'sally_open_question_menu',
+                            },
+                            nodes = {
+                                { n = G.UIT.B, config = { w = 0.1, h = 0.6 } },
+                                {
+                                    n = G.UIT.C,
+                                    config = { align = "tm" },
+                                    nodes = {
+                                        {
+                                            n = G.UIT.R,
+                                            config = { align = "cm", maxw = 1.25 },
+                                            nodes = {
+                                                { n = G.UIT.T, config = { text = "TRIVIA", colour = G.C.WHITE, scale = 0.38, shadow = true } }
+                                            }
+                                        },
+                                        {
+                                            n = G.UIT.R,
+                                            config = { align = "cm" },
+                                            nodes = {
+                                                { n = G.UIT.T, config = { text = "QUIZ", colour = G.C.WHITE, scale = 0.28, shadow = true } }
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+        table.insert(t.nodes[1].nodes, sally_quiz_button)
+    end
+
     return t
 end
 
@@ -1898,6 +1952,229 @@ register_secret_joker {
     end
 }
 
+local SALLY_QUESTIONS = {
+    {
+        q = "How many Jokers does the original Balatro have?",
+        options = { "A) 45", "B) 100", "C) 150", "D) 200" },
+        answer = 1,
+        reward = 5
+    },
+    {
+        q = "In which year was Balatro nominated as GOTY?",
+        options = { "A) 2022", "B) 2023", "C) 2024", "D) 2025" },
+        answer = 3,
+        reward = 5
+    },
+    {
+        q = "How many Legendary Jokers exist in the original Balatro?",
+        options = { "A) 3", "B) 4", "C) 5", "D) 6" },
+        answer = 3,
+        reward = 5
+    },
+    {
+        q = "How many Chips does the Foil edition give?",
+        options = { "A) +25 Chips", "B) +50 Chips", "C) +75 Chips", "D) +100 Chips" },
+        answer = 2,
+        reward = 5
+    },
+    {
+        q = "How much Mult does the Holographic edition give?",
+        options = { "A) +5 Mult", "B) +10 Mult", "C) +15 Mult", "D) +20 Mult" },
+        answer = 2,
+        reward = 5
+    },
+    {
+        q = "How much XMult does the Polychrome edition give?",
+        options = { "A) X1.2 Mult", "B) X1.5 Mult", "C) X2.0 Mult", "D) X3.0 Mult" },
+        answer = 2,
+        reward = 5
+    },
+    {
+        q = "How many Joker slots does the Negative edition give?",
+        options = { "A) +1 Slot", "B) +2 Slots", "C) +3 Slots", "D) No Slots" },
+        answer = 1,
+        reward = 5
+    },
+    {
+        q = "Who is the main protagonist in The Legend of Zelda?",
+        options = { "A) Zelda", "B) Link", "C) Ganon", "D) Epona" },
+        answer = 2,
+        reward = 10
+    },
+    {
+        q = "In Minecraft, which block is required for a Nether Portal frame?",
+        options = { "A) Obsidian", "B) Bedrock", "C) Netherrack", "D) Crying Obsidian" },
+        answer = 1,
+        reward = 10
+    },
+    {
+        q = "Which company created the classic arcade game Pac-Man?",
+        options = { "A) Nintendo", "B) Namco", "C) Konami", "D) Sega" },
+        answer = 2,
+        reward = 10
+    },
+    {
+        q = "In Dark Souls, what is the catchphrase of Solaire of Astora?",
+        options = { "A) Stay Awhile and Listen", "B) Praise the Sun", "C) Git Gud", "D) Fear the Old Blood" },
+        answer = 2,
+        reward = 10
+    },
+    {
+        q = "In Super Mario 64, how many total Power Stars can you collect?",
+        options = { "A) 70", "B) 100", "C) 120", "D) 150" },
+        answer = 3,
+        reward = 10
+    }
+}
+
+local function open_sally_question_menu(sally_card)
+    if not (create_UIBox_generic_options and G.FUNCS and G.FUNCS.overlay_menu) then return end
+    sally_card.ability = sally_card.ability or {}
+    sally_card.ability.extra = sally_card.ability.extra or {}
+
+    if sally_card.ability.extra.question_answered then
+        local contents = {
+            {
+                n = G.UIT.R, config = { align = "cm", padding = 0.1 },
+                nodes = {
+                    { n = G.UIT.T, config = { text = "SALLY'S TRIVIA SHOW", scale = 0.55, colour = HEX('e8413e'), shadow = true } }
+                }
+            },
+            {
+                n = G.UIT.R, config = { align = "cm", padding = 0.15, colour = HEX('18181b'), r = 0.12, outline = 0.02, outline_colour = HEX('71717a') },
+                nodes = {
+                    { n = G.UIT.T, config = { text = "Trivia already answered for this blind! Come back next blind!", scale = 0.35, colour = HEX('fef08a') } }
+                }
+            }
+        }
+        local t = create_UIBox_generic_options({
+            back_func = 'exit_overlay_menu',
+            back_label = "Close",
+            contents = contents
+        })
+        G.FUNCS.overlay_menu{ definition = t }
+        return
+    end
+
+    if not sally_card.ability.extra.current_question then
+        sally_card.ability.extra.current_question = pseudorandom_element(SALLY_QUESTIONS, pseudoseed('sally_question'))
+    end
+    local cur_q = sally_card.ability.extra.current_question
+
+    local function make_choice_button(idx, opt_text)
+        return {
+            n = G.UIT.C,
+            config = {
+                align = "cm", minw = 3.9, minh = 0.52, r = 0.1, padding = 0.04,
+                hover = true,
+                colour = HEX('27272a'),
+                outline = 0.025,
+                outline_colour = HEX('e8413e'),
+                button = 'sally_choose_answer',
+                ref_table = { sally = sally_card, choice_index = idx, question = cur_q },
+                shadow = true
+            },
+            nodes = {
+                { n = G.UIT.T, config = { text = opt_text, scale = 0.33, colour = G.C.WHITE, shadow = true } }
+            }
+        }
+    end
+
+    local reward_val = cur_q.reward or 5
+    local contents = {
+        {
+            n = G.UIT.R, config = { align = "cm", padding = 0.06 },
+            nodes = {
+                { n = G.UIT.T, config = { text = "SALLY'S TRIVIA SHOW", scale = 0.52, colour = HEX('e8413e'), shadow = true } }
+            }
+        },
+        {
+            n = G.UIT.R, config = { align = "cm", padding = 0.03 },
+            nodes = {
+                { n = G.UIT.T, config = { text = "Answer correctly to win $" .. tostring(reward_val) .. "!", scale = 0.3, colour = G.C.WHITE } }
+            }
+        },
+        {
+            n = G.UIT.R, config = {
+                align = "cm", padding = 0.1, colour = HEX('18181b'),
+                r = 0.12, outline = 0.03, outline_colour = HEX('e8413e'), minw = 8.1
+            },
+            nodes = {
+                { n = G.UIT.T, config = { text = cur_q.q, scale = 0.35, colour = HEX('fef08a'), shadow = true } }
+            }
+        },
+        {
+            n = G.UIT.R, config = { align = "cm", padding = 0.04 },
+            nodes = {
+                make_choice_button(1, cur_q.options[1]),
+                { n = G.UIT.B, config = { w = 0.2, h = 0.1 } },
+                make_choice_button(2, cur_q.options[2]),
+            }
+        },
+        {
+            n = G.UIT.R, config = { align = "cm", padding = 0.04 },
+            nodes = {
+                make_choice_button(3, cur_q.options[3]),
+                { n = G.UIT.B, config = { w = 0.2, h = 0.1 } },
+                make_choice_button(4, cur_q.options[4]),
+            }
+        },
+        {
+            n = G.UIT.R, config = { align = "cm", padding = 0.04 },
+            nodes = {}
+        }
+    }
+
+    local t = create_UIBox_generic_options({
+        back_func = 'exit_overlay_menu',
+        back_label = "Close",
+        contents = contents
+    })
+    G.FUNCS.overlay_menu{ definition = t }
+end
+
+G.FUNCS = G.FUNCS or {}
+G.FUNCS.sally_open_question_menu = function(e)
+    local card = e.config.ref_table
+    if card then
+        open_sally_question_menu(card)
+    end
+end
+
+G.FUNCS.sally_choose_answer = function(e)
+    local ref = e.config.ref_table
+    if not ref or not ref.sally or not ref.question then return end
+    local sally = ref.sally
+    local q = ref.question
+    local chosen = ref.choice_index
+    local is_correct = (chosen == q.answer)
+
+    G.FUNCS.exit_overlay_menu()
+
+    sally.ability = sally.ability or {}
+    sally.ability.extra = sally.ability.extra or {}
+    sally.ability.extra.question_answered = true
+
+    if is_correct then
+        local reward = q.reward or 5
+        play_sound('coin2')
+        sally:juice_up(0.8, 0.8)
+        ease_dollars(reward)
+        card_eval_status_text(sally, 'extra', nil, nil, nil, { message = 'CORRECT! +$' .. reward, colour = G.C.GOLD })
+        sally.ability.extra.completed = true
+        G.E_MANAGER:add_event(Event({
+            func = function()
+                SMODS.add_card { set = 'Tarot', edition = 'e_negative', key_append = 'sally' }
+                return true
+            end
+        }))
+    else
+        play_sound('cancel')
+        sally:juice_up(0.4, 0.4)
+        card_eval_status_text(sally, 'extra', nil, nil, nil, { message = 'WRONG!', colour = G.C.RED })
+    end
+end
+
 register_secret_joker {
     key = 'sally',
     atlas = 'secret_jokers',
@@ -1906,61 +2183,27 @@ register_secret_joker {
     loc_txt = {
         name = 'Sally',
         text = {
-            "Complete the challenge each blind to",
-            "earn {C:money}$40{} and a random {C:dark_edition}Negative{} consumable",
+            "Answer a {C:attention}Trivia Question{} each blind",
+            "to earn {C:money}$5{} {C:inactive}($10 for Multiple Choice){}",
+            "and a random {C:dark_edition}Negative{} consumable",
             "{C:inactive}(Current: #1#){}"
         }
     },
-    config = { extra = { quest = 'Play 3 Hands', progress = 0, needed = 3, reward_money = 40, completed = false } },
+    config = { extra = { question_answered = false, completed = false } },
     blueprint_compat = false,
     loc_vars = function(self, info_queue, card)
         local ex = (card and card.ability and card.ability.extra) or self.config.extra
-        local prog = ex.progress or 0
-        local need = ex.needed or 3
-        local q_name = ex.quest or 'Play 3 Hands'
-        return { vars = { q_name .. ' (' .. prog .. '/' .. need .. ')' } }
+        local cur_q = ex.current_question
+        local reward = cur_q and cur_q.reward or 5
+        local status_str = ex.question_answered and "Answered" or ("Pending ($" .. reward .. ") - Click TRIVIA")
+        return { vars = { status_str } }
     end,
     calculate = function(self, card, context)
         if context.setting_blind and not context.blueprint then
             card.ability.extra.completed = false
-            card.ability.extra.progress = 0
-            local quests = {
-                { name = 'Play 3 Hands', needed = 3, type = 'hand' },
-                { name = 'Discard 2 Times', needed = 2, type = 'discard' },
-                { name = 'Score 10 Cards', needed = 10, type = 'score' }
-            }
-            local q = pseudorandom_element(quests, pseudoseed('sally_quest'))
-            card.ability.extra.quest = q.name
-            card.ability.extra.needed = q.needed
-            card.ability.extra.q_type = q.type
-        end
-        if context.cardarea == G.jokers and not context.blueprint and not card.ability.extra.completed then
-            local completed = false
-            if context.before and card.ability.extra.q_type == 'hand' then
-                card.ability.extra.progress = card.ability.extra.progress + 1
-                if card.ability.extra.progress >= card.ability.extra.needed then completed = true end
-            elseif context.pre_discard and card.ability.extra.q_type == 'discard' then
-                card.ability.extra.progress = card.ability.extra.progress + 1
-                if card.ability.extra.progress >= card.ability.extra.needed then completed = true end
-            elseif context.individual and context.cardarea == G.play and card.ability.extra.q_type == 'score' then
-                card.ability.extra.progress = card.ability.extra.progress + 1
-                if card.ability.extra.progress >= card.ability.extra.needed then completed = true end
-            end
-            if completed and not card.ability.extra.completed then
-                card.ability.extra.completed = true
-                ease_dollars(card.ability.extra.reward_money or 40)
-                G.E_MANAGER:add_event(Event({
-                    func = function()
-                        SMODS.add_card { set = 'Tarot', edition = 'e_negative', key_append = 'sally' }
-                        return true
-                    end
-                }))
-                return {
-                    message = '+$' .. (card.ability.extra.reward_money or 40),
-                    colour = G.C.GOLD,
-                    card = card
-                }
-            end
+            card.ability.extra.question_answered = false
+            card.ability.extra.current_question = pseudorandom_element(SALLY_QUESTIONS, pseudoseed('sally_question'))
+            card.ability.extra._counted_for_trial = nil
         end
     end
 }

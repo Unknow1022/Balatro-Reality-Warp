@@ -2567,7 +2567,7 @@ SMODS.Joker {
         if context.after and not context.blueprint then
             ex.chamber = (ex.chamber % 6) + 1
             if ex.chamber == ex.bullet then
-                play_sound('explosion')
+                play_sound('explosion_release1')
                 if G.GAME and G.GAME.current_round then
                     G.GAME.current_round.hands_left = 1
                 end
@@ -2583,7 +2583,7 @@ SMODS.Joker {
                     card = card
                 }
             else
-                play_sound('click', 1.2)
+                play_sound('button', 1.2)
                 return {
                     message = 'Click! Chamber ' .. ex.chamber .. '/6',
                     colour = G.C.GREY,

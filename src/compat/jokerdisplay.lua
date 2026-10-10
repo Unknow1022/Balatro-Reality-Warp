@@ -1907,20 +1907,21 @@ jd_def["j_reality_warp_callie"] = {
 
 jd_def["j_reality_warp_sally"] = {
     text = {
-        { ref_table = "card.joker_display_values", ref_value = "quest_str" }
+        { ref_table = "card.joker_display_values", ref_value = "trivia_status" }
     },
     reminder_text = {
-        { text = "(Reward: +$10)", colour = G.C.MONEY }
+        { ref_table = "card.joker_display_values", ref_value = "reward_str" }
     },
     calc_function = function(card)
         local ex = card.ability and card.ability.extra or {}
-        local prog = ex.progress or 0
-        local need = ex.needed or 3
-        local quest = ex.quest or "Play 3 Hands"
-        if ex.completed then
-            card.joker_display_values.quest_str = "Completed!"
+        local cur_q = ex.current_question
+        local reward = cur_q and cur_q.reward or 5
+        if ex.question_answered then
+            card.joker_display_values.trivia_status = "Answered!"
+            card.joker_display_values.reward_str = "(Next Blind)"
         else
-            card.joker_display_values.quest_str = quest .. " (" .. prog .. "/" .. need .. ")"
+            card.joker_display_values.trivia_status = "Trivia Pending"
+            card.joker_display_values.reward_str = "(Reward: +$" .. tostring(reward) .. ")"
         end
     end
 }

@@ -519,17 +519,17 @@ local OUTSIDER_TRIALS_DATA = {
         accent = HEX('e8413e'),
         bg_color = HEX('380b0b'),
         jokers = { 'j_reality_warp_sally' },
-        quote = "\"Step right up! Complete 10 of my dynamic quests before you hit Ante 8!\"",
+        quote = "\"Step right up! Answer 10 of my video game trivia questions before you hit Ante 8!\"",
         rules = {
-            "Goal: Complete at least 10 Sally Quests",
-            "Ante 8 limit disabled: keep playing until quests are done!",
-            "Horizontal progress bar increments upon each finished quest",
-            "Reach 10 completed quests to reveal the 'WIN!' button",
+            "Goal: Correctly answer at least 10 Trivia Questions",
+            "Ante 8 limit disabled: keep playing until questions are done!",
+            "Horizontal progress bar increments upon each correct answer",
+            "Reach 10 completed questions to reveal the 'WIN!' button",
         },
         deck_rules = {
             "Starting Joker: Sally (Eternal)",
-            "Target: 10 Completed Quests",
-            "Quests reset and update on every Blind",
+            "Target: 10 Answered Questions",
+            "Trivia resets and updates on every Blind",
             "Claim victory directly via the 'WIN!' button",
         },
         challenge_id = 'c_reality_warp_sally_trial',
@@ -1781,7 +1781,7 @@ if Card and Card.calculate_joker then
                     self.ability.extra._counted_for_trial = true
                     G.GAME.sally_quests_completed = (G.GAME.sally_quests_completed or 0) + 1
                     attention_text({
-                        text = "QUEST COMPLETE! (" .. G.GAME.sally_quests_completed .. "/10)",
+                        text = "TRIVIA COMPLETE! (" .. G.GAME.sally_quests_completed .. "/10)",
                         scale = 0.55,
                         hold = 0.8,
                         backdrop_colour = HEX('e8413e'),

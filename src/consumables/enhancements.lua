@@ -535,7 +535,7 @@ SMODS.Enhancement {
         local extra = (card and card.ability and card.ability.extra) or (self.config and self.config.extra) or { mult_pip = 15, chip_pip = 60, x_mult = 2.0 }
         if (context.main_scoring or context.individual) and context.cardarea == G.play then
             local roll = pseudorandom('roulette_card', 1, 6)
-            play_sound('dice', 1.0 + roll * 0.05)
+            play_sound('chips1', 1.0 + roll * 0.05)
             if roll == 1 or roll == 2 then
                 return {
                     mult = extra.mult_pip,
