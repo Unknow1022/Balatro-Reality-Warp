@@ -334,14 +334,19 @@ SMODS.Voucher {
     atlas = 'reality_warp_vouchers',
     pos = { x = 0, y = 4 },
     cost = 10,
+    config = { extra = { odds = 4 } },
     loc_txt = {
-        name = '4 Leaf Clover',
+        name = 'Four Leaf Clover',
         text = {
-            "All {C:green,E:1,S:1.1}probabilities{} have",
-            "their requirement reduced by {C:attention}1{}",
-            "{C:inactive}(e.g. 1 in 4 -> 1 in 3){}"
+            "If you {C:red}fail{} a probability,",
+            "the next one has a {C:green}#1# in #2#{}",
+            "chance to be {C:attention}guaranteed{}"
         }
     },
+    loc_vars = function(self, info_queue, card)
+        local odds = (card and card.ability and card.ability.extra and card.ability.extra.odds) or 4
+        return { vars = { '' .. (G.GAME and G.GAME.probabilities.normal or 1), odds } }
+    end,
     redeem = function(self, card)
         G.GAME.used_vouchers = G.GAME.used_vouchers or {}
         G.GAME.used_vouchers.v_reality_warp_four_leaf_clover = true
@@ -355,57 +360,96 @@ SMODS.Voucher {
 }
 
 SMODS.Voucher {
-    key = 'oops_all_20d',
+    key = 'loaded_d20',
     atlas = 'reality_warp_vouchers',
     requires = { 'v_reality_warp_four_leaf_clover' },
     pos = { x = 1, y = 4 },
     cost = 10,
     loc_txt = {
-        name = 'Oops! All 20d!',
+        name = 'Loaded D20',
         text = {
-            "All {C:green,E:1,S:1.1}probabilities{} have",
-            "their requirement {C:attention}halved{}",
-            "{C:inactive}(e.g. 1 in 10 -> 1 in 5){}"
+            "If you {C:red}fail{} a probability,",
+            "the next one is",
+            "{C:attention}guaranteed{}"
         }
     },
     redeem = function(self, card)
         G.GAME.used_vouchers = G.GAME.used_vouchers or {}
+        G.GAME.used_vouchers.v_reality_warp_loaded_d20 = true
+        G.GAME.used_vouchers.v_loaded_d20 = true
+        G.GAME.used_vouchers.loaded_d20 = true
         G.GAME.used_vouchers.v_reality_warp_oops_all_20d = true
         G.GAME.used_vouchers.v_oops_all_20d = true
         G.GAME.used_vouchers.oops_all_20d = true
         if G.GAME.current_round and G.GAME.current_round.voucher and G.GAME.current_round.voucher.spawn then
+            G.GAME.current_round.voucher.spawn.v_reality_warp_loaded_d20 = false
+            G.GAME.current_round.voucher.spawn.v_loaded_d20 = false
             G.GAME.current_round.voucher.spawn.v_reality_warp_oops_all_20d = false
             G.GAME.current_round.voucher.spawn.v_oops_all_20d = false
         end
     end
 }
 
-local function modify_probability_denominator(den)
-    if not den or type(den) ~= 'number' or den <= 1 then return den end
-    if G.GAME and G.GAME.used_vouchers then
-        if G.GAME.used_vouchers.v_reality_warp_oops_all_20d or G.GAME.used_vouchers.v_oops_all_20d or G.GAME.used_vouchers.oops_all_20d then
-            return math.max(1, math.floor(den / 2))
-        elseif G.GAME.used_vouchers.v_reality_warp_four_leaf_clover or G.GAME.used_vouchers.v_four_leaf_clover or G.GAME.used_vouchers.four_leaf_clover then
-            return math.max(1, den - 1)
-        end
-    end
-    return den
+local function has_loaded_d20()
+    return G.GAME and G.GAME.used_vouchers and (
+        G.GAME.used_vouchers.v_reality_warp_loaded_d20 or
+        G.GAME.used_vouchers.v_loaded_d20 or
+        G.GAME.used_vouchers.loaded_d20 or
+        G.GAME.used_vouchers.v_reality_warp_oops_all_20d or
+        G.GAME.used_vouchers.v_oops_all_20d or
+        G.GAME.used_vouchers.oops_all_20d
+    )
 end
-G.reality_warp_modify_odds = modify_probability_denominator
+
+local function has_four_leaf_clover()
+    return G.GAME and G.GAME.used_vouchers and (
+        G.GAME.used_vouchers.v_reality_warp_four_leaf_clover or
+        G.GAME.used_vouchers.v_four_leaf_clover or
+        G.GAME.used_vouchers.four_leaf_clover
+    )
+end
+
+G.reality_warp_modify_odds = function(den) return den end
 
 if SMODS and SMODS.pseudorandom_probability then
     local orig_smods_pseudorandom_probability = SMODS.pseudorandom_probability
-    function SMODS.pseudorandom_probability(card, seed, numerator, denominator, name)
-        denominator = modify_probability_denominator(denominator)
-        return orig_smods_pseudorandom_probability(card, seed, numerator, denominator, name)
-    end
-end
+    function SMODS.pseudorandom_probability(trigger_obj, seed, base_numerator, base_denominator, identifier, no_mod)
+        local loaded = has_loaded_d20()
+        local clover = has_four_leaf_clover()
 
-if SMODS and SMODS.get_probability_vars then
-    local orig_smods_get_probability_vars = SMODS.get_probability_vars
-    function SMODS.get_probability_vars(card, numerator, denominator, name)
-        denominator = modify_probability_denominator(denominator)
-        return orig_smods_get_probability_vars(card, numerator, denominator, name)
+        if not loaded and not clover then
+            return orig_smods_pseudorandom_probability(trigger_obj, seed, base_numerator, base_denominator, identifier, no_mod)
+        end
+
+        local is_guaranteed = false
+        if G.GAME and G.GAME.rw_prob_failed then
+            G.GAME.rw_prob_failed = false
+            if loaded then
+                is_guaranteed = true
+            elseif clover then
+                local odds = (G.GAME.probabilities.normal or 1) / 4
+                if pseudorandom('four_leaf_clover') < odds then
+                    is_guaranteed = true
+                end
+            end
+        end
+
+        local result = orig_smods_pseudorandom_probability(trigger_obj, seed, base_numerator, base_denominator, identifier, no_mod)
+
+        if is_guaranteed then
+            result = true
+            if SMODS.post_prob and #SMODS.post_prob > 0 then
+                SMODS.post_prob[#SMODS.post_prob].result = true
+            end
+        end
+
+        if not result then
+            if G.GAME then
+                G.GAME.rw_prob_failed = true
+            end
+        end
+
+        return result
     end
 end
 
