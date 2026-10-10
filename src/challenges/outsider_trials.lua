@@ -1525,10 +1525,59 @@ if Card and Card.can_use_consumeable then
                 return false
             end
         end
-        if (ch == 'c_reality_warp_helin_trial' or ch == 'c_reality_warp_paco_trial') and set ~= 'Planet' then
+        if (ch == 'c_reality_warp_helin_trial' or ch == 'c_reality_warp_paco_trial') and (set ~= 'Planet' and set ~= 'Job') then
             return false
         end
         return orig_can_use_consumeable(self, any_state, skip_check)
+    end
+end
+
+local function is_joker_banned_challenge()
+    if not (G and G.GAME and G.GAME.challenge) then return false end
+    local ch = G.GAME.challenge
+    local ch_str = string.lower(tostring(ch))
+    if ch == 'c_reality_warp_helin_trial' or ch == 'helin_trial' or
+       ch == 'c_reality_warp_calamari_trial' or ch == 'calamari_trial' or
+       ch == 'c_reality_warp_cefalopop_trial' or ch == 'cefalopop_trial' or
+       ch == 'c_reality_warp_paco_trial' or ch == 'paco_trial' or
+       ch == 'jokerless_1' or ch == 'c_jokerless' or
+       string.find(ch_str, 'jokerless') or
+       (G.GAME.modifiers and G.GAME.modifiers.no_shop_jokers) or
+       (G.GAME.modifiers and G.GAME.modifiers.joker_slots == 0) then
+        return true
+    end
+    return false
+end
+
+-- Booster Packs Restriction for Joker Banned Challenges: ONLY Planet packs
+if get_pack then
+    local orig_get_pack_trials = get_pack
+    function get_pack(_key, _type)
+        if is_joker_banned_challenge() then
+            _type = 'Planet'
+        end
+        local pack = orig_get_pack_trials(_key, _type)
+        if is_joker_banned_challenge() and pack then
+            local kind = pack.kind or (pack.config and pack.config.center and pack.config.center.kind)
+            if kind ~= 'Planet' then
+                local celestial_keys = {
+                    'p_celestial_normal_1', 'p_celestial_normal_2',
+                    'p_celestial_jumbo_1', 'p_celestial_jumbo_2',
+                    'p_celestial_mega_1', 'p_celestial_mega_2'
+                }
+                local valid = {}
+                for _, ck in ipairs(celestial_keys) do
+                    if G.P_CENTERS and G.P_CENTERS[ck] then
+                        table.insert(valid, ck)
+                    end
+                end
+                if #valid > 0 then
+                    local chosen = pseudorandom_element(valid, pseudoseed('planet_pack_filter'))
+                    pack = G.P_CENTERS[chosen] or pack
+                end
+            end
+        end
+        return pack
     end
 end
 
@@ -1600,13 +1649,13 @@ if create_card then
         end
 
         if ch == 'c_reality_warp_helin_trial' then
-            -- Helin: No Jokers appear in shop/packs (Lone Celestial); replace all with Planet cards
-            if (_type == 'Joker' and key_append ~= 'start') or _type == 'Consumeables' or _type == 'Tarot' or _type == 'Spectral' or _type == 'Potion' then
+            -- Helin: No Jokers appear in shop/packs (Lone Celestial); replace all with Planet cards, job cards unaffected
+            if (_type == 'Joker' and key_append ~= 'start') or (_type ~= 'Job' and (_type == 'Consumeables' or _type == 'Tarot' or _type == 'Spectral' or _type == 'Potion')) then
                 _type = 'Planet'
                 forced_key = nil
             end
         elseif ch == 'c_reality_warp_paco_trial' then
-            if _type == 'Consumeables' or _type == 'Tarot' or _type == 'Spectral' or _type == 'Potion' then
+            if _type ~= 'Job' and (_type == 'Consumeables' or _type == 'Tarot' or _type == 'Spectral' or _type == 'Potion') then
                 _type = 'Planet'
             end
         end
@@ -1655,7 +1704,20 @@ if create_card then
         end
 
         if (ch == 'c_reality_warp_calamari_trial' or ch == 'c_reality_warp_cefalopop_trial') and _type == 'Joker' and key_append ~= 'start' then
-            _type = 'Tarot'
+            _type = 'Planet'
+        end
+
+        if is_joker_banned_challenge() then
+            if _type == 'Booster' then
+                local is_celestial = forced_key and string.find(forced_key, 'p_celestial')
+                if not is_celestial then
+                    local celestial_keys = { 'p_celestial_normal_1', 'p_celestial_normal_2', 'p_celestial_jumbo_1', 'p_celestial_mega_1' }
+                    forced_key = pseudorandom_element(celestial_keys, pseudoseed('planet_booster_force'))
+                end
+            elseif _type == 'Joker' and key_append ~= 'start' then
+                _type = 'Planet'
+                forced_key = nil
+            end
         end
 
         return orig_create_card_trials(_type, area, legendary, _rarity, skip_materialize, soulable, forced_key, key_append)

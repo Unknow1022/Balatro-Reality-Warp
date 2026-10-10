@@ -28,8 +28,8 @@ if G.FUNCS then
     end
 end
 
-G.BOTG_FAMILIAR_SLOT_SIZE = 0.75
-G.BOTG_FAMILIAR_SIZE = 0.65
+G.BOTG_FAMILIAR_SLOT_SIZE = 0.85
+G.BOTG_FAMILIAR_SIZE = 0.72
 G.BOTG_FAMILIAR_CARD_SCALE = 1.0
 
 function botg_get_familiar_level(fam_key)
@@ -84,11 +84,11 @@ end
 function init_botg_familiars_area()
     botg_purge_orphan_familiars()
     if not G.botg_familiars or G.botg_familiars.REMOVED then
-        local w = G.BOTG_FAMILIAR_SLOT_SIZE or 0.75
-        local h = G.BOTG_FAMILIAR_SLOT_SIZE or 0.75
+        local w = G.BOTG_FAMILIAR_SLOT_SIZE or 0.85
+        local h = G.BOTG_FAMILIAR_SLOT_SIZE or 0.85
         local x = (G.deck and (G.deck.T.x + (G.deck.T.w - w) * 0.5)) or 10
         local y = (G.deck and (G.deck.T.y - h - 0.25)) or 7
-        local card_size = G.BOTG_FAMILIAR_SIZE or 0.65
+        local card_size = G.BOTG_FAMILIAR_SIZE or 0.72
         G.botg_familiars = CardArea(
             x, y,
             w, h,
@@ -184,12 +184,12 @@ if set_screen_positions then
             botg_purge_orphan_familiars()
         end
         if G.botg_familiars and G.deck and G.STAGE == G.STAGES.RUN then
-            G.botg_familiars.T.w = G.BOTG_FAMILIAR_SLOT_SIZE or 0.75
-            G.botg_familiars.T.h = G.BOTG_FAMILIAR_SLOT_SIZE or 0.75
+            G.botg_familiars.T.w = G.BOTG_FAMILIAR_SLOT_SIZE or 0.85
+            G.botg_familiars.T.h = G.BOTG_FAMILIAR_SLOT_SIZE or 0.85
             G.botg_familiars.T.x = G.deck.T.x + (G.deck.T.w - G.botg_familiars.T.w) * 0.5
             G.botg_familiars.T.y = G.deck.T.y - G.botg_familiars.T.h - 0.25
             G.botg_familiars:hard_set_VT()
-            local size = G.BOTG_FAMILIAR_SIZE or 0.65
+            local size = G.BOTG_FAMILIAR_SIZE or 0.72
             for _, card in ipairs(G.botg_familiars.cards) do
                 card.T.w = size
                 card.T.h = size
@@ -261,7 +261,7 @@ function botg_set_active_familiar(fam_key)
     card.discovered = true
     card.unlocked = true
     card.debuff = false
-    local size = G.BOTG_FAMILIAR_SIZE or 0.65
+    local size = G.BOTG_FAMILIAR_SIZE or 0.72
     card.T.w = size
     card.T.h = size
     card.VT.w = size
@@ -280,6 +280,48 @@ function botg_set_active_familiar(fam_key)
     card.states.drag.can = false
     card.states.click.can = true
     card.states.hover.can = true
+    card.draw = function(self, layer)
+        if not self.states.visible then return end
+        layer = layer or 'both'
+        local r = 0.12 * self.T.w
+
+        if layer == 'shadow' or layer == 'both' then
+            prep_draw(self, 1)
+            local s_off_x = (self.shadow_parrallax and self.shadow_parrallax.x or 1) * 0.04 + 0.02
+            local s_off_y = (self.shadow_parrallax and self.shadow_parrallax.y or 1) * 0.04 + 0.04
+            love.graphics.setColor(0, 0, 0, 0.35)
+            love.graphics.rectangle('fill', s_off_x, s_off_y, self.T.w, self.T.h, r, r)
+            love.graphics.pop()
+        end
+
+        if layer == 'card' or layer == 'both' then
+            prep_draw(self, 1)
+
+            -- White background (fondo blanco)
+            love.graphics.setColor(1, 1, 1, 1)
+            love.graphics.rectangle('fill', 0, 0, self.T.w, self.T.h, r, r)
+
+            -- Soft inner fill
+            love.graphics.setColor(0.95, 0.96, 0.98, 1)
+            love.graphics.rectangle('fill', 0.02, 0.02, self.T.w - 0.04, self.T.h - 0.04, r * 0.85, r * 0.85)
+
+            -- Silver-grey borders (bordes gris plateados)
+            love.graphics.setColor(0.72, 0.75, 0.80, 1)
+            love.graphics.setLineWidth(1.8)
+            love.graphics.rectangle('line', 0, 0, self.T.w, self.T.h, r, r)
+
+            -- Subtle outer dark contour for tag bevel depth
+            love.graphics.setColor(0.52, 0.55, 0.60, 0.5)
+            love.graphics.setLineWidth(1)
+            love.graphics.rectangle('line', 0.01, 0.01, self.T.w - 0.02, self.T.h - 0.02, r, r)
+
+            love.graphics.pop()
+
+            if self.children.center then
+                self.children.center:draw()
+            end
+        end
+    end
     card:hard_set_T(G.botg_familiars.T.x + (G.botg_familiars.T.w - size) * 0.5, G.botg_familiars.T.y + (G.botg_familiars.T.h - size) * 0.5, size, size)
     G.botg_familiars:emplace(card)
     G.botg_familiars:align_cards()
