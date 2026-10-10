@@ -258,12 +258,12 @@ SMODS.Joker {
             "Scoring both gives {X:mult,C:white}X#1#{} Mult, {C:money}+$#2#{}, and permanent {C:chips}+#3#{} Chips.",
             "Scored {C:hearts}Hearts{} give {C:mult}+#4#{} Mult",
             "{C:inactive}(Soulmates: #5# and #6#){}"
+        },
+        unlock = {
+            "Play a {C:attention}Flush{} of all 4 suits",
+            "{C:inactive}(Hearts, Spades, Clubs, Diamonds){}",
+            "in a single run"
         }
-    },
-    unlock = {
-        "Play a {C:attention}Flush{} of all 4 suits",
-        "{C:inactive}(Hearts, Spades, Clubs, Diamonds){}",
-        "in a single run"
     },
     config = { extra = { xmult = 3.0, dollars = 6, perma_chips = 10, heart_mult = 10 } },
     rarity = 3,
@@ -354,12 +354,12 @@ SMODS.Joker {
             "At {C:attention}#2# Heat{}, strikes the anvil: {C:green}#4# in #5#{} chance",
             "to apply a {C:attention}Silver Seal{} or {C:attention}Steel Card{} enhancement",
             "to the highest scored card and cools to 0 {C:inactive}(Current: #3#/#2# Heat){}"
+        },
+        unlock = {
+            "Play a {C:attention}Flush{} of all 4 suits",
+            "{C:inactive}(Hearts, Spades, Clubs, Diamonds){}",
+            "in a single run"
         }
-    },
-    unlock = {
-        "Play a {C:attention}Flush{} of all 4 suits",
-        "{C:inactive}(Hearts, Spades, Clubs, Diamonds){}",
-        "in a single run"
     },
     config = { extra = { temp = 0, heat_per_card = 10, max_temp = 100 } },
     rarity = 3,
@@ -451,12 +451,12 @@ SMODS.Joker {
             "{C:inactive}(#2#/5 Clubs, #3# - Resets at end of round){}",
             "Gains {X:mult,C:white}+X#1#{} Mult when any probability succeeds",
             "{C:inactive}(Currently {X:mult,C:white}X#4#{C:inactive} Mult){}"
+        },
+        unlock = {
+            "Play a {C:attention}Flush{} of all 4 suits",
+            "{C:inactive}(Hearts, Spades, Clubs, Diamonds){}",
+            "in a single run"
         }
-    },
-    unlock = {
-        "Play a {C:attention}Flush{} of all 4 suits",
-        "{C:inactive}(Hearts, Spades, Clubs, Diamonds){}",
-        "in a single run"
     },
     config = { extra = { xmult = 1.5, xmult_gain = 0.1, clubs_scored = 0, clubs_needed = 5, guaranteed = false } },
     rarity = 3,
@@ -527,12 +527,12 @@ SMODS.Joker {
             "{C:inactive}<200m:{} {C:chips}+50{} Chips | {C:inactive}200m+:{} {C:money}+$3{} | {C:inactive}400m+:{} {X:mult,C:white}X1.5{} Mult",
             "{C:inactive}600m+:{} {X:mult,C:white}X2{} Mult & Retrigger | {C:inactive}800m+:{} {X:mult,C:white}X2.5{} Mult & {C:spectral}Spectral{}",
             "{C:attention}1000m (Max):{} Triggers {C:attention}ALL{} effects simultaneously!"
+        },
+        unlock = {
+            "Play a {C:attention}Flush{} of all 4 suits",
+            "{C:inactive}(Hearts, Spades, Clubs, Diamonds){}",
+            "in a single run"
         }
-    },
-    unlock = {
-        "Play a {C:attention}Flush{} of all 4 suits",
-        "{C:inactive}(Hearts, Spades, Clubs, Diamonds){}",
-        "in a single run"
     },
     config = { extra = { depth = 0, depth_per_card = 2, max_depth = 1000 } },
     rarity = 3,
@@ -1012,13 +1012,15 @@ SMODS.Joker {
     key = 'orchestra_director',
     atlas = 'reality_warp_jokers',
     unlocked = false,
-    unlock = { "Own {C:attention}5 Jokers{} at the same time" },
     loc_txt = {
         name = 'Orchestra Director',
         text = {
             "{C:green}#1# in #2#{} chance a random Joker in",
             "the shop appears for {C:money}free{}",
             "{C:inactive}(Each shop visit rolls once){}"
+        },
+        unlock = {
+            "Own {C:attention}5 Jokers{} at the same time"
         }
     },
     config = { extra = { odds = 4 } },
@@ -1148,7 +1150,6 @@ SMODS.Joker {
     key = 'meteorologist',
     atlas = 'reality_warp_jokers',
     unlocked = false,
-    unlock = { "Defeat a blind under", "each of the 4 weather effects" },
     loc_txt = {
         name = 'Meteorologist',
         text = {
@@ -1156,6 +1157,10 @@ SMODS.Joker {
             "{C:attention}Storm{} (+0.5X Mult, -1 hand), {C:attention}Sun{} (-0.5X Mult, +1 hand),",
             "{C:attention}Fog{} (draws card face down), {C:attention}Hail{} (debuffs random card).",
             "{C:inactive}(Current: {C:attention}#2#{C:inactive}){}"
+        },
+        unlock = {
+            "Defeat a blind under",
+            "each of the 4 weather effects"
         }
     },
     config = { extra = { xmult = 3, weather = '', weathers_seen = {} } },
@@ -1285,7 +1290,6 @@ SMODS.Joker {
     key = 'catalyst',
     atlas = 'reality_warp_jokers',
     unlocked = false,
-    unlock = { "Have a Joker with {C:mult}X3{} or", "higher base x_mult" },
     loc_txt = {
         name = 'Catalyst',
         text = {
@@ -1293,6 +1297,10 @@ SMODS.Joker {
             "random {C:attention}Joker{} and grant",
             "{X:mult,C:white}X#3#{} Mult if activated",
             "{C:inactive}(Retriggered: #4#){}"
+        },
+        unlock = {
+            "Have a Joker with {C:mult}X3{} or",
+            "higher base x_mult"
         }
     },
     config = { extra = { odds = 3, x_mult = 5, target_name = 'None' } },
@@ -1414,13 +1422,16 @@ SMODS.Joker {
     key = 'hypnotist',
     atlas = 'reality_warp_jokers',
     unlocked = false,
-    unlock = { "Defeat {C:attention}3 different{}", "Boss Blind types" },
     loc_txt = {
         name = 'Hypnotist',
         text = {
             "Boss Blind has {C:green}#1# in #2#{} chance to",
             "be {C:attention}hypnotized{}: its debuff effect is",
             "{C:attention}completely disabled{}"
+        },
+        unlock = {
+            "Defeat {C:attention}3 different{}",
+            "Boss Blind types"
         }
     },
     config = { extra = { odds = 3, hypnotized = false, bosses_defeated = {}, boss_count = 0 } },
@@ -1656,7 +1667,6 @@ SMODS.Joker {
     key = 'entomologist',
     atlas = 'reality_warp_jokers',
     unlocked = false,
-    unlock = { "Defeat {C:attention}10 blinds{}", "in a single run" },
     loc_txt = {
         name = 'Entomologist',
         text = {
@@ -1664,6 +1674,10 @@ SMODS.Joker {
             "a random {C:attention}Insect Sticker{}:",
             "{C:attention}Beetle{}: {C:chips}+40{} Chips | {C:attention}Firefly{}: {C:mult}+10{} Mult",
             "{C:attention}Butterfly{}: {C:attention}retrigger 1x{} | {C:attention}Spider{}: {C:chips}+15{} Chips"
+        },
+        unlock = {
+            "Defeat {C:attention}10 blinds{}",
+            "in a single run"
         }
     },
     config = { extra = { blinds_beaten = 0 } },

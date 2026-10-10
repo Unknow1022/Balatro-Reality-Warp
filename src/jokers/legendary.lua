@@ -10,15 +10,21 @@ SMODS.Joker {
     key = 'world_devourer',
     atlas = 'reality_warp_legendary',
     unlocked = false,
-    unlock = { "Defeat {C:attention}10 Boss Blinds{}", "in a single run" },
     loc_txt = {
         name = 'World Devourer',
         text = {
             "Gains {X:mult,C:white}X1{} Mult",
             "for each {C:attention}blind{} defeated",
             "{C:inactive}(Currently {X:mult,C:white}X#1#{C:inactive} Mult){}"
+        },
+        unlock = {
+            "Defeat {C:attention}10 Boss Blinds{}",
+            "in a single run"
         }
     },
+    locked_loc_vars = function(self, info_queue, card)
+        return { not_hidden = true }
+    end,
     config = { extra = {
         xmult_per_blind = 1,
         blinds_defeated = 0,
@@ -82,15 +88,21 @@ SMODS.Joker {
     key = 'living_paradox',
     atlas = 'reality_warp_legendary',
     unlocked = false,
-    unlock = { "Defeat a {C:attention}Boss Blind{}", "to discover this Joker" },
     loc_txt = {
         name = 'Living Paradox',
         text = {
             "Creates a {C:dark_edition}Negative{} {C:attention}#1#{}",
             "when {C:attention}Boss Blind{} is defeated",
             "{C:inactive}(Changes after each Boss Blind){}"
+        },
+        unlock = {
+            "Defeat a {C:attention}Boss Blind{}",
+            "to discover this Joker"
         }
     },
+    locked_loc_vars = function(self, info_queue, card)
+        return { not_hidden = true }
+    end,
     config = { extra = { next_joker = nil } },
     rarity = 4,
     pos = { x = 0, y = 1 },
@@ -152,7 +164,6 @@ SMODS.Joker {
     key = 'star_chronicler',
     atlas = 'reality_warp_legendary',
     unlocked = false,
-    unlock = { "Win a complete run", "{C:attention}(Defeat Ante 8+){}" },
     loc_txt = {
         name = 'Star Chronicler',
         text = {
@@ -161,8 +172,15 @@ SMODS.Joker {
             "{C:inactive}(Currently {X:mult,C:white}X#2#{C:inactive} Mult){}",
             "{C:spectral}Black Holes{} double",
             "its current Mult"
+        },
+        unlock = {
+            "Win a complete run",
+            "{C:attention}(Defeat Ante 8+){}"
         }
     },
+    locked_loc_vars = function(self, info_queue, card)
+        return { not_hidden = true }
+    end,
     config = { extra = {
         xmult_per_planet = 0.5,
         black_hole_mult = 1

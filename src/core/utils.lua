@@ -6250,6 +6250,7 @@ local reality_warp_CUSTOM_UNLOCKS = {
     ['script_joker'] = true,
     ['apprentice_joker'] = true,
     ['outstanding_joker'] = true,
+    ['blood_pact_joker'] = true,
     ['shareholder_joker'] = true,
     ['builder_joker'] = true,
     ['runway_joker'] = true,
@@ -6259,9 +6260,18 @@ local reality_warp_CUSTOM_UNLOCKS = {
     ['polarity_inversion'] = true,
     ['mercenary'] = true,
     ['cascade'] = true,
+    ['merchant_joker'] = true,
+    ['lover_joker'] = true,
+    ['blacksmith_joker'] = true,
+    ['lucky_one_joker'] = true,
+    ['miner_joker'] = true,
+    ['joke_joker'] = true,
+    ['perfectionism_joker'] = true,
+    ['orchestra_director'] = true,
+    ['meteorologist'] = true,
+    ['catalyst'] = true,
     ['blank_cheque_joker'] = true,
     ['hypnotist'] = true,
-    ['lover_joker'] = true,
     ['black_hole_joker'] = true,
     ['chronos'] = true,
     ['alchemist'] = true,
@@ -6302,6 +6312,37 @@ function setup_reality_warp_shop_unlocks()
             v.reality_warp_shop_unlock = true
             v.unlock = { "Buy this card from the shop", "to view in Collection" }
             v.locked_loc_txt = { "Buy this card from the shop", "to view in Collection" }
+        end
+    end
+
+    if G.PROFILES and G.SETTINGS and G.SETTINGS.profile and G.PROFILES[G.SETTINGS.profile] then
+        local p = G.PROFILES[G.SETTINGS.profile]
+        if not p.reality_warp_fixed_custom_unlocks_v1 then
+            p.reality_warp_fixed_custom_unlocks_v1 = true
+            local missing_custom = {
+                'blood_pact_joker', 'merchant_joker', 'blacksmith_joker', 'lucky_one_joker',
+                'miner_joker', 'joke_joker', 'perfectionism_joker', 'orchestra_director',
+                'meteorologist', 'catalyst'
+            }
+            for _, raw_k in ipairs(missing_custom) do
+                local full_k = 'j_reality_warp_' .. raw_k
+                if p.unlocked then
+                    p.unlocked[full_k] = nil
+                    p.unlocked[raw_k] = nil
+                end
+                if G.P_CENTERS then
+                    if G.P_CENTERS[full_k] then
+                        G.P_CENTERS[full_k].unlocked = false
+                        G.P_CENTERS[full_k].reality_warp_shop_unlock = nil
+                    end
+                    if G.P_CENTERS[raw_k] then
+                        G.P_CENTERS[raw_k].unlocked = false
+                        G.P_CENTERS[raw_k].reality_warp_shop_unlock = nil
+                    end
+                end
+            end
+            if G.save_progress then G:save_progress() end
+            if G.save_settings then G:save_settings() end
         end
     end
 end
@@ -6347,6 +6388,35 @@ if not G.reality_warp_fam_ui_hooked and generate_card_ui then
                         }
                     }
                 }
+            end
+        end
+
+        local is_rw_joker = _c and _c.set == 'Joker' and ((_c.key and string.find(_c.key, 'reality_warp')) or (_c.mod and _c.mod.id == 'reality_warp') or (_c.atlas and string.find(_c.atlas, 'reality_warp')))
+        if is_rw_joker and not is_reality_warp_shop_joker(_c) and (card_type == 'Locked' or _c.unlocked == false) and ret and ret.main then
+            local raw_k = tostring(_c.key or ''):gsub('^j_reality_warp_', ''):gsub('^j_', '')
+            local full_k = 'j_reality_warp_' .. raw_k
+            local unl = (_c.loc_txt and _c.loc_txt.unlock) or _c.unlock or (G.localization and G.localization.descriptions and G.localization.descriptions.Joker and (G.localization.descriptions.Joker[full_k] or G.localization.descriptions.Joker[_c.key] or G.localization.descriptions.Joker[raw_k]) and (G.localization.descriptions.Joker[full_k] or G.localization.descriptions.Joker[_c.key] or G.localization.descriptions.Joker[raw_k]).unlock)
+            if unl and #unl > 0 then
+                local unl_nodes = {}
+                for _, line in ipairs(unl) do
+                    local parsed_l = (loc_parse_string and loc_parse_string(line)) or { { strings = { line }, colour = G.C.GREY } }
+                    if SMODS and SMODS.localize_box then
+                        unl_nodes[#unl_nodes + 1] = SMODS.localize_box(parsed_l, { default_col = G.C.GREY, scale = 0.32 })
+                    else
+                        unl_nodes[#unl_nodes + 1] = {
+                            {
+                                n = G.UIT.T,
+                                config = {
+                                    text = line,
+                                    colour = G.C.GREY,
+                                    scale = 0.32,
+                                    shadow = true
+                                }
+                            }
+                        }
+                    end
+                end
+                ret.main = unl_nodes
             end
         end
 

@@ -11,11 +11,11 @@ SMODS.Joker {
             "Decreases by {C:money}$1{}-{C:money}$3{} on subsequent hands played.",
             "Defeating {C:attention}Boss Blind{} pays {C:money}$#1#{} and resets to {C:money}$#3#{}.",
             "{C:inactive}(Currently gives {C:mult}+#2#{C:inactive} Mult){}"
+        },
+        unlock = {
+            "Have at least",
+            "{C:money}$100{} at once"
         }
-    },
-    unlock = {
-        "Have at least",
-        "{C:money}$100{} at once"
     },
     config = { extra = { current_price = 25, initial_price = 25 } },
     rarity = 2,
@@ -94,12 +94,12 @@ SMODS.Joker {
             "{C:attention}strictly ascending rank order{} (starts at {X:mult,C:white}X1{}).",
             "{C:attention}4+ cards{} in order adds permanent {C:chips}+#2#{} Chips to highest card",
             "{C:inactive}(Gives +10 Chips if unstable){}"
+        },
+        unlock = {
+            "Play a {C:attention}Three of a Kind{},",
+            "Four of a Kind, and Five of a Kind",
+            "consecutively in one run"
         }
-    },
-    unlock = {
-        "Play a {C:attention}Three of a Kind{},",
-        "Four of a Kind, and Five of a Kind",
-        "consecutively in one run"
     },
     config = { extra = { xmult_per_card = 0.5, bonus_chips = 20 } },
     rarity = 2,
@@ -269,11 +269,11 @@ SMODS.Joker {
             "Gains {X:mult,C:white}+X#2#{} Mult whenever",
             "a card is {C:attention}Enhanced{}",
             "{C:inactive}(Currently {X:mult,C:white}X#1#{C:inactive} Mult){}"
+        },
+        unlock = {
+            "Have 5 cards with",
+            "{C:attention}Editions{} in your deck"
         }
-    },
-    unlock = {
-        "Have 5 cards with",
-        "{C:attention}Editions{} in your deck"
     },
     config = { extra = { xmult = 1.0, xmult_gain = 0.1 } },
     rarity = 2,
@@ -366,12 +366,12 @@ SMODS.Joker {
             "{C:green}Round Challenge{}: {C:attention}#7#{} {C:inactive}(#8#){}.",
             "Use the {C:money}Bet{} button to win {C:money}X1.5{} your wager upon completion",
             "{C:inactive}(Last Spin: [ {C:attention}#9#{C:inactive} ]){}"
+        },
+        unlock = {
+            "Trigger both {C:mult}+20 Mult{} and",
+            "{C:money}$20{} from a single",
+            "{C:attention}Lucky Card{}"
         }
-    },
-    unlock = {
-        "Trigger both {C:mult}+20 Mult{} and",
-        "{C:money}$20{} from a single",
-        "{C:attention}Lucky Card{}"
     },
     config = { extra = { pair_cash = 3, pair_mult = 15, triple_cash = 12, triple_xmult = 2.5, jackpot_cash = 35, jackpot_xmult = 4.0, challenge_idx = 1, bet_placed = false, bet_amount = 0, challenge_completed = false, last_payout_text = "", sprite_pos = { x = 0, y = 0 }, spinning = false } },
     rarity = 3,
@@ -1189,13 +1189,16 @@ SMODS.Joker {
     key = 'polarity_inversion',
     atlas = 'reality_warp_jokers',
     unlocked = false,
-    unlock = { "Defeat a {C:attention}Boss Blind{}", "without using any discards" },
     loc_txt = {
         name = 'Polarity Inversion',
         text = {
             "Negates Boss Blind debuffs on played cards.",
             "Each inverted card gives {C:mult}+#1#{} Mult",
             "{C:inactive}(Currently {C:mult}+#2#{C:inactive} Mult bonus){}"
+        },
+        unlock = {
+            "Defeat a {C:attention}Boss Blind{}",
+            "without using any discards"
         }
     },
     config = { extra = { bonus_mult = 10, inverted_count = 0 } },
@@ -2150,7 +2153,6 @@ SMODS.Joker {
     key = 'mercenary',
     atlas = 'reality_warp_jokers',
     unlocked = false,
-    unlock = { "Defeat {C:attention}5 Boss Blinds{}", "in a single run" },
     loc_txt = {
         name = 'Mercenary',
         text = {
@@ -2158,6 +2160,10 @@ SMODS.Joker {
             "Complete a contract to claim a {C:money}cash bounty{}",
             "({C:money}+$8{} or {C:money}+$10{}) and draw a new one.",
             "{C:inactive}(Current: {C:attention}#3#{C:inactive} [#1#/#2# Active]){}"
+        },
+        unlock = {
+            "Defeat {C:attention}5 Boss Blinds{}",
+            "in a single run"
         }
     },
     config = { extra = {
@@ -2258,7 +2264,6 @@ SMODS.Joker {
     key = 'cascade',
     atlas = 'reality_warp_jokers',
     unlocked = false,
-    unlock = { "Score {C:attention}double{} or more", "of a blind's requirement" },
     loc_txt = {
         name = 'Cascade',
         text = {
@@ -2268,6 +2273,10 @@ SMODS.Joker {
             "all stored chips {C:inactive}(Once per Ante){}.",
             "{C:inactive}(Max storage: {C:attention}75%{} of Blind Requirement){}",
             "{C:inactive}(Stored: {C:chips}+#1#{C:inactive} Chips#2#){}"
+        },
+        unlock = {
+            "Score {C:attention}double{} or more",
+            "of a blind's requirement"
         }
     },
     config = { extra = { stored_chips = 0, release_ready = false, ante_used = nil } },

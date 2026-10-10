@@ -187,9 +187,29 @@ function reparse_localization_entry(entry)
         else
             entry.name_parsed = entry.name_parsed or {}
         end
+        if entry.unlock then
+            entry.unlock_parsed = {}
+            local flat_unlock = {}
+            local function parse_unlocks(lines)
+                for _, line in ipairs(lines) do
+                    if type(line) == 'table' then
+                        parse_unlocks(line)
+                    elseif type(line) == 'string' then
+                        flat_unlock[#flat_unlock + 1] = line
+                        entry.unlock_parsed[#entry.unlock_parsed + 1] = loc_parse_string(line)
+                    end
+                end
+            end
+            local ulines = (type(entry.unlock) == 'table') and entry.unlock or { entry.unlock }
+            parse_unlocks(ulines)
+            entry.unlock = flat_unlock
+        else
+            entry.unlock_parsed = entry.unlock_parsed or {}
+        end
     else
         entry.text_parsed = entry.text_parsed or {}
         entry.name_parsed = entry.name_parsed or {}
+        entry.unlock_parsed = entry.unlock_parsed or {}
     end
 end
 
@@ -337,13 +357,23 @@ function protect_reality_warp_from_auto_translation()
     if G.P_CENTERS then
         for k, v in pairs(G.P_CENTERS) do
             local str = tostring(k)
-            if (string.find(str, 'reality_warp', 1, true) or string.find(str, 'reality_warp', 1, true)) and v.loc_txt then
+            if (string.find(str, 'reality_warp', 1, true) or (v.mod and v.mod.id == 'reality_warp')) then
                 local set_name = v.set or 'Joker'
                 G.localization.descriptions[set_name] = G.localization.descriptions[set_name] or {}
-                local entry = G.localization.descriptions[set_name][k]
+                local entry = G.localization.descriptions[set_name][k] or G.localization.descriptions[set_name][v.key]
+                if not entry and G.localization.descriptions[set_name] then
+                    entry = {}
+                    G.localization.descriptions[set_name][k] = entry
+                end
                 if entry then
-                    if v.loc_txt.name then entry.name = v.loc_txt.name end
-                    if v.loc_txt.text then entry.text = v.loc_txt.text end
+                    if v.loc_txt then
+                        if v.loc_txt.name then entry.name = v.loc_txt.name end
+                        if v.loc_txt.text then entry.text = v.loc_txt.text end
+                        if v.loc_txt.unlock then entry.unlock = v.loc_txt.unlock end
+                    end
+                    if v.unlock and not entry.unlock then
+                        entry.unlock = v.unlock
+                    end
                     reparse_localization_entry(entry)
                 end
             end

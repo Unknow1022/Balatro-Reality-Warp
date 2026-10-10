@@ -56,11 +56,11 @@ SMODS.Joker {
             "Retrigger the {C:attention}highest{}",
             "rank card(s) in played",
             "hand {C:attention}1{} additional time"
+        },
+        unlock = {
+            "Play a",
+            "{C:attention}Five of a Kind{}"
         }
-    },
-    unlock = {
-        "Play a",
-        "{C:attention}Five of a Kind{}"
     },
     config = { extra = { repetitions = 1 } },
     rarity = 1,
@@ -434,7 +434,6 @@ SMODS.Joker {
     key = 'countdown_joker',
     atlas = 'reality_warp_jokers',
     unlocked = false,
-    unlock = { "Play exactly {C:attention}10 cards", "total in a single blind" },
     loc_txt = {
         name = 'Countdown',
         text = {
@@ -443,6 +442,10 @@ SMODS.Joker {
             "Hit exactly {C:attention}0{} → {X:mult,C:white}X#1#{} Mult.",
             "Exceed 0 → counter {C:attention}resets{}",
             "{C:inactive}(Current counter: {C:attention}#2#{C:inactive}){}"
+        },
+        unlock = {
+            "Play exactly {C:attention}10 cards",
+            "total in a single blind"
         }
     },
     config = { extra = { counter = 10, xmult = 3, cards_this_blind = 0, triggered = false } },
@@ -578,13 +581,15 @@ SMODS.Joker {
     key = 'blood_pact_joker',
     atlas = 'reality_warp_jokers',
     unlocked = false,
-    unlock = { "Have {C:money}$50{} or more at once" },
     loc_txt = {
         name = 'Blood Pact',
         text = {
             "At the start of each blind,",
             "pay {C:money}$#1#{} to give a random card",
             "a random {C:attention}Edition{} (Foil/Holo/Poly)"
+        },
+        unlock = {
+            "Have {C:money}$50{} or more at once"
         }
     },
     config = { extra = { cost = 2, drawn_triggered = false } },
@@ -789,7 +794,6 @@ SMODS.Joker {
     key = 'apprentice_joker',
     atlas = 'reality_warp_jokers',
     unlocked = false,
-    unlock = { "Own {C:attention}4 Jokers{} at the same time" },
     loc_txt = {
         name = 'Apprentice',
         text = {
@@ -797,6 +801,9 @@ SMODS.Joker {
             "{C:attention}adjacent Joker{} {C:inactive}(#1#/10){}.",
             "At {C:attention}10{}, becomes a copy",
             "of that Joker permanently"
+        },
+        unlock = {
+            "Own {C:attention}4 Jokers{} at the same time"
         }
     },
     config = { extra = { count = 0, watching = '' } },
@@ -920,13 +927,16 @@ SMODS.Joker {
     key = 'reversed_hermit_joker',
     atlas = 'reality_warp_jokers',
     unlocked = false,
-    unlock = { "Win a blind without", "using any {C:attention}discards{}" },
     loc_txt = {
         name = 'Reversed Hermit',
         text = {
             "At end of round, earn",
             "{C:money}$#1#{} for each remaining {C:attention}discard{}",
             "{C:inactive}(Currently {C:money}+$#2#{C:inactive}){}"
+        },
+        unlock = {
+            "Win a blind without",
+            "using any {C:attention}discards{}"
         }
     },
     config = { extra = { dollars_per_discard = 2 } },
@@ -975,7 +985,6 @@ SMODS.Joker {
     key = 'script_joker',
     atlas = 'reality_warp_jokers',
     unlocked = false,
-    unlock = { "Play {C:attention}3 different hand types{}", "in a single blind" },
     loc_txt = {
         name = 'Script',
         text = {
@@ -983,6 +992,10 @@ SMODS.Joker {
             "each blind. Play them in order",
             "to earn {C:money}+$#1#{} at round end.",
             "{C:inactive}(#2# -> #3# -> #4#){}"
+        },
+        unlock = {
+            "Play {C:attention}3 different hand types{}",
+            "in a single blind"
         }
     },
     config = { extra = { reward = 12, script = {}, progress = 0, completed = false } },
